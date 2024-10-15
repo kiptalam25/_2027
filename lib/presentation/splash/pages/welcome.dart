@@ -6,11 +6,7 @@ import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
-import 'package:swapifymobile/main/pages/home.dart';
-import 'package:swapifymobile/presentation/splash/pages/widgets/ImageCarousel.dart';
-
-import '../../pages/choose_categories.dart';
-import '../../pages/registration.dart';
+import '../../../core/onboading_flow/onboarding_flow.dart';
 import '../../pages/widgets/privacy_pop_up.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -66,7 +62,7 @@ class WelcomePage extends StatelessWidget {
                     content: Text('You accepted the Privacy Policy'),
                   ),
                 );
-                AppNavigator.pushReplacement(context, Registration());
+                AppNavigator.pushReplacement(context, OnboardFlow());
               },
             ),
           ),
@@ -140,45 +136,21 @@ class WelcomePage extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     BasicAppButton(
-                      title: "Login",
-                      radius: 24,
-                      backgroundColor: AppColors.background,
-                      textColor: AppColors.primary,
-                      onPressed: () {},
-                    )
-                    // SizedBox(
-                    //   width: screenWidth * 1,
-                    //   height: screenHeight * 0.05, // Set the desired width
-                    //   child: ElevatedButton(
-                    //     onPressed: () {
-                    //       AppNavigator.pushReplacement(context, HomePage());
-                    //     },
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: Colors
-                    //           .white, //Color(0xFF50644C),// Custom button background color
-                    //       side: BorderSide(
-                    //         color: Color(0xFF50644C), // Custom border color
-                    //         width: 2, // Border width
-                    //       ),
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(
-                    //             12), // Custom border radius
-                    //       ),
-                    //     ),
-                    //     child: Text(
-                    //       'Login',
-                    //       style: TextStyle(color: Color(0xFF50644C)),
-                    //     ),
-                    //   ),
-                    // ),
-                    ,
-                    SizedBox(height: 20),
-                    BasicAppButton(
                       onPressed: () {
                         _showPrivacyPopup(context);
                       },
                       radius: 24,
                       title: "Sign Up",
+                    ),
+                    SizedBox(height: 20),
+                    BasicAppButton(
+                      title: "Login",
+                      radius: 24,
+                      backgroundColor: AppColors.background,
+                      textColor: AppColors.primary,
+                      onPressed: () {
+                        // AppNavigator.push(context, NavigationExample());
+                      },
                     )
                   ],
                   //

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/Global.dart';
-import 'package:swapifymobile/presentation/pages/login_page.dart';
+import 'package:swapifymobile/core/onboading_flow/create_account.dart';
 import 'package:swapifymobile/presentation/splash/block/splash_cubit.dart';
 import 'package:swapifymobile/presentation/splash/pages/splash.dart';
 import 'core/config/themes/app_colors.dart';
@@ -33,35 +33,36 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate to the LoginPage when the button is pressed
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginPage()),
-            );
-          },
-          child: Text('Go to Login'),
-        ),
-      ),
-    );
-  }
-}
+//
+// class MyHomePage extends StatefulWidget {
+//   const MyHomePage({super.key, required this.title});
+//
+//   final String title;
+//
+//   @override
+//   State<MyHomePage> createState() => _MyHomePageState();
+// }
+//
+// class _MyHomePageState extends State<MyHomePage> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Home'),
+//       ),
+//       body: Center(
+//         child: ElevatedButton(
+//           onPressed: () {
+//             // Navigate to the LoginPage when the button is pressed
+//             Navigator.push(
+//               context,
+//               MaterialPageRoute(
+//                   builder: (context) => Registration(currentPage: 0)),
+//             );
+//           },
+//           child: Text('Go to Login'),
+//         ),
+//       ),
+//     );
+//   }
+// }

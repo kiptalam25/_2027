@@ -126,8 +126,8 @@ class _HomePageState extends State<HomePage> {
                     color: AppColors.dividerColor, // Color of the line
                     thickness: 1, // Thickness of the line
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
                     child: Text(
                       "2-seater Sofa",
                       style: TextStyle(
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Spacer(),
                         Icon(Icons.pin_drop_outlined),
-                        Text(
+                        const Text(
                           '3Km',
                           style: TextStyle(
                             color: Color(0xFF5e5e5e), // Text color

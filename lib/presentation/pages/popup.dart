@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
-import 'package:swapifymobile/main/pages/home.dart';
-import 'package:swapifymobile/presentation/pages/choose_categories.dart';
 
 import '../../core/config/themes/app_colors.dart';
+import '../../core/onboading_flow/choose_categories.dart';
 
 void showCustomPopup(BuildContext context) {
   showDialog(
@@ -51,7 +50,9 @@ void showCustomPopup(BuildContext context) {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ChooseCategories()));
+                          builder: (context) => ChooseCategories(
+                                currentPage: 3,
+                              )));
                 },
               )
             ],

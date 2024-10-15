@@ -1,18 +1,17 @@
-import 'dart:ui';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/presentation/pages/profile.dart';
+import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
+import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
 import '../../common/helper/navigator/app_navigator.dart';
+import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
-import '../../core/config/themes/app_colors.dart';
-import '../../main.dart';
-import 'login_page.dart';
+import '../config/themes/app_colors.dart';
 
 class Registration extends StatefulWidget {
+  final int currentPage;
+  Registration({required this.currentPage});
+
   @override
   _RegistrationState createState() => _RegistrationState();
 }
@@ -24,13 +23,20 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: BasicAppbar(hideBack: true),
+        appBar: BasicAppbar(
+          hideBack: true,
+          title: PageIndicator(
+            currentPage: widget.currentPage,
+          ),
+        ),
         //   title: Text('Registration'),
         // ),
         body: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 94),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+            ),
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   Colors.white,
@@ -85,17 +91,24 @@ class _RegistrationState extends State<Registration> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            username = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'enter your email',
-                          // prefixIcon: Icon(Icons.person),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      SizedBox(
+                        height: 40,
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              username = value;
+                            });
+                          },
+                          style: TextStyle(),
+                          decoration: InputDecoration(
+                            labelText: 'enter your email',
+                            // contentPadding: EdgeInsets.symmetric(vertical: 12),
+                            // prefixIcon: Icon(Icons.person),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  style: BorderStyle.solid, width: 1),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
                           ),
                         ),
                       ),
@@ -107,7 +120,11 @@ class _RegistrationState extends State<Registration> {
                         title: "Sign Up",
                         radius: 24,
                         onPressed: () {
-                          AppNavigator.push(context, ProfilePage());
+                          AppNavigator.push(
+                              context,
+                              ProfilePage(
+                                currentPage: 1,
+                              ));
                         },
                       ),
                       SizedBox(height: 40),
@@ -125,7 +142,7 @@ class _RegistrationState extends State<Registration> {
                         height: 46, // Set the desired width
                         child: ElevatedButton(
                           onPressed: () {
-                            AppNavigator.pushReplacement(context, LoginPage());
+                            // AppNavigator.pushReplacement(context, LoginPage());
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(
@@ -168,7 +185,7 @@ class _RegistrationState extends State<Registration> {
                         height: 46, // Set the desired width
                         child: ElevatedButton(
                           onPressed: () {
-                            AppNavigator.pushReplacement(context, LoginPage());
+                            // AppNavigator.pushReplacement(context, LoginPage());
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(
@@ -214,7 +231,7 @@ class _RegistrationState extends State<Registration> {
                         height: 46, // Set the desired width
                         child: ElevatedButton(
                           onPressed: () {
-                            AppNavigator.pushReplacement(context, LoginPage());
+                            // AppNavigator.pushReplacement(context, LoginPage());
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(
@@ -258,41 +275,4 @@ class _RegistrationState extends State<Registration> {
           ),
         ));
   }
-
-  Widget _loginPage(BuildContext context) {
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: "Do you have an account?",
-            style: TextStyle(
-              color: Colors.black, // Ensure the text is visible
-              fontSize: 16,
-            ),
-          ),
-          TextSpan(
-            text: 'Login',
-            recognizer: TapGestureRecognizer()
-              ..onTap = () {
-                // AppNavigator.pushReplacement(context, LoginPage());
-              },
-            style: TextStyle(
-              color: Colors.blue, // Add a color for the link
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
-
-// Image at the top
-// Padding(
-//   padding: const EdgeInsets.only(top: 80.0),
-//   child: Image.asset(
-//     'images/swapify_login.png', // Ensure the image is in the assets folder
-//     height: 200,
-//   ),
-// ),

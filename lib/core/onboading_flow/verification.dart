@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
-import 'package:swapifymobile/presentation/pages/popup.dart';
+import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
-import '../../common/helper/navigator/app_navigator.dart';
+import '../../common/widgets/appbar/app_bar.dart';
+import '../../common/widgets/button/basic_app_button.dart';
+import '../../presentation/pages/popup.dart';
 
 class CountdownTimer extends StatefulWidget {
   @override
@@ -67,12 +66,15 @@ class _CountdownTimerState extends State<CountdownTimer> {
 }
 
 class VerifyPage extends StatelessWidget {
-  const VerifyPage({Key? key}) : super(key: key);
+  final int currentPage;
+  VerifyPage({required this.currentPage});
+  // const VerifyPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: BasicAppbar(
+          title: PageIndicator(currentPage: currentPage),
           hideBack: true,
         ),
         body: Padding(
@@ -188,42 +190,4 @@ class VerifyPage extends StatelessWidget {
       ],
     );
   }
-
-  Widget _continueButton() {
-    return Padding(
-      padding: const EdgeInsets.all(0.0),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            // AppNavigator.push(context, const EnterPasswordPage());
-          },
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Color(0xFF50644C),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(
-            'Continue',
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // void showToast() {
-  //   Fluttertoast.showToast(
-  //       msg: "Code Has been Resent!",
-  //       toastLength: Toast.LENGTH_SHORT,  // Can be LENGTH_SHORT or LENGTH_LONG
-  //       gravity: ToastGravity.BOTTOM,     // Toast position: BOTTOM, TOP, CENTER
-  //       timeInSecForIosWeb: 1,            // Duration in seconds for iOS/Web
-  //       backgroundColor: Colors.black,    // Background color of the toast
-  //       textColor: Colors.white,          // Text color of the toast
-  //       fontSize: 16.0                    // Font size of the text
-  //   );
-  //
-  // }
 }
