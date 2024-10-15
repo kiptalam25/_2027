@@ -7,6 +7,8 @@ import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/presentation/pages/profile.dart';
 
 import '../../common/helper/navigator/app_navigator.dart';
+import '../../common/widgets/button/basic_app_button.dart';
+import '../../core/config/themes/app_colors.dart';
 import '../../main.dart';
 import 'login_page.dart';
 
@@ -99,23 +101,15 @@ class _RegistrationState extends State<Registration> {
                       ),
 
                       SizedBox(height: 20),
-                      ElevatedButton(
+                      BasicAppButton(
+                        textColor: AppColors.background,
+                        backgroundColor: AppColors.primary,
+                        title: "Sign Up",
+                        radius: 24,
                         onPressed: () {
                           AppNavigator.push(context, ProfilePage());
                         },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Color(0xFF50644C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(
-                          'Sign Up',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
                       ),
-
                       SizedBox(height: 40),
 
                       Center(

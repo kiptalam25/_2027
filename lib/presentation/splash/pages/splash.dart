@@ -23,13 +23,18 @@ class SplashPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-          backgroundColor: AppColors.primary, body: SequentialAnimations()
-          //   child: Container(
-          //       height: 100,
-          //       width: 100,
-          //       child: Image.asset("images/swapify_splash.png")),
-          // ),
-          ),
+        // backgroundColor: AppColors.primary, body: SequentialAnimations()
+        body: Container(
+            // height: 100,
+            // width: 100,
+            color: AppColors.primary,
+            child: Center(
+                child: SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Image.asset("images/swapify_splash.png")))),
+        // ),
+      ),
     );
   }
 }

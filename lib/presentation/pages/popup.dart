@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/main/pages/home.dart';
+import 'package:swapifymobile/presentation/pages/choose_categories.dart';
 
 import '../../core/config/themes/app_colors.dart';
 
@@ -36,35 +38,22 @@ void showCustomPopup(BuildContext context) {
               ),
               // Tick icon
               Icon(
-                Icons.check_circle_outline,
+                Icons.check_circle_rounded,
                 color: AppColors.primary,
                 size: 80,
               ),
-              // Continue button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => HomePage()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'Start Swapping',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+              BasicAppButton(
+                title: "Start Swapping",
+                radius: 24,
+                height: 38,
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChooseCategories()));
+                },
+              )
             ],
           ),
         ),

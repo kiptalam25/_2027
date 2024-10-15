@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/main/pages/product_description.dart';
+import 'package:swapifymobile/main/pages/widgets/add_new_item_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -87,7 +89,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              childAspectRatio: 0.5,
+              childAspectRatio: 0.6,
             ),
             padding: EdgeInsets.all(10.0),
             itemCount: items.length,
@@ -119,28 +121,19 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Product Name",
-                      style: TextStyle(
-                          fontSize: 18.0, fontWeight: FontWeight.bold),
-                    ),
+                  const Divider(
+                    // Line under the title
+                    color: AppColors.dividerColor, // Color of the line
+                    thickness: 1, // Thickness of the line
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Container(
-                      constraints: const BoxConstraints(
-                        maxHeight: 100, // Set the maximum height for the text
-                      ),
-                      child: const Text(
-                        "This is a longer description that should This is a longer description that should This is a longer description that should be flexible in height, based on the content length.",
-                        overflow: TextOverflow
-                            .ellipsis, // Use ellipsis to indicate overflow
-                        maxLines:
-                            3, // Limit the number of lines to fit within the height
-                        style: TextStyle(fontSize: 14.0),
-                      ),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "2-seater Sofa",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary),
                     ),
                   ),
                   const SizedBox(
@@ -149,72 +142,61 @@ class _HomePageState extends State<HomePage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
-                      children: const [
-                        Expanded(
-                          flex: 1,
-                          child: FaIcon(
-                            FontAwesomeIcons
-                                .locationDot, // Font Awesome Google icon
-                            color: Color(0xFF5e5e5e), // Icon color
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        BasicAppButton(
+                          title: "Barter",
+                          width: 52,
+                          height: 18,
+                          radius: 24,
+                          onPressed: () {},
+                        ),
+                        Spacer(),
+                        Icon(Icons.pin_drop_outlined),
+                        Text(
+                          '3Km',
+                          style: TextStyle(
+                            color: Color(0xFF5e5e5e), // Text color
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          flex: 3,
-                          child:
-
-                              // Space between icon and text
-                              Text(
-                            '3Km',
-                            style: TextStyle(
-                              color: Color(0xFF5e5e5e), // Text color
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                            flex: 6,
-                            child: Text(
-                              "Barter",
-                              textAlign: TextAlign.right,
-                            ))
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ProductDescription()));
-                          // AppNavigator.pushReplacement(
-                          //     context, ProductDescription());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          // padding: EdgeInsets.only(bottom: 0),
-                          backgroundColor: Color(0xFF50644C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          'Make swap offer',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text("See details,"),
+                        Spacer(),
+                      ],
                     ),
                   )
                 ],
               ),
             ),
-          ))
+          )),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return AddNewItemSheet(); // Custom bottom sheet widget
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            isScrollControlled:
+                true, // Makes the bottom sheet more flexible in height
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: AppColors.primary,
+      ),
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat, // Bottom-right
     );
   }
 
@@ -242,6 +224,17 @@ class _HomePageState extends State<HomePage> {
               )
             ]);
   }
+  //
+  // Widget _floatingButton() {
+  //   return FloatingActionButton(
+  //     onPressed: () {
+  //       // Action when button is pressed
+  //       print('FAB Pressed!');
+  //     },
+  //     child: Icon(Icons.add),
+  //     backgroundColor: Colors.blue, // Customize color
+  //   );
+  // }
 
   Widget _drawer() {
     return Drawer(
@@ -263,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                       child: Text(
                         'Swapify',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.primary,
                           fontSize: 24,
                         ),
                       ),

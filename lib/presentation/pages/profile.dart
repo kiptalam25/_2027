@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
+import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/presentation/pages/popup.dart';
 import 'package:swapifymobile/presentation/pages/verify.dart';
 import '../../common/helper/navigator/app_navigator.dart';
@@ -46,7 +47,6 @@ class ProfilePage extends StatelessWidget {
                   "Bio", "Tell us something fun about you", _bioController),
               SizedBox(height: 20),
               _buildSignUpButton(context),
-              _showPopup(context)
             ],
           ),
         ),
@@ -235,29 +235,12 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildSignUpButton(BuildContext context) {
-    return SizedBox(
-      width: 374,
-      height: 46, // Set the desired width
-      child: ElevatedButton(
-        onPressed: () {
-          AppNavigator.push(context, VerifyPage());
-          // _onSubmit(context);
-        }, // When button is pressed
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF50644C),
-          side: BorderSide(
-            color: Color(0xFF50644C), // Custom border color
-            // width: 2, // Border width
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12), // Custom border radius
-          ),
-        ),
-        child: Text(
-          'Sign Up',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+    return BasicAppButton(
+      radius: 24,
+      title: "Sign Up",
+      onPressed: () {
+        AppNavigator.push(context, VerifyPage());
+      },
     );
   }
 
@@ -282,14 +265,5 @@ class ProfilePage extends StatelessWidget {
     // final jsonString = jsonEncode(userProfile);
     //
     // print(jsonString);
-  }
-
-  Widget _showPopup(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        showCustomPopup(context); // Show the pop-up
-      },
-      child: Text('Show Pop-up'),
-    );
   }
 }

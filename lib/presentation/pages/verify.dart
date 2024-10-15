@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
+import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/presentation/pages/popup.dart';
 
 import '../../common/helper/navigator/app_navigator.dart';
@@ -79,25 +80,14 @@ class VerifyPage extends StatelessWidget {
           child: Column(
             children: [
               Expanded(child: _fields()),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    showCustomPopup(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Color(0xFF50644C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ),
+              BasicAppButton(
+                title: "Continue",
+                radius: 24,
+                height: 38,
+                onPressed: () {
+                  showCustomPopup(context);
+                },
+              )
             ],
           ),
         ));
@@ -107,7 +97,7 @@ class VerifyPage extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Center(
+        const Center(
           child: Text(
             "Verify Your Identity",
             style: TextStyle(
@@ -115,7 +105,7 @@ class VerifyPage extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         Text(

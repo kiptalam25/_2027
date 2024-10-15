@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const primary = Color(0xFF50644C);
+  static const textBorder = Color(0xFF181D17);
   static const background = Color(0xffffffff);
-  static const secondBackground = Color(0xff342F3F);
+  static const dividerColor = Color(0xffDDE5DB);
+  static const secondBackground = Color(0xff342F3F); //#
   static const Color primaryBaseColor = Color(0xFF50644C);
 
   // Primary Swatch generated from the custom color
