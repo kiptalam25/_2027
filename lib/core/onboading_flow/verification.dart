@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
+import 'package:swapifymobile/presentation/pages/choose_categories.dart';
 
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
@@ -87,7 +89,11 @@ class VerifyPage extends StatelessWidget {
                 radius: 24,
                 height: 38,
                 onPressed: () {
-                  showCustomPopup(context);
+                  AppNavigator.pushReplacement(
+                      context,
+                      const ChooseCategories(
+                        currentPage: 3,
+                      ));
                 },
               )
             ],
@@ -108,7 +114,7 @@ class VerifyPage extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          height: 20,
+          height: 16,
         ),
         Text(
           "We have sent a code to +2547xxxxxx123.\n Enter the code to verify your number",
@@ -118,11 +124,11 @@ class VerifyPage extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 20,
+          height: 48,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
+          children: const [
             SizedBox(
               height: 70,
               width: 60,
@@ -165,13 +171,13 @@ class VerifyPage extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(
-          height: 20,
+        const SizedBox(
+          height: 16,
         ),
         RichText(
             textAlign: TextAlign.center,
             text: TextSpan(children: [
-              TextSpan(
+              const TextSpan(
                 text:
                     "Code will expire in", //"Code will expire in 05:29 \n Din't get the code? ",
                 style: TextStyle(color: Colors.black, fontSize: 16),

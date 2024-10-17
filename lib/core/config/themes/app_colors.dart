@@ -6,6 +6,7 @@ class AppColors {
   static const background = Color(0xffffffff);
   static const dividerColor = Color(0xffDDE5DB);
   static const successColor = Color(0xffCFEAC7);
+  static const dashColor = Color(0xffDDE5DB);
   static const secondBackground = Color(0xff342F3F); //#
   static const Color primaryBaseColor = Color(0xFF50644C);
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 
 class PrivacyPolicyPopup extends StatefulWidget {
@@ -29,7 +30,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 16),
         // Scrollable text container
         Expanded(
           child: SingleChildScrollView(
@@ -40,8 +41,8 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                       'thereto, as specified in Section V, Supply Requirements. The name,'
                       'identification, and number of lots (contracts) of this Tender'
                       'Document are specified in the TDS' *
-                  20, // Long text to demonstrate scrolling
-              textAlign: TextAlign.center,
+                  10, // Long text to demonstrate scrolling
+              textAlign: TextAlign.left,
             ),
           ),
         ),
@@ -55,10 +56,31 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
           title: Text('I accept the Privacy Policy'),
           controlAffinity: ListTileControlAffinity.leading,
         ),
-        SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        CheckboxListTile(
+          value: isChecked,
+          onChanged: (value) {
+            setState(() {
+              isChecked = value!;
+            });
+          },
+          title: Text('I am atleast 16 Years Old'),
+          controlAffinity: ListTileControlAffinity.leading,
+        ),
+        SizedBox(height: 16),
+        Column(
           children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(MediaQuery.of(context).size.width, 46),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24)),
+              ),
+              onPressed: isChecked ? widget.onContinue : null,
+              child: Text('Continue'),
+            ),
+            SizedBox(
+              height: 16,
+            ),
             ElevatedButton(
               onPressed: widget.onCancel,
               child: Text(
@@ -66,18 +88,11 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                 style: TextStyle(color: AppColors.primary),
               ),
               style: ElevatedButton.styleFrom(
+                minimumSize: Size(MediaQuery.of(context).size.width, 46),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24)),
                 backgroundColor: Colors.white,
               ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24)),
-              ),
-              onPressed: isChecked ? widget.onContinue : null,
-              child: Text('Continue'),
             ),
           ],
         ),

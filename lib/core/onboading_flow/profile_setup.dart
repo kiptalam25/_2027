@@ -36,48 +36,59 @@ class _ProfilePageState extends State<ProfilePage> {
         hideBack: true,
         // height: 40,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Container(
-              //   child: Center(),
-              // ),
-              Center(child: _buildTitleSection()),
-              SizedBox(height: 10),
-              _buildProfileImageSection(),
-              _buildInputSection(
-                  "Username", "Enter your username", _usernameController),
-              _buildPhoneInputSection(),
-              SizedBox(
-                height: 10,
-              ),
-              _buildInputSection("Email", "Enter your email", _emailController),
-              _buildInputPassword(
-                  "Password", "Enter your password", _passwordController),
-              _textareaBio(
-                  "Bio", "Tell us something fun about you", _bioController),
-              SizedBox(height: 20),
-              _buildSignUpButton(context),
-            ],
+      body: LayoutBuilder(builder: (context, constraints) {
+        return SingleChildScrollView(
+            child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight,
           ),
-        ),
-      ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Container(
+                //   child: Center(),
+                // ),
+                Center(child: _buildTitleSection()),
+                SizedBox(height: 16),
+                _buildProfileImageSection(),
+                _buildInputSection(
+                    "Username", "Enter your username", _usernameController),
+                _buildPhoneInputSection(),
+                SizedBox(
+                  height: 16,
+                ),
+                _buildInputSection(
+                    "Email", "Enter your email", _emailController),
+                _buildInputPassword(
+                    "Password", "Enter your password", _passwordController),
+                _textareaBio(
+                    "Bio", "Tell us something fun about you", _bioController),
+                SizedBox(height: 27),
+                _buildSignUpButton(context),
+                SizedBox(
+                  height: 16,
+                )
+              ],
+            ),
+          ),
+        ));
+      }),
     );
   }
 
   Widget _buildTitleSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
+      children: const [
         Text(
           "Set up your profile",
           style: TextStyle(fontSize: 24),
         ),
         SizedBox(
-          height: 10,
+          height: 16,
         ),
         Text(
           'Tell us about yourself.',
@@ -108,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: const [
               Text("New User", style: TextStyle(fontSize: 24)),
               Text("SwapLord", style: TextStyle(fontSize: 16)),
               Text("Rating 0", style: TextStyle(fontSize: 10)),
@@ -124,16 +135,16 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20),
+        SizedBox(height: 16),
         Text(label),
-        SizedBox(height: 10),
+        SizedBox(height: 12),
         SizedBox(
           height: 40,
           child: TextField(
             obscureText: true,
             controller: controller,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.lock),
+              suffixIcon: Icon(Icons.lock),
               hintText: hintText,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -152,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label),
-        SizedBox(height: 10),
+        SizedBox(height: 12),
         SizedBox(
           height: 40,
           child: TextField(
@@ -175,10 +186,13 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20),
+        SizedBox(height: 16),
         Text(label),
         SizedBox(
-          height: 60,
+          height: 12,
+        ),
+        SizedBox(
+          height: 83,
           child: TextField(
             controller:
                 _bioController, // You can assign a TextEditingController here
@@ -200,11 +214,15 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Phone Number"),
+        const Text("Phone Number"),
+        const SizedBox(
+          height: 12,
+        ),
         Row(
           children: [
             SizedBox(
               width: 100,
+              height: 40,
               child: DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(horizontal: 10),
@@ -227,12 +245,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
             ),
-            Expanded(
-              child: const TextField(
-                decoration: InputDecoration(
-                  border:
-                      OutlineInputBorder(), // Optional: Add a border to the TextField
-                  hintText: 'Enter text here', // Optional: Add a hint text
+            SizedBox(
+              width: 12,
+            ),
+            const Expanded(
+              child: SizedBox(
+                height: 40,
+                child: TextField(
+                  decoration: InputDecoration(
+                    border:
+                        OutlineInputBorder(), // Optional: Add a border to the TextField
+                    hintText: 'Enter phone number',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+                  ),
                 ),
               ),
             ),

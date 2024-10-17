@@ -31,65 +31,71 @@ class _RegistrationState extends State<Registration> {
         ),
         //   title: Text('Registration'),
         // ),
-        body: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
+        body: LayoutBuilder(builder: (context, constraints) {
+          return SingleChildScrollView(
+              child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
             ),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white,
-                  Colors.white,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
               ),
-            ),
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("Create Your Account",
-                      style: TextStyle(
-                        fontSize: 24,
-                        // color: Colors.black,
-                      )),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white,
+                    Colors.white,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                const Center(
-                  child: Text(
-                    'Join our community to start swapping \ntoday',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      // alignment:Alignment.bottomCenter
-                      // color: Colors.black,
-                    ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Create Your Account",
+                            style: TextStyle(
+                              fontSize: 24,
+                              // color: Colors.black,
+                            )),
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      const Center(
+                        child: Text(
+                          'Join our community to start swapping \ntoday',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            // alignment:Alignment.bottomCenter
+                            // color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 24,
+                      ),
+                      Center(
+                        child: Text(
+                          'Join with email',
+                          style: TextStyle(
+                            fontSize: 16,
+                            // color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(
-                  height: 60,
-                ),
-                Center(
-                  child: Text(
-                    'Join with email',
-                    style: TextStyle(
-                      fontSize: 16,
-                      // color: Colors.black,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  Column(
                     children: [
                       SizedBox(
                         height: 40,
@@ -112,8 +118,7 @@ class _RegistrationState extends State<Registration> {
                           ),
                         ),
                       ),
-
-                      SizedBox(height: 20),
+                      SizedBox(height: 16),
                       BasicAppButton(
                         textColor: AppColors.background,
                         backgroundColor: AppColors.primary,
@@ -127,16 +132,17 @@ class _RegistrationState extends State<Registration> {
                               ));
                         },
                       ),
-                      SizedBox(height: 40),
-
-                      Center(
-                        child: Text("Or"),
-                      ),
-
-                      SizedBox(
-                        height: 40,
-                      ),
-
+                    ],
+                  ),
+                  SizedBox(height: 40),
+                  Center(
+                    child: Text("Or"),
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Column(
+                    children: [
                       SizedBox(
                         width: 374,
                         height: 46, // Set the desired width
@@ -145,10 +151,11 @@ class _RegistrationState extends State<Registration> {
                             // AppNavigator.pushReplacement(context, LoginPage());
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                                0xFFF13C00), // Custom button background color
+                            backgroundColor: Color(0xFFF13C00),
+                            // Custom button background color
                             side: BorderSide(
-                              color: Color(0xFFF13C00), // Custom border color
+                              color: Color(0xFFF13C00),
+                              // Custom border color
                               width: 2, // Border width
                             ),
                             shape: RoundedRectangleBorder(
@@ -165,7 +172,8 @@ class _RegistrationState extends State<Registration> {
                                     .google, // Font Awesome Google icon
                                 color: Color(0xFFFFFFFF), // Icon color
                               ),
-                              SizedBox(width: 8), // Space between icon and text
+                              SizedBox(width: 8),
+                              // Space between icon and text
                               Text(
                                 'Sign up with Google',
                                 style: TextStyle(
@@ -177,9 +185,7 @@ class _RegistrationState extends State<Registration> {
                           ),
                         ),
                       ),
-
-                      SizedBox(height: 20),
-
+                      SizedBox(height: 16),
                       SizedBox(
                         width: 374,
                         height: 46, // Set the desired width
@@ -188,10 +194,11 @@ class _RegistrationState extends State<Registration> {
                             // AppNavigator.pushReplacement(context, LoginPage());
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                                0xFF3D5A98), // Custom button background color
+                            backgroundColor: const Color(0xFF3D5A98),
+                            // Custom button background color
                             side: const BorderSide(
-                              color: Color(0xFF3D5A98), // Custom border color
+                              color: Color(0xFF3D5A98),
+                              // Custom border color
                               width: 2, // Border width
                             ),
                             shape: RoundedRectangleBorder(
@@ -221,11 +228,9 @@ class _RegistrationState extends State<Registration> {
                           ),
                         ),
                       ),
-
                       SizedBox(
-                        height: 20,
+                        height: 16,
                       ),
-
                       SizedBox(
                         width: 374,
                         height: 46, // Set the desired width
@@ -234,10 +239,11 @@ class _RegistrationState extends State<Registration> {
                             // AppNavigator.pushReplacement(context, LoginPage());
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                                0xFF000000), // Custom button background color
+                            backgroundColor: Color(0xFF000000),
+                            // Custom button background color
                             side: BorderSide(
-                              color: Color(0xFF000000), // Custom border color
+                              color: Color(0xFF000000),
+                              // Custom border color
                               width: 2, // Border width
                             ),
                             shape: RoundedRectangleBorder(
@@ -253,7 +259,8 @@ class _RegistrationState extends State<Registration> {
                                 padding: const EdgeInsets.all(12.0),
                                 child: Image.asset("images/x.png"),
                               ),
-                              SizedBox(width: 0), // Space between icon and text
+                              SizedBox(width: 0),
+                              // Space between icon and text
                               Text(
                                 'Sign up with X',
                                 style: TextStyle(
@@ -265,14 +272,15 @@ class _RegistrationState extends State<Registration> {
                           ),
                         ),
                       ),
-
-                      // _loginPage(context)
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ));
+          ));
+        }));
   }
 }

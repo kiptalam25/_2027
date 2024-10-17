@@ -5,16 +5,21 @@ import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/main/pages/home.dart';
+import 'package:swapifymobile/presentation/pages/popup.dart';
 
 class ChooseCategories extends StatelessWidget {
-  const ChooseCategories({super.key});
+  final int currentPage;
+  const ChooseCategories({super.key, required this.currentPage});
+  // const ChooseCategories({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-          appBar: BasicAppbar(hideBack: true),
+          appBar: BasicAppbar(
+              title: PageIndicator(currentPage: currentPage), hideBack: true),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -43,7 +48,8 @@ class ChooseCategories extends StatelessWidget {
                   width: double.infinity,
                   child: BasicAppButton(
                     onPressed: () {
-                      AppNavigator.pushReplacement(context, HomePage());
+                      showCustomModalBottomSheet(context);
+                      // AppNavigator.pushReplacement(context, HomePage());
                     },
                     width: double.infinity,
                     title: "Continue",

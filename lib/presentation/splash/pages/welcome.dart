@@ -73,100 +73,107 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    final List<String> imageUrls = [
-      'https://via.placeholder.com/300x200.png?text=Image+1',
-      'https://via.placeholder.com/300x200.png?text=Image+2',
-      'https://via.placeholder.com/300x200.png?text=Image+3',
-    ];
-
-    double topSize = 20;
+    // double screenHeight = MediaQuery.of(context).size.height;
+    // double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-        appBar: BasicAppbar(hideBack: true),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-            ),
-            child: Column(
-              // crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // SizedBox(height: 80,),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Welcome to Swapify",
-                      style: TextStyle(
-                        fontSize: 24,
-                        // color: Colors.black,
-                      )),
-                ),
-                Column(
-                  // crossAxisAlignment: CrossAxisAlignment.,
+      appBar: BasicAppbar(hideBack: true),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Trade your items, save money, and connect\n with your community.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          // color: Colors.black,
+                    Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "Welcome to Swapify",
+                            style: TextStyle(fontSize: 24),
+                          ),
                         ),
-                      ),
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Trade your items, save money, and connect\n with your community.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        ItemDetailsPage(
+                          items: [
+                            {
+                              'image': 'images/welcome_images/Frame.png',
+                              'description':
+                                  'List items for Barter or Donation...or both',
+                            },
+                            {
+                              'image': 'images/welcome_images/Frame1.png',
+                              'description':
+                                  'Get recommendations using our Smart Matching Algorithm',
+                            },
+                            {
+                              'image': 'images/welcome_images/Frame2.png',
+                              'description':
+                                  'or simply browse through the catalogue of listed items',
+                            },
+                          ],
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ItemDetailsPage(
-                        imageUrls: [
-                          'https://example.com/image1.jpg',
-                          'https://example.com/image2.jpg',
-                          'https://example.com/image3.jpg',
-                        ],
-                        description: '',
-                      ),
-                      // child: Image.asset(
-                      //   'images/welcome.png', // Ensure the image is in the assets folder
-                      //   // height: screenHeight * 0.5,
-                      //   // width: screenWidth * 0.9,
-                      // ),
+                    Column(
+                      children: [
+                        BasicAppButton(
+                          height: 46,
+                          onPressed: () {
+                            _showPrivacyPopup(context);
+                          },
+                          radius: 24,
+                          title: "Sign Up",
+                        ),
+                        SizedBox(height: 16),
+                        BasicAppButton(
+                          title: "Login",
+                          height: 46,
+                          radius: 24,
+                          backgroundColor: AppColors.background,
+                          textColor: AppColors.primary,
+                          onPressed: () {
+                            // AppNavigator.push(context, NavigationExample());
+                          },
+                        ),
+                        SizedBox(
+                          height: 16,
+                        )
+                      ],
                     ),
-                    SizedBox(height: 20),
-                    BasicAppButton(
-                      onPressed: () {
-                        _showPrivacyPopup(context);
-                      },
-                      radius: 24,
-                      title: "Sign Up",
-                    ),
-                    SizedBox(height: 20),
-                    BasicAppButton(
-                      title: "Login",
-                      radius: 24,
-                      backgroundColor: AppColors.background,
-                      textColor: AppColors.primary,
-                      onPressed: () {
-                        // AppNavigator.push(context, NavigationExample());
-                      },
-                    )
                   ],
-                  //
                 ),
-              ],
+              ),
             ),
-          ),
-        ));
+          );
+        },
+      ),
+    );
   }
 }
 
 class ItemDetailsPage extends StatelessWidget {
-  final List<String> imageUrls;
-  final String description;
+  // final List<String> imageUrls;
+  // final String description;
+  final List<Map<String, String>> items;
 
-  ItemDetailsPage({required this.imageUrls, required this.description});
+  ItemDetailsPage({required this.items});
+
+  // ItemDetailsPage({required this.imageUrls, required this.description});
 
   // double screenHeight = MediaQuery.of(g).size.height;
 
@@ -178,37 +185,47 @@ class ItemDetailsPage extends StatelessWidget {
           // Carousel for item photos
           CarouselSlider(
             options: CarouselOptions(
-              height: 350, //screenHeight * 0.5,
-              //   // width: screenWidth * 0.9,
+              height: MediaQuery.of(context).size.height * 0.5,
               autoPlay: true,
+              viewportFraction: 1.0,
               autoPlayInterval: Duration(seconds: 3),
-              enlargeCenterPage: true,
-              // aspectRatio: 16 / 9,
-              // viewportFraction: 0.8,
             ),
-            items: imageUrls.map((url) {
+            items: items.map((item) {
               return Builder(
                 builder: (BuildContext context) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(horizontal: 0.0),
-                    child: Image.network(
-                      url,
-                      fit: BoxFit.cover,
-                    ),
+                  return Column(
+                    children: [
+                      // Image section
+                      item['image']!.startsWith('http') ||
+                              item['image']!.startsWith('https')
+                          ? Image.network(
+                              item['image']!,
+                              fit: BoxFit.cover,
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              width: double.infinity,
+                            )
+                          : Image.asset(
+                              item['image']!,
+                              fit: BoxFit.cover,
+                              height: MediaQuery.of(context).size.height * 0.4,
+                              width: double.infinity,
+                            ),
+                      SizedBox(
+                          height: 10), // Space between image and description
+                      // Description section
+                      Center(
+                        child: Text(
+                          item['description']!,
+                          style:
+                              TextStyle(fontSize: 16, color: AppColors.primary),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
                   );
                 },
               );
             }).toList(),
-          ),
-          SizedBox(height: 20),
-          // Description at the bottom
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              description,
-              style: TextStyle(fontSize: 16.0),
-            ),
           ),
         ],
       ),

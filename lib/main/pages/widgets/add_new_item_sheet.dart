@@ -98,19 +98,38 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min, // Makes the sheet's height flexible
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 16),
-              child: Text(
-                'Add New Item',
-                style: TextStyle(fontSize: 16, color: AppColors.primary),
-              ),
+            Column(
+              children: [
+                const SizedBox(
+                  height: 16,
+                ),
+                Center(
+                  child: Container(
+                    height: 3,
+                    width: 40,
+                    color: AppColors.dashColor, // Set the background color
+                  ),
+                ),
+                const SizedBox(
+                  height: 32,
+                  child: Align(
+                    alignment:
+                        Alignment.bottomCenter, // Align the text at the bottom
+                    child: Text(
+                      'Add New Item',
+                      style: TextStyle(fontSize: 16, color: AppColors.primary),
+                    ),
+                  ),
+                ),
+                Divider(
+                  // Line under the title
+                  color: AppColors.dividerColor, // Color of the line
+                  thickness: 2, // Thickness of the line
+                ),
+              ],
             ),
-            const Divider(
-              // Line under the title
-              color: AppColors.dividerColor, // Color of the line
-              thickness: 1, // Thickness of the line
-            ),
-            const SizedBox(height: 20),
+
+            // const SizedBox(height: 48),
             if (isFirstStep) ...[
               CheckboxListTile(
                 title: Text('Barter'),
@@ -120,9 +139,9 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                     isBarterChecked = value ?? false;
                   });
                 },
+                contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
               ),
-
               CheckboxListTile(
                 title: Text('Donation'),
                 value: isDonationChecked,
@@ -131,14 +150,14 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                     isDonationChecked = value ?? false;
                   });
                 },
+                contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
-              ),
-              // SizedBox(height: 20),
+              )
             ] else ...[
               _buildInputSection(
                   "Item Name*", "Enter item name", itemNameController),
               SizedBox(
-                height: 20,
+                height: 16,
               ),
               // TextField(
               // controller: descriptionController,
@@ -147,7 +166,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
               // decoration: InputDecoration(labelText: 'Description'),
               // ),
               SizedBox(
-                height: 20,
+                height: 16,
               ),
               DropdownButtonFormField<String>(
                 value: selectedCondition,
@@ -164,8 +183,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 },
                 decoration: InputDecoration(labelText: 'Condition*'),
               ),
-              SizedBox(
-                height: 20,
+              const SizedBox(
+                height: 16,
               ),
               _buildInputSection(
                   "Price Range", "Enter price range of the item", priceRange),
@@ -173,8 +192,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
               //   controller: priceRange,
               //   decoration: InputDecoration(labelText: 'Price Range'),
               // ),
-              SizedBox(
-                height: 20,
+              const SizedBox(
+                height: 16,
               ),
               DropdownButtonFormField<String>(
                 value: selectedCategory,
@@ -191,8 +210,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 },
                 decoration: InputDecoration(labelText: 'Item Category*'),
               ),
-              SizedBox(
-                height: 20,
+              const SizedBox(
+                height: 16,
               ),
               DropdownButtonFormField<String>(
                 value: selectedCategoryOfInterest,
@@ -210,31 +229,18 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 decoration: const InputDecoration(
                     labelText: 'Categories of interest(Barter only)'),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 16),
             ],
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            Column(
+              // mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                if (!isFirstStep) ...[
-                  BasicAppButton(
-                    title: "Cancel",
-                    width: 179,
-                    radius: 24,
-                    height: 38,
-                    backgroundColor: AppColors.background,
-                    textColor: AppColors.primary,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Spacer(),
-                ],
                 BasicAppButton(
                   title: isFirstStep ? "Next" : "Submit",
                   radius: 24,
                   height: 38,
-                  width: 179,
+                  width: MediaQuery.of(context).size.width,
+                  // width: isFirstStep ? 300 : 160,
                   onPressed: () {
                     if (isFirstStep) {
                       // Move to the second step
@@ -262,6 +268,20 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                     // Navigator.pop(context);
                   },
                 ),
+                if (!isFirstStep) ...[
+                  BasicAppButton(
+                    title: "Cancel",
+                    width: MediaQuery.of(context).size.width,
+                    radius: 24,
+                    height: 38,
+                    backgroundColor: AppColors.background,
+                    textColor: AppColors.primary,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  // Spacer(),
+                ],
               ],
             )
             // SizedBox(

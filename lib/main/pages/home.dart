@@ -2,10 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/main/pages/product_description.dart';
 import 'package:swapifymobile/main/pages/widgets/add_new_item_sheet.dart';
+
+import '../../presentation/splash/pages/welcome.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -44,7 +47,7 @@ class _HomePageState extends State<HomePage> {
             IconButton(
               icon: Icon(Icons.notifications),
               onPressed: () {
-                // Add your action here
+                AppNavigator.push(context, WelcomePage());
               },
             ),
             PopupMenuButton<int>(
@@ -166,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
+                      children: const [
                         Text("See details,"),
                         Spacer(),
                       ],
