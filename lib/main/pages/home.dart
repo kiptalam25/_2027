@@ -8,7 +8,7 @@ import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/main/pages/product_description.dart';
 import 'package:swapifymobile/main/pages/widgets/add_new_item_sheet.dart';
 
-import '../../presentation/splash/pages/welcome.dart';
+import '../../presentation/pages/welcome.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0),
                   borderSide: BorderSide.none,
@@ -45,13 +45,13 @@ class _HomePageState extends State<HomePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.notifications),
+              icon: const Icon(Icons.notifications),
               onPressed: () {
                 AppNavigator.push(context, WelcomePage());
               },
             ),
             PopupMenuButton<int>(
-              icon: Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert),
               onSelected: (value) {
                 // Handle the selected value here
                 switch (value) {
@@ -106,76 +106,87 @@ class _HomePageState extends State<HomePage> {
                 ),
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: SizedBox(
-                        height: 150.0, // Set a fixed height for the image
-                        width: double.infinity,
-                        child: Image.asset(
-                          "images/img1.png",
-                          fit: BoxFit
-                              .cover, // Adjust the image to cover the container
+              child: Container(
+                color: AppColors.background,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: SizedBox(
+                          height: 130.0, // Set a fixed height for the image
+                          width: double.infinity,
+                          child: Image.asset(
+                            "images/home_images/m2.png",
+                            fit: BoxFit
+                                .cover, // Adjust the image to cover the container
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const Divider(
-                    // Line under the title
-                    color: AppColors.dividerColor, // Color of the line
-                    thickness: 1, // Thickness of the line
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "2-seater Sofa",
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary),
+                    const Divider(
+                      // Line under the title
+                      color: AppColors.dividerColor, // Color of the line
+                      thickness: 1, // Thickness of the line
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        BasicAppButton(
-                          title: "Barter",
-                          width: 52,
-                          height: 18,
-                          radius: 24,
-                          onPressed: () {},
-                        ),
-                        Spacer(),
-                        Icon(Icons.pin_drop_outlined),
-                        const Text(
-                          '3Km',
-                          style: TextStyle(
-                            color: Color(0xFF5e5e5e), // Text color
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        "Brown Brogues",
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary),
+                      ),
+                    ),
+                    // const SizedBox(
+                    //   height: 10,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          BasicAppButton(
+                            title: "Barter",
+                            width: 52,
+                            height: 18,
+                            radius: 24,
+                            onPressed: () {},
                           ),
+                          const Spacer(),
+                          const Icon(Icons.pin_drop_outlined),
+                          const Text(
+                            '3Km',
+                            style: TextStyle(
+                              color: Color(0xFF5e5e5e), // Text color
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context, ProductDescription() as Route<Object?>);
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: const [
+                            Text("See details,"),
+                            Spacer(),
+                            Icon(Icons.arrow_forward)
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        Text("See details,"),
-                        Spacer(),
-                      ],
-                    ),
-                  )
-                ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           )),
@@ -188,15 +199,15 @@ class _HomePageState extends State<HomePage> {
             builder: (BuildContext context) {
               return AddNewItemSheet(); // Custom bottom sheet widget
             },
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
             isScrollControlled:
                 true, // Makes the bottom sheet more flexible in height
           );
         },
-        child: Icon(Icons.add),
         backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.endFloat, // Bottom-right

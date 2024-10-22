@@ -333,6 +333,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildSignUpButton(BuildContext context) {
     return BasicAppButton(
+      height: 46,
       radius: 24,
       title: "Sign Up",
       onPressed: () {

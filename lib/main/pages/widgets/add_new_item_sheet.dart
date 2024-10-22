@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 
 class AddNewItemSheet extends StatefulWidget {
   @override
@@ -238,7 +240,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 BasicAppButton(
                   title: isFirstStep ? "Next" : "Submit",
                   radius: 24,
-                  height: 38,
+                  height: 46,
                   width: MediaQuery.of(context).size.width,
                   // width: isFirstStep ? 300 : 160,
                   onPressed: () {
@@ -262,6 +264,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                         ),
                       );
                       Navigator.pop(context);
+                      AppNavigator.push(context, AddItemPhoto());
                     }
                     // String jsonSelectedItems = getSelectedItemsAsJson();
                     // print(jsonSelectedItems);
@@ -269,11 +272,12 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                   },
                 ),
                 if (!isFirstStep) ...[
+                  SizedBox(height: 16),
                   BasicAppButton(
                     title: "Cancel",
                     width: MediaQuery.of(context).size.width,
                     radius: 24,
-                    height: 38,
+                    height: 46,
                     backgroundColor: AppColors.background,
                     textColor: AppColors.primary,
                     onPressed: () {

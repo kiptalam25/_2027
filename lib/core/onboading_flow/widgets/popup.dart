@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 
-import '../../core/config/themes/app_colors.dart';
-import '../../main/pages/home.dart';
+import '../../config/themes/app_colors.dart';
+import '../../../main/pages/home.dart';
 
 void showCustomModalBottomSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(12.0),
       ),
@@ -21,14 +21,14 @@ void showCustomModalBottomSheet(BuildContext context) {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Verification message
-            Text(
+            const Text(
               'Verification Complete',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(
+            const Text(
               'Great Job! You are all set!!',
               style: TextStyle(
                 fontSize: 16,
@@ -37,7 +37,7 @@ void showCustomModalBottomSheet(BuildContext context) {
               ),
             ),
             // Tick icon
-            Icon(
+            const Icon(
               Icons.check_circle_rounded,
               color: AppColors.primary,
               size: 80,
@@ -45,7 +45,7 @@ void showCustomModalBottomSheet(BuildContext context) {
             BasicAppButton(
               title: "Start Swapping",
               radius: 24,
-              height: 38,
+              height: 46,
               onPressed: () {
                 Navigator.of(context).pop(); // Close the modal
                 Navigator.push(context,

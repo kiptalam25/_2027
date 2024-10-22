@@ -6,8 +6,8 @@ import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
-import '../../../core/onboading_flow/onboarding_flow.dart';
-import '../../pages/widgets/privacy_pop_up.dart';
+import '../../core/onboading_flow/onboarding_flow.dart';
+import 'widgets/privacy_pop_up.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -49,7 +49,7 @@ class WelcomePage extends StatelessWidget {
               horizontal: 20), // Controls the horizontal padding
           child: Container(
             height: MediaQuery.of(context).size.height *
-                0.5, // Half of the screen height
+                0.7, // Half of the screen height
             padding: const EdgeInsets.all(16.0),
             child: PrivacyPolicyPopup(
               onCancel: () {

@@ -51,6 +51,7 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                 Spacer(),
                 SizedBox(
                   width: double.infinity,
+                  height: 46,
                   child: BasicAppButton(
                     onPressed: () {
                       AppNavigator.pushReplacement(context, HomePage());

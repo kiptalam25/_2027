@@ -7,7 +7,7 @@ import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/main/pages/home.dart';
-import 'package:swapifymobile/presentation/pages/popup.dart';
+import 'package:swapifymobile/core/onboading_flow/widgets/popup.dart';
 
 class ChooseCategories extends StatelessWidget {
   final int currentPage;

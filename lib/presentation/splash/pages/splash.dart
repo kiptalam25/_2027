@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/presentation/splash/block/splash_cubit.dart';
 import 'package:swapifymobile/presentation/splash/block/splash_state.dart';
-import 'package:swapifymobile/presentation/splash/pages/welcome.dart';
+import 'package:swapifymobile/presentation/pages/welcome.dart';
 import 'package:swapifymobile/presentation/splash/pages/widgets/animating_photo.dart';
 import 'package:swapifymobile/presentation/splash/pages/widgets/sequential_animations.dart';
 import 'dart:math' as math;

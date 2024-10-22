@@ -18,12 +18,13 @@ class PrivacyPolicyPopup extends StatefulWidget {
 
 class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
   bool isChecked = false;
+  bool ageChecked = false;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
+        const Text(
           'Privacy Policy & Agreement',
           style: TextStyle(
             fontSize: 18,
@@ -46,26 +47,33 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
             ),
           ),
         ),
-        CheckboxListTile(
-          value: isChecked,
-          onChanged: (value) {
-            setState(() {
-              isChecked = value!;
-            });
-          },
-          title: Text('I accept the Privacy Policy'),
-          controlAffinity: ListTileControlAffinity.leading,
+        Column(
+          children: [
+            CheckboxListTile(
+              value: isChecked,
+              onChanged: (value) {
+                setState(() {
+                  isChecked = value!;
+                });
+              },
+              title: Text('I accept the Privacy Policy'),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero, // Remove default padding
+            ),
+            CheckboxListTile(
+              value: ageChecked,
+              onChanged: (value) {
+                setState(() {
+                  ageChecked = value!;
+                });
+              },
+              title: Text('I am at least 16 Years Old'),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ],
         ),
-        CheckboxListTile(
-          value: isChecked,
-          onChanged: (value) {
-            setState(() {
-              isChecked = value!;
-            });
-          },
-          title: Text('I am atleast 16 Years Old'),
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
+
         SizedBox(height: 16),
         Column(
           children: [
@@ -75,11 +83,11 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24)),
               ),
-              onPressed: isChecked ? widget.onContinue : null,
+              onPressed: isChecked && ageChecked ? widget.onContinue : null,
               child: Text('Continue'),
             ),
             SizedBox(
-              height: 16,
+              height: 8,
             ),
             ElevatedButton(
               onPressed: widget.onCancel,

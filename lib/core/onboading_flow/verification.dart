@@ -8,7 +8,7 @@ import 'package:swapifymobile/presentation/pages/choose_categories.dart';
 
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
-import '../../presentation/pages/popup.dart';
+import 'widgets/popup.dart';
 
 class CountdownTimer extends StatefulWidget {
   @override
@@ -87,7 +87,7 @@ class VerifyPage extends StatelessWidget {
               BasicAppButton(
                 title: "Continue",
                 radius: 24,
-                height: 38,
+                height: 46,
                 onPressed: () {
                   AppNavigator.pushReplacement(
                       context,
