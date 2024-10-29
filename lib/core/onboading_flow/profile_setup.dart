@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
@@ -84,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: const [
         Text(
-          "Set up your profile",
+          "Set Up Your Profile",
           style: TextStyle(fontSize: 24),
         ),
         SizedBox(
@@ -144,10 +145,22 @@ class _ProfilePageState extends State<ProfilePage> {
             obscureText: true,
             controller: controller,
             decoration: InputDecoration(
-              suffixIcon: Icon(Icons.lock),
+              suffixIcon: Icon(
+                Icons.lock,
+                color: AppColors.textFieldBorder,
+              ),
               hintText: hintText,
+              hintStyle: TextStyle(color: AppColors.hintColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 10),
             ),
@@ -170,8 +183,17 @@ class _ProfilePageState extends State<ProfilePage> {
             controller: controller,
             decoration: InputDecoration(
               hintText: hintText,
+              hintStyle: TextStyle(color: AppColors.hintColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 10),
             ),
@@ -198,8 +220,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 _bioController, // You can assign a TextEditingController here
             decoration: InputDecoration(
               hintText: hintText,
+              hintStyle: TextStyle(color: AppColors.hintColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
               ),
             ),
             maxLines: null, // Allows unlimited lines
@@ -229,6 +260,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: AppColors.textFieldBorder, width: 2.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                        color: AppColors.textFieldBorder, width: 1.0),
+                  ),
                 ),
                 style: TextStyle(fontSize: 16, color: Colors.black),
                 value: _selectedCountryCode,
@@ -248,16 +287,26 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(
               width: 12,
             ),
-            const Expanded(
+            Expanded(
               child: SizedBox(
                 height: 40,
                 child: TextField(
                   decoration: InputDecoration(
-                    border:
-                        OutlineInputBorder(), // Optional: Add a border to the TextField
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: AppColors.textFieldBorder, width: 2.0),
+                    ),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: AppColors.textFieldBorder, width: 1.0),
+                    ),
                     hintText: 'Enter phone number',
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+                    hintStyle: const TextStyle(color: AppColors.hintColor),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 12.0),
                   ),
                 ),
               ),

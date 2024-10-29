@@ -67,8 +67,17 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
             controller: controller,
             decoration: InputDecoration(
               hintText: hintText,
+              hintStyle: TextStyle(color: AppColors.hintColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide:
+                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 10),
             ),
@@ -141,6 +150,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                     isBarterChecked = value ?? false;
                   });
                 },
+                activeColor: AppColors.primary,
+                checkColor: Colors.white,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
               ),
@@ -152,6 +163,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                     isDonationChecked = value ?? false;
                   });
                 },
+                activeColor: AppColors.primary,
+                checkColor: Colors.white,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
               )
@@ -255,16 +268,16 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                       String finalJson =
                           combineJson(jsonCheckbox, jsonAdditional);
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Final JSON: $finalJson'),
-                          duration: Duration(
-                              seconds:
-                                  3), // Duration for how long the SnackBar will be visible
-                        ),
-                      );
-                      Navigator.pop(context);
-                      AppNavigator.push(context, AddItemPhoto());
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(
+                      //     content: Text('Final JSON: $finalJson'),
+                      //     duration: Duration(
+                      //         seconds:
+                      //             3), // Duration for how long the SnackBar will be visible
+                      //   ),
+                      // );
+                      // Navigator.pop(context);
+                      AppNavigator.pushReplacement(context, AddItemPhoto());
                     }
                     // String jsonSelectedItems = getSelectedItemsAsJson();
                     // print(jsonSelectedItems);

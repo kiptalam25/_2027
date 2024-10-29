@@ -346,8 +346,7 @@ class _HomePageState extends State<HomePage> {
               leading: Icon(Icons.report),
               title: Text('Report a problem'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to help or perform an action
+                Navigator.pop(context);
               },
             ),
             ListTile(

@@ -8,6 +8,7 @@ import 'package:swapifymobile/presentation/pages/choose_categories.dart';
 
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
+import '../config/themes/app_colors.dart';
 import 'widgets/popup.dart';
 
 class CountdownTimer extends StatefulWidget {
@@ -23,12 +24,6 @@ class _CountdownTimerState extends State<CountdownTimer> {
   void initState() {
     super.initState();
     startTimer();
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
   }
 
   void startTimer() {
@@ -67,16 +62,54 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 }
 
-class VerifyPage extends StatelessWidget {
+class VerifyPage extends StatefulWidget {
   final int currentPage;
   VerifyPage({required this.currentPage});
-  // const VerifyPage({Key? key}) : super(key: key);
+
+  @override
+  State<VerifyPage> createState() => _VerifyPageState();
+}
+
+class _VerifyPageState extends State<VerifyPage> {
+  final int fieldCount = 4;
+
+  final List<TextEditingController> _controllers = [];
+
+  final List<FocusNode> _focusNodes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < fieldCount; i++) {
+      _controllers.add(TextEditingController());
+      _focusNodes.add(FocusNode());
+    }
+  }
+
+  @override
+  void dispose() {
+    _controllers.forEach((controller) => controller.dispose());
+    _focusNodes.forEach((focusNode) => focusNode.dispose());
+    super.dispose();
+  }
+
+  void _onChanged(String value, int index) {
+    if (value.isNotEmpty) {
+      // Move focus to the next field if it exists
+      if (index < fieldCount - 1) {
+        FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+      }
+    } else if (index > 0) {
+      // Move back to the previous field if deleted
+      FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: BasicAppbar(
-          title: PageIndicator(currentPage: currentPage),
+          title: PageIndicator(currentPage: widget.currentPage),
           hideBack: true,
         ),
         body: Padding(
@@ -117,7 +150,7 @@ class VerifyPage extends StatelessWidget {
           height: 16,
         ),
         Text(
-          "We have sent a code to +2547xxxxxx123.\n Enter the code to verify your number",
+          "We have sent a code to your Email\n Enter the code to verify your account",
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
@@ -127,49 +160,26 @@ class VerifyPage extends StatelessWidget {
           height: 48,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-            SizedBox(
-              height: 70,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(fieldCount, (index) {
+            return SizedBox(
               width: 60,
               child: TextField(
-                keyboardType: TextInputType.number,
+                controller: _controllers[index],
+                focusNode: _focusNodes[index],
+                textAlign: TextAlign.center,
+                maxLength: 1,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10)),
-              ),
-            ),
-            SizedBox(
-              height: 70,
-              width: 60,
-              child: TextField(
+                  counterText: "",
+                  border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                          width: 1, color: AppColors.textFieldBorder)),
+                ),
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10)),
+                onChanged: (value) => _onChanged(value, index),
               ),
-            ),
-            SizedBox(
-              height: 70,
-              width: 60,
-              child: TextField(
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10)),
-              ),
-            ),
-            SizedBox(
-              height: 70,
-              width: 60,
-              child: TextField(
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10)),
-              ),
-            ),
-          ],
+            );
+          }),
         ),
         const SizedBox(
           height: 16,

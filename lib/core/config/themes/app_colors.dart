@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const primary = Color(0xFF50644C);
   static const textBorder = Color(0xFF181D17);
+  static const smallBtnBackground = Color(0xFFDDE5DB);
+  static const fadedButton = Color(0xFFa4aea2);
+  static const textFieldBorder = Color(0xFFDDE5DB);
   static const background = Color(0xffffffff);
   static const dividerColor = Color(0xffDDE5DB);
   static const successColor = Color(0xffCFEAC7);
   static const dashColor = Color(0xffDDE5DB);
+  static const hintColor = Color(0xffE3E3DE);
   static const secondBackground = Color(0xff342F3F); //#
   static const Color primaryBaseColor = Color(0xFF50644C);
 

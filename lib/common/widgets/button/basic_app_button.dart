@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 
 class BasicAppButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String title;
   final Widget? content;
   final double? height;

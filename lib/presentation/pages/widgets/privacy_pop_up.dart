@@ -42,7 +42,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                       'thereto, as specified in Section V, Supply Requirements. The name,'
                       'identification, and number of lots (contracts) of this Tender'
                       'Document are specified in the TDS' *
-                  10, // Long text to demonstrate scrolling
+                  10,
               textAlign: TextAlign.left,
             ),
           ),
@@ -57,35 +57,46 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                 });
               },
               title: Text('I accept the Privacy Policy'),
+              activeColor: AppColors.primary,
+              checkColor: Colors.white,
               controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero, // Remove default padding
+              contentPadding: EdgeInsets.zero,
             ),
             CheckboxListTile(
               value: ageChecked,
+              // checkColor: AppColors.primary,
               onChanged: (value) {
                 setState(() {
                   ageChecked = value!;
                 });
               },
               title: Text('I am at least 16 Years Old'),
+              activeColor: AppColors.primary,
+              checkColor: Colors.white,
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: EdgeInsets.zero,
             ),
           ],
         ),
-
         SizedBox(height: 16),
         Column(
           children: [
             ElevatedButton(
+              onPressed: isChecked && ageChecked ? widget.onContinue : () {},
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(MediaQuery.of(context).size.width, 46),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24)),
+                backgroundColor: isChecked && ageChecked
+                    ? AppColors.primary
+                    : AppColors.fadedButton,
               ),
-              onPressed: isChecked && ageChecked ? widget.onContinue : null,
-              child: Text('Continue'),
+              child: Text(
+                'Continue',
+                style: TextStyle(color: AppColors.background),
+              ),
             ),
+            // onPressed: isChecked && ageChecked ? widget.onContinue : null),
             SizedBox(
               height: 8,
             ),
