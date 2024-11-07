@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
+import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
 import 'package:swapifymobile/main/pages/product_description.dart';
 import 'package:swapifymobile/main/pages/widgets/add_new_item_sheet.dart';
+import 'package:swapifymobile/main/pages/widgets/drawer.dart';
 
+import '../../common/widgets/navigation/bottom_navigation.dart';
 import '../../presentation/pages/welcome.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +20,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
+  final PageController _pageController = PageController();
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    _pageController
+        .jumpToPage(index); // Change to .animateToPage() for animation
+  }
+
   final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
+
+  void _navigateToPage(int pageIndex) {
+    _pageController.animateToPage(
+      pageIndex,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _updateIndex(int index) {
+    // setState(() {
+    //   _currentIndex = index;
+    // });
+    _pageController.animateToPage(
+      index,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,135 +114,173 @@ class _HomePageState extends State<HomePage> {
               ],
             )
           ]),
-      drawer: _drawer(),
-      body: Column(
+      drawer: CustomDrawer(
+        onPageSelected: _updateIndex,
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          if (index < 3) {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
         children: [
-          Flexible(
-              // color: Colors.yellow,
-              child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 0.6,
-            ),
-            padding: EdgeInsets.all(10.0),
-            itemCount: items.length,
-            itemBuilder: (context, index) => Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                // color: Colors.blue,
-                border: Border.all(
-                  color: Colors.grey, // Color of the border
-                  width: 0.5, // Width of the border
-                ),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Container(
-                color: AppColors.background,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: SizedBox(
-                          height: 130.0, // Set a fixed height for the image
-                          width: double.infinity,
-                          child: Image.asset(
-                            "images/home_images/m2.png",
-                            fit: BoxFit
-                                .cover, // Adjust the image to cover the container
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Divider(
-                      // Line under the title
-                      color: AppColors.dividerColor, // Color of the line
-                      thickness: 1, // Thickness of the line
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        "Brown Brogues",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary),
-                      ),
-                    ),
-                    // const SizedBox(
-                    //   height: 10,
-                    // ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          BasicAppButton(
-                            title: "Barter",
-                            width: 52,
-                            height: 18,
-                            radius: 24,
-                            onPressed: () {},
-                          ),
-                          const Spacer(),
-                          const Icon(Icons.pin_drop_outlined),
-                          const Text(
-                            '3Km',
-                            style: TextStyle(
-                              color: Color(0xFF5e5e5e), // Text color
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context, ProductDescription() as Route<Object?>);
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: const [
-                            Text("See details,"),
-                            Spacer(),
-                            Icon(Icons.arrow_forward)
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          )),
+          Center(child: _itemsGrid()),
+          CategoriesPage(),
+          Center(child: Text('Notifications Page')),
+          Center(child: Text('Profile Page')),
+          Center(child: AddItemPhoto()),
+          Center(child: Text("Add Item Photo")),
+          Center(child: Text("Listed Items Page"))
         ],
+      ),
+
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onItemTapped: _onItemTapped,
+        selectedItemColor:
+            AppColors.primary, // Set custom color for the selected item
+        unselectedItemColor:
+            Colors.black, // Set custom color for unselected items
+        backgroundColor: Colors.white, // Set custom background color
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
             context: context,
             builder: (BuildContext context) {
-              return AddNewItemSheet(); // Custom bottom sheet widget
+              return AddNewItemSheet(
+                  pageController:
+                      _pageController); // Custom bottom sheet widget
             },
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
+                // borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: BorderRadius.zero),
             isScrollControlled:
                 true, // Makes the bottom sheet more flexible in height
           );
         },
+        foregroundColor: AppColors.background,
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.endFloat, // Bottom-right
+    );
+  }
+
+  // Widget _
+  Widget _itemsGrid() {
+    return Column(
+      children: [
+        Flexible(
+            // color: Colors.yellow,
+            child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.6,
+          ),
+          padding: EdgeInsets.all(10.0),
+          itemCount: items.length,
+          itemBuilder: (context, index) => Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              // color: Colors.blue,
+              border: Border.all(
+                color: Colors.grey, // Color of the border
+                width: 0.5, // Width of the border
+              ),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Container(
+              color: AppColors.background,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: SizedBox(
+                        height: 130.0, // Set a fixed height for the image
+                        width: double.infinity,
+                        child: Image.asset(
+                          "images/home_images/m2.png",
+                          fit: BoxFit
+                              .cover, // Adjust the image to cover the container
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Divider(
+                    // Line under the title
+                    color: AppColors.dividerColor, // Color of the line
+                    thickness: 1, // Thickness of the line
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Brown Brogues",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary),
+                    ),
+                  ),
+                  // const SizedBox(
+                  //   height: 10,
+                  // ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        BasicAppButton(
+                          title: "Barter",
+                          width: 52,
+                          height: 18,
+                          radius: 24,
+                          onPressed: () {},
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.pin_drop_outlined),
+                        Text(
+                          '3Km',
+                          style: TextStyle(
+                            color: Color(0xFF5e5e5e), // Text color
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context, ProductDescription() as Route<Object?>);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: const [
+                          Text("See details,"),
+                          Spacer(),
+                          Icon(Icons.arrow_forward)
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        )),
+      ],
     );
   }
 
@@ -249,117 +319,4 @@ class _HomePageState extends State<HomePage> {
   //     backgroundColor: Colors.blue, // Customize color
   //   );
   // }
-
-  Widget _drawer() {
-    return Drawer(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          children: [
-            Stack(
-              children: [
-                const SizedBox(
-                  height: 150,
-                  child: DrawerHeader(
-                    decoration: BoxDecoration(
-                        // color: AppColors.primary,
-                        ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        'Swapify',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 20,
-                  child: IconButton(
-                    icon: Icon(Icons.close, color: AppColors.primary),
-                    onPressed: () {
-                      Navigator.pop(context); // Close the drawer
-                    },
-                  ),
-                ),
-              ],
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to home or perform an action
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Profile'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to settings or perform an action
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.heart_broken),
-              title: Text('Saved Items'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to settings or perform an action
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.sticky_note_2),
-              title: Text('Saved Searches'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to settings or perform an action
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to settings or perform an action
-              },
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.help),
-              title: const Text('Help and Support'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Navigate to help or perform an action
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.report),
-              title: Text('Report a problem'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                // Perform logout action
-              },
-            ),
-          ],
-        ),
-      ],
-    ));
-  }
 }

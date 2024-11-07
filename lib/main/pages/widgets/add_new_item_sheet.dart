@@ -7,11 +7,16 @@ import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 
 class AddNewItemSheet extends StatefulWidget {
+  final PageController pageController;
+
+  AddNewItemSheet({required this.pageController});
+
   @override
   _AddNewItemSheetState createState() => _AddNewItemSheetState();
 }
 
 class _AddNewItemSheetState extends State<AddNewItemSheet> {
+  // pageController = this.pageController;
   bool isBarterChecked = false;
   bool isDonationChecked = false;
 
@@ -277,6 +282,12 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                       //   ),
                       // );
                       // Navigator.pop(context);
+                      //
+                      // widget.pageController.animateToPage(
+                      //   4,
+                      //   duration: Duration(milliseconds: 300),
+                      //   curve: Curves.easeInOut,
+                      // );
                       AppNavigator.pushReplacement(context, AddItemPhoto());
                     }
                     // String jsonSelectedItems = getSelectedItemsAsJson();

@@ -9,6 +9,7 @@ import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/post_item_page.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/image_upload_options.dart';
 
+import '../../common/widgets/navigation/bottom_navigation.dart';
 import '../../main/pages/widgets/add_new_item_sheet.dart';
 
 class AddItemPhoto extends StatefulWidget {
@@ -17,6 +18,17 @@ class AddItemPhoto extends StatefulWidget {
 }
 
 class _AddItemPhoto extends State<AddItemPhoto> {
+  int _currentIndex = 0;
+  final PageController _pageController = PageController();
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    _pageController
+        .jumpToPage(index); // Change to .animateToPage() for animation
+  }
+
   final ImagePicker _picker = ImagePicker();
   List<XFile>? _imageFiles = [];
 
@@ -235,6 +247,15 @@ class _AddItemPhoto extends State<AddItemPhoto> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onItemTapped: _onItemTapped,
+        selectedItemColor:
+            AppColors.primary, // Set custom color for the selected item
+        unselectedItemColor:
+            Colors.black, // Set custom color for unselected items
+        backgroundColor: Colors.white, // Set custom background color
       ),
     );
   }

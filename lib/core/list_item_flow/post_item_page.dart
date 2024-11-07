@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
+import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
 import '../../core/config/themes/app_colors.dart';
 
 class PostItemPage extends StatefulWidget {
@@ -205,7 +207,9 @@ class _PostItemPageState extends State<PostItemPage> {
         BasicAppButton(
           title: "List item",
           radius: 24,
-          onPressed: () {},
+          onPressed: () {
+            AppNavigator.push(context, ListedItemsPage());
+          },
         ),
         SizedBox(
           height: 16,

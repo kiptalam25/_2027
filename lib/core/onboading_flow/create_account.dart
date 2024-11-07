@@ -107,14 +107,21 @@ class _RegistrationState extends State<Registration> {
                           },
                           style: TextStyle(),
                           decoration: InputDecoration(
-                            labelText: 'enter your email',
-                            // contentPadding: EdgeInsets.symmetric(vertical: 12),
-                            // prefixIcon: Icon(Icons.person),
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  style: BorderStyle.solid, width: 1),
+                            focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(
+                                  color: AppColors.textFieldBorder, width: 2.0),
                             ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(
+                                  color: AppColors.textFieldBorder, width: 1.0),
+                            ),
+                            hintText: 'Enter phone number',
+                            hintStyle:
+                                const TextStyle(color: AppColors.hintColor),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 12.0),
                           ),
                         ),
                       ),
