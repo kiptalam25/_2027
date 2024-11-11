@@ -1,6 +1,14 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/api_constants/api_constants.dart';
+import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
+import 'package:swapifymobile/core/onboading_flow/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
+import '../../api_client/api_client.dart';
 import '../../common/helper/navigator/app_navigator.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
@@ -18,6 +26,48 @@ class ChooseCategories extends StatefulWidget {
 }
 
 class _ChooseCategoriesState extends State<ChooseCategories> {
+  List<Map<String, String>> items = [];
+  final RegistrationService _regService = RegistrationService(ApiClient());
+
+  @override
+  void initState() {
+    super.initState();
+    fetchItemsFromApi();
+  }
+
+  Future<RegisterUser?> getUserData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userData = prefs.getString('registerUser'); // Get JSON string
+    if (userData != null) {
+      Map<String, dynamic> userMap = jsonDecode(userData); // Decode JSON to map
+      return RegisterUser.fromJson(userMap); // Convert map to RegisterUser
+    }
+    return null; // Return null if no data found
+  }
+
+  Future<void> fetchItemsFromApi() async {
+    final response = await _regService.fetchItemsFromApi();
+
+    setState(() {
+      items = response;
+    });
+    // try {
+    //   final response = await Dio().get(ApiConstants.categories);
+    //   if (response.statusCode == 200) {
+    //     setState(() {
+    //       items = response.data
+    //           .map<Map<String, String>>((item) => {
+    //                 'id': item['_id'].toString(),
+    //                 'name': item['name'].toString(),
+    //               })
+    //           .toList();
+    //     });
+    //   }
+    // } catch (e) {
+    //   print('Failed to load items: $e');
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -32,14 +82,7 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                 _topTitle(),
                 SingleChildScrollView(
                   child: FilteredItemSelector(
-                    allItems: [
-                      'Apple',
-                      'Banana',
-                      'Orange',
-                      'Grapes',
-                      'Mango',
-                      'Peach'
-                    ],
+                    allItems: items,
                     onItemAdded: (selectedItems) {
                       print("Selected Items: $selectedItems");
                     },
@@ -76,74 +119,7 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                 )
               ],
             ),
-          )
-          // Padding(
-          //   padding: const EdgeInsets.all(16.0),
-          //   child: Column(
-          //     children: [
-          //       _topTitle(),
-          //       SizedBox(
-          //         height: 20,
-          //       ),
-          //       // SearchableDropdownWithApi(
-          //       //   title: 'Search for items from API',
-          //       //   apiUrl:
-          //       //       'https://api.example.com/items', // Replace with your API URL
-          //       //   onItemSelected: (selectedItems) {
-          //       //     print('Selected Items: $selectedItems');
-          //       //   },
-          //       // ),
-          //       FilteredItemSelector(
-          //         allItems: [
-          //           'Apple',
-          //           'Banana',
-          //           'Orange',
-          //           'Grapes',
-          //           'Mango',
-          //           'Peach'
-          //         ],
-          //         onItemAdded: (selectedItems) {
-          //           print("Selected Items: $selectedItems");
-          //         },
-          //         onItemRemoved: (selectedItems) {
-          //           print("Updated Items After Removal: $selectedItems");
-          //         },
-          //         // onSkip: () {
-          //         //   print("Skipped for now");
-          //         // },
-          //       ),
-          //       Spacer(),
-          //       Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //         children: [
-          //           ElevatedButton(
-          //             onPressed: () {}, //widget.onSkip,
-          //             child: Text('Skip for Now'),
-          //             style: ElevatedButton.styleFrom(
-          //               shape: RoundedRectangleBorder(
-          //                 borderRadius:
-          //                     BorderRadius.circular(30.0), // Rounded corners
-          //               ),
-          //             ),
-          //           ),
-          //           ElevatedButton(
-          //             onPressed: () {
-          //               AppNavigator.pushReplacement(context, HomePage());
-          //             }, //widget.onContinue,
-          //             child: Text('Continue'),
-          //             style: ElevatedButton.styleFrom(
-          //               shape: RoundedRectangleBorder(
-          //                 borderRadius:
-          //                     BorderRadius.circular(30.0), // Rounded corners
-          //               ),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          ),
+          )),
     );
   }
 

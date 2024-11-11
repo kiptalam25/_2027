@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/Global.dart';
 import 'package:swapifymobile/core/onboading_flow/create_account.dart';
+import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
+import 'package:swapifymobile/main/pages/home.dart';
+import 'package:swapifymobile/presentation/pages/welcome.dart';
 import 'package:swapifymobile/presentation/splash/block/splash_cubit.dart';
 import 'package:swapifymobile/presentation/splash/pages/splash.dart';
 import 'api_client/api_client.dart';
 import 'auth/services/auth_service.dart';
 import 'core/config/themes/app_colors.dart';
+import 'core/onboading_flow/login/login.dart';
 import 'core/onboading_flow/login/login_bloc.dart';
 import 'core/onboading_flow/registration/registration_bloc.dart';
 
@@ -42,10 +46,18 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (context) => SplashCubit()..appStarted(),
       child: MaterialApp(
+        // initialRoute: '/',
+        // routes: {
+        //   '/': (context) => HomePage(),
+        //   '/login': (context) => LoginPage(
+        //         currentPage: 3,
+        //       ),
+        //   '/register': (context) => ProfilePage(currentPage: 2),
+        // },
         title: Global.appName,
         theme: ThemeData(
           scaffoldBackgroundColor: AppColors.background,
-          // primarySwatch: Color(0xFF50644C),/\
+          // primarySwatch: Color(0xFF50644C),/
           primarySwatch: AppColors.primarySwatch,
           // textTheme: GoogleFonts.notoSansTextTheme(
           //   Theme.of(context).textTheme,

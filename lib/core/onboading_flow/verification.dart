@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
+// import 'package:swapifymobile/core/onboading_flow/choose_categories.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
@@ -290,6 +291,7 @@ class _VerifyPageState extends State<VerifyPage> {
       onPressed: state is VerificationComplete
           ? null
           : () {
+              email ??= "kiptalamj@gmail.com";
               if (areAllFieldsFilled()) {
                 BlocProvider.of<RegistrationBloc>(context)
                     .add(CompleteVerification(

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -38,6 +39,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
 
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
 
   final TextEditingController _phoneController = TextEditingController();
@@ -108,6 +110,17 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 16),
                     _buildProfileImageSection(),
                     _buildInputSection(
+                        "FullName", "Enter your full name", _fullNameController,
+                        (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your full name';
+                      }
+                      return null;
+                    }, null),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    _buildInputSection(
                         "Username", "Enter your username", _usernameController,
                         (value) {
                       if (value == null || value.isEmpty) {
@@ -146,6 +159,18 @@ class _ProfilePageState extends State<ProfilePage> {
                               .add(ResendVerificationEmail(
                             _emailController.text,
                           ));
+                          final _fullPhoneNumber =
+                              '$_selectedCountryCode${_phoneController.text}';
+                          saveUserData(
+                            RegisterUser(
+                              fullName: _fullNameController.text,
+                              email: _emailController.text,
+                              password: "",
+                              name: _usernameController.text,
+                              phoneNumber: _fullPhoneNumber,
+                              bio: _bioController.text,
+                            ),
+                          );
 
                           saveEmail(_emailController.text);
 
@@ -538,18 +563,20 @@ class _ProfilePageState extends State<ProfilePage> {
               //     VerifyPage(
               //       currentPage: 2,
               //     ));
-              if (_formKey.currentState?.validate() ?? false) {
-                final _fullPhoneNumber =
-                    '$_selectedCountryCode${_phoneController.text}';
-                BlocProvider.of<RegistrationBloc>(context).add(
-                  RegisterUser(
-                      _emailController.text,
-                      _passwordController.text,
-                      _usernameController.text,
-                      _fullPhoneNumber,
-                      _bioController.text),
-                );
-              }
+              // if (_formKey.currentState?.validate() ?? false) {
+              final _fullPhoneNumber =
+                  '$_selectedCountryCode${_phoneController.text}';
+              BlocProvider.of<RegistrationBloc>(context).add(
+                RegisterUser(
+                  fullName: _fullNameController.text,
+                  email: _emailController.text,
+                  password: _passwordController.text,
+                  name: _usernameController.text,
+                  phoneNumber: _fullPhoneNumber,
+                  bio: _bioController.text,
+                ),
+              );
+              // }
             },
       content: state is RegistrationLoading
           ? SizedBox(
@@ -593,6 +620,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isValidPhoneNumber(String phoneNumber) {
     return phoneNumber.length >= 7; // Basic length validation
+  }
+
+  Future<void> saveUserData(RegisterUser registerUser) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String userData =
+        jsonEncode(registerUser.toJson()); // Convert to JSON string
+    await prefs.setString('registerUser', userData); // Save JSON string
   }
 
   // BlocListener<dynamic, dynamic> login() {
