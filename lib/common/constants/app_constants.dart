@@ -4,4 +4,6 @@ class AppConstants {
 
   static RegExp passwordRegex = RegExp(
       r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+
+  // static String addItem;
 }

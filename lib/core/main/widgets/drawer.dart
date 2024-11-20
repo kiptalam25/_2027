@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
-import 'package:swapifymobile/main/pages/home.dart';
 
-import '../../../core/config/themes/app_colors.dart';
-import '../../../core/onboading_flow/scrollable.dart';
+import '../../config/themes/app_colors.dart';
 
 class CustomDrawer extends StatelessWidget {
   // final PageController pageController;
-  final Function(int) onPageSelected;
+  // final Function(int) onPageSelected;
 
-  const CustomDrawer({Key? key, required this.onPageSelected})
-      : super(key: key);
+  const CustomDrawer({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +53,8 @@ class CustomDrawer extends StatelessWidget {
                 title: Text('Home'),
                 onTap: () {
                   Navigator.pop(context);
-                  // AppNavigator.pushReplacement(context, HomePage());
-                  onPageSelected(0);
+                  // AppNavigator.pushReplacement(context, BasePage());
+                  // onPageSelected(0);
                 },
               ),
               ListTile(
@@ -67,7 +63,7 @@ class CustomDrawer extends StatelessWidget {
                 onTap: () {
                   // AppNavigator.push(context, HorizontalScrollPage());
                   Navigator.pop(context);
-                  onPageSelected(2);
+                  // onPageSelected(2);
                 },
               ),
               ListTile(
@@ -75,7 +71,7 @@ class CustomDrawer extends StatelessWidget {
                 title: Text('Saved Items'),
                 onTap: () {
                   Navigator.pop(context);
-                  onPageSelected(6);
+                  // onPageSelected(6);
                 },
               ),
               ListTile(
@@ -83,7 +79,7 @@ class CustomDrawer extends StatelessWidget {
                 title: Text('Saved Searches'),
                 onTap: () {
                   Navigator.pop(context); // Close the drawer
-                  onPageSelected(1);
+                  // onPageSelected(1);
                 },
               ),
               ListTile(

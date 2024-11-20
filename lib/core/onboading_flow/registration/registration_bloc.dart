@@ -11,10 +11,10 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     on<RegisterUser>((event, emit) async {
       emit(RegistrationLoading());
       try {
-        // ResponseModel res = await authService.register(event.email,
-        //     event.password, event.name, event.phoneNumber, event.bio);
-        // emit(RegistrationSuccess(res.message));
-        emit(RegistrationSuccess("Successfully registered!"));
+        ResponseModel res = await authService.register(event.email,
+            event.password, event.name, event.phoneNumber, event.bio);
+        emit(RegistrationSuccess(res.message));
+        // emit(RegistrationSuccess("Successfully registered!"));
       } catch (e) {
         emit(RegistrationError(e.toString()));
       }
@@ -36,16 +36,16 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
     on<ResendVerificationEmail>((event, emit) async {
       emit(RegistrationLoading());
+      emit(ResendingVerificationEmail());
       try {
-        // ResponseModel res =
-        // await authService.resendVerificationEmail(event.email);
-        // if (res.success) {
-
-        bool mailsent = true;
-        if (mailsent) {
+        ResponseModel res =
+            await authService.resendVerificationEmail(event.email);
+        if (res.success) {
+          // bool mailsent = true;
+          // if (mailsent) {
           emit(VerificationEmailSent());
         } else {
-          // emit(RegistrationError(res.message));
+          emit(RegistrationError(res.message));
         }
       } catch (e) {
         emit(RegistrationError(e.toString()));
@@ -55,14 +55,14 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     on<CompleteVerification>((event, emit) async {
       emit(VerificationLoading());
       try {
-        // ResponseModel res =
-        // await authService.completeVerification(event.email, event.code);
-        // if (res.success) {
-        bool complete = true;
-        if (complete) {
+        ResponseModel res =
+            await authService.completeVerification(event.email, event.code);
+        if (res.success) {
+          // bool complete = true;
+          // if (complete) {
           emit(VerificationComplete());
         } else {
-          // emit(RegistrationError(res.message));
+          emit(RegistrationError(res.message));
         }
       } catch (e) {
         emit(RegistrationError(e.toString()));

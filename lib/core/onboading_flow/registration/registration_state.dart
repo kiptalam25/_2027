@@ -32,4 +32,6 @@ class StrongPassword extends RegistrationState {}
 
 class VerificationEmailSent extends RegistrationState {}
 
+class ResendingVerificationEmail extends RegistrationState {}
+
 class VerificationComplete extends RegistrationState {}

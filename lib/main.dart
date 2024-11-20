@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/Global.dart';
-import 'package:swapifymobile/core/onboading_flow/create_account.dart';
-import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
-import 'package:swapifymobile/main/pages/home.dart';
-import 'package:swapifymobile/presentation/pages/welcome.dart';
-import 'package:swapifymobile/presentation/splash/block/splash_cubit.dart';
-import 'package:swapifymobile/presentation/splash/pages/splash.dart';
 import 'api_client/api_client.dart';
 import 'auth/services/auth_service.dart';
 import 'core/config/themes/app_colors.dart';
-import 'core/onboading_flow/login/login.dart';
+import 'core/list_item_flow/item_bloc.dart';
 import 'core/onboading_flow/login/login_bloc.dart';
 import 'core/onboading_flow/registration/registration_bloc.dart';
+import 'core/welcome/splash/block/splash_cubit.dart';
+import 'core/welcome/splash/pages/splash.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +26,9 @@ Future<void> main() async {
       ),
       BlocProvider(
         create: (context) => RegistrationBloc(authService),
+      ),
+      BlocProvider(
+        create: (context) => AddItemBloc(apiClient),
       ),
     ],
     child: MyApp(),
@@ -56,16 +55,23 @@ class MyApp extends StatelessWidget {
         // },
         title: Global.appName,
         theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.blue, // Text cursor color
+            selectionColor: Colors.blue.shade200, // Text selection color
+            selectionHandleColor: AppColors.primary, // Handle color
+          ),
+          primaryColor: AppColors.primary, // Main color
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: createMaterialColor(AppColors.primary),
+            accentColor: AppColors.primary, // Accent color if needed
+          ),
           scaffoldBackgroundColor: AppColors.background,
-          // primarySwatch: Color(0xFF50644C),/
-          primarySwatch: AppColors.primarySwatch,
-          // textTheme: GoogleFonts.notoSansTextTheme(
-          //   Theme.of(context).textTheme,
-          // ),
+          // primarySwatch: AppColors.primarySwatch,
+
           inputDecorationTheme: InputDecorationTheme(
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                color: Colors.blue, // Set your preferred color
+                color: AppColors.primary, // Set your preferred color
                 width: 2.0,
               ),
             ),
@@ -75,7 +81,7 @@ class MyApp extends StatelessWidget {
                 width: 1.0,
               ),
             ),
-            border: OutlineInputBorder(), // Default border if none is specified
+            // border: OutlineInputBorder(), // Default border if none is specified
           ),
         ),
         home: const SplashPage(), //const MyHomePage(title: 'Swapify Home'),

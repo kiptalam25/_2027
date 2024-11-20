@@ -4,20 +4,22 @@ import 'package:swapifymobile/core/onboading_flow/profile/profile_event.dart';
 import 'package:swapifymobile/core/onboading_flow/profile/profile_state.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
+import 'package:swapifymobile/core/onboading_flow/services/profile_service.dart';
+import 'package:swapifymobile/core/usecases/user_profile.dart';
 
 import '../../../auth/services/auth_service.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  final AuthService authService;
+  final ProfileService profileService;
 
-  ProfileBloc(this.authService) : super(CreateProfileInitial()) {
-    on<CreateProfile>((event, emit) async {
+  ProfileBloc(this.profileService) : super(CreateProfileInitial()) {
+    on<CreateUserProfile>((event, emit) async {
       emit(CreateProfileLoading());
       try {
-        // ResponseModel res = await authService.register(event.email,
-        //     event.password, event.name, event.phoneNumber, event.bio);
-        // emit(RegistrationSuccess(res.message));
-        emit(CreateProfileSuccess("Profile Created!"));
+        ResponseModel res =
+            await profileService.createProfile(event.userProfile);
+        emit(CreateProfileSuccess(res.message));
+        // emit(CreateProfileSuccess("Profile Created!"));
       } catch (e) {
         emit(CreateProfileError(e.toString()));
       }

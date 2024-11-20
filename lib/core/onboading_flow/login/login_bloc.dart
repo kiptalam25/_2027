@@ -18,7 +18,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     try {
       final LoginResponseModel response =
-          await authService.login(event.username, event.password);
+          await authService.login(event.email, event.password);
       if (response.success) {
         await sharedPreferences.setString('token', response.token!);
         await sharedPreferences.setString('username', response.username!);
@@ -28,7 +28,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(LoginFailure(response.message));
       }
     } catch (e) {
-      emit(LoginFailure("An error occurred"));
+      emit(LoginFailure(e.toString()));
     }
   }
 

@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
-// import 'package:swapifymobile/core/onboading_flow/choose_categories.dart';
+// import 'package:swapifymobile/core/onboading_flow/choose.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
-import 'package:swapifymobile/presentation/pages/choose_categories.dart';
+import 'package:swapifymobile/core/onboading_flow/choose_categories.dart';
 
 import '../../api_client/api_client.dart';
 import '../../auth/services/auth_service.dart';
@@ -85,6 +85,7 @@ class _VerifyPageState extends State<VerifyPage> {
 
   final List<FocusNode> _focusNodes = [];
   String? email;
+  String? password;
   @override
   void initState() {
     super.initState();
@@ -112,6 +113,8 @@ class _VerifyPageState extends State<VerifyPage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       email = prefs.getString('email'); // Get the email from SharedPreferences
+      password =
+          prefs.getString('password'); // Get the pass from SharedPreferences
     });
     // BlocProvider.of<RegistrationBloc>(context).add(ResendVerificationEmail(
     //   email!,
@@ -152,44 +155,19 @@ class _VerifyPageState extends State<VerifyPage> {
               children: [
                 Expanded(child: _fields()),
                 BlocConsumer<RegistrationBloc, RegistrationState>(
-                  listener: (context, state) {
+                  listener: (context, state) async {
                     if (state is VerificationComplete) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Verification successful')),
                       );
 
-                      // saveEmail(_emailController.text);
+                      await _autoLogin(context);
 
                       AppNavigator.pushReplacement(
                           context,
                           ChooseCategories(
                             currentPage: 4,
                           ));
-
-                      // Dispatch a LoginSubmitted event for auto-login
-                      // final loginBloc = BlocProvider.of<LoginBloc>(context);
-                      // loginBloc.add(LoginSubmitted(
-                      //     _emailController.text,
-                      //     _passwordController
-                      //         .text)); // Pass `username` and `password`
-                      //
-                      // // Listen to LoginBloc to handle auto-login success
-                      // loginBloc.stream.listen((loginState) {
-                      //   if (loginState is LoginSuccess) {
-                      //     // Navigate to another page after successful login
-                      //     // Navigator.of(context)
-                      //     //     .pushReplacementNamed('/home');
-                      //     AppNavigator.pushReplacement(
-                      //         context,
-                      //         VerifyPage(
-                      //           currentPage: 2,
-                      //         ));
-                      //   } else if (loginState is LoginFailure) {
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       SnackBar(content: Text(loginState.error)),
-                      //     );
-                      //   }
-                      // });
                     } else if (state is RegistrationError) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(state.message)),
@@ -204,6 +182,38 @@ class _VerifyPageState extends State<VerifyPage> {
             ),
           )),
     );
+  }
+
+  Future<void> _autoLogin(BuildContext context) async {
+    // Retrieve user credentials (email, password) or use saved credentials
+    String? email = this.email; // Example, replace with actual value
+    String? password = this.password; // Example, replace with actual value
+
+    // Perform login using AuthService
+    final authService = AuthService(ApiClient());
+    try {
+      // Call login method and store token in SharedPreferences
+      final response = await authService.login(email!, password!);
+
+      String token = response.token ?? '';
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('auth_token', token); // Store token
+      ApiClient().setAuthToken(token);
+
+      // Optionally, store any other user data like name, userId, etc.
+      await prefs.setString('user_id', response.userId.toString());
+
+      // You may want to notify the user that login was successful
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logged in successfully!')),
+      );
+    } catch (e) {
+      // Handle login failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: $e')),
+      );
+    }
   }
 
   Widget _fields() {
@@ -257,28 +267,46 @@ class _VerifyPageState extends State<VerifyPage> {
           height: 16,
         ),
         RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(children: [
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            children: [
               const TextSpan(
-                text:
-                    "Code will expire in", //"Code will expire in 05:29 \n Din't get the code? ",
+                text: "Code will expire in ",
                 style: TextStyle(color: Colors.black, fontSize: 16),
               ),
               WidgetSpan(
                 child: CountdownTimer(), // Countdown timer integrated
               ),
-              TextSpan(
-                  text: "Resend now",
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      BlocProvider.of<RegistrationBloc>(context)
-                          .add(ResendVerificationEmail(
-                        email!,
-                      ));
-                      // showToast();
-                    },
-                  style: TextStyle(color: Colors.blue, fontSize: 16))
-            ])),
+              WidgetSpan(
+                child: BlocBuilder<RegistrationBloc, RegistrationState>(
+                  builder: (context, state) {
+                    if (state is ResendingVerificationEmail) {
+                      // Display a loading indicator instead of "Resend now" text
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: CircularProgressIndicator(strokeWidth: 1),
+                      );
+                    }
+                    // Show "Resend now" text if not in loading state
+                    return GestureDetector(
+                      onTap: () {
+                        if (email!.isNotEmpty) {
+                          BlocProvider.of<RegistrationBloc>(context).add(
+                            ResendVerificationEmail(email!),
+                          );
+                        }
+                      },
+                      child: Text(
+                        " Resend now",
+                        style: TextStyle(color: Colors.blue, fontSize: 16),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        )
       ],
     );
   }

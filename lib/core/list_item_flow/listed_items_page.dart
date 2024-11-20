@@ -6,8 +6,6 @@ import 'package:swapifymobile/core/list_item_flow/widgets/single_column_grid.dar
 import 'package:swapifymobile/core/onboading_flow/edit_profile_page.dart';
 
 import '../../common/helper/navigator/app_navigator.dart';
-import '../../main/pages/product_description.dart';
-import '../../main/pages/widgets/drawer.dart';
 import '../onboading_flow/profile_setup.dart';
 import '../widgets/initial_circle.dart';
 import '../widgets/search_input.dart';

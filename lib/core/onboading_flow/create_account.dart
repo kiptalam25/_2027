@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
@@ -17,6 +18,14 @@ class Registration extends StatefulWidget {
 }
 
 class _RegistrationState extends State<Registration> {
+  late SharedPreferences sharedPreferences;
+  final TextEditingController _emailController = TextEditingController();
+
+  Future<void> _saveEmailToPreferences(String email) async {
+    sharedPreferences.clear();
+    await sharedPreferences.setString('email', email);
+  }
+
   String username = '';
   String password = '';
 
@@ -98,31 +107,37 @@ class _RegistrationState extends State<Registration> {
                   Column(
                     children: [
                       SizedBox(
-                        height: 40,
-                        child: TextField(
+                        // height: 40,
+                        child: TextFormField(
+                          controller: _emailController,
                           onChanged: (value) {
                             setState(() {
                               username = value;
                             });
                           },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please valid email';
+                            }
+                          },
                           style: TextStyle(),
                           decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              borderSide: BorderSide(
-                                  color: AppColors.textFieldBorder, width: 2.0),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(24),
-                              borderSide: BorderSide(
-                                  color: AppColors.textFieldBorder, width: 1.0),
-                            ),
-                            hintText: 'Enter phone number',
-                            hintStyle:
-                                const TextStyle(color: AppColors.hintColor),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(24),
+                                borderSide: BorderSide(
+                                    color: AppColors.textFieldBorder,
+                                    width: 2.0),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(24),
+                                borderSide: BorderSide(
+                                    color: AppColors.textFieldBorder,
+                                    width: 1.0),
+                              ),
+                              hintText: 'Enter email',
+                              hintStyle:
+                                  const TextStyle(color: AppColors.hintColor),
+                              contentPadding: const EdgeInsets.all(10)),
                         ),
                       ),
                       SizedBox(height: 16),
@@ -132,10 +147,14 @@ class _RegistrationState extends State<Registration> {
                         title: "Sign Up",
                         radius: 24,
                         onPressed: () {
-                          AppNavigator.push(
+                          // _saveEmailToPreferences(_emailController.text);
+                          Navigator.push(
                               context,
-                              ProfilePage(
-                                currentPage: 1,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePage(
+                                  currentPage: 1,
+                                  email: _emailController.text,
+                                ),
                               ));
                         },
                       ),

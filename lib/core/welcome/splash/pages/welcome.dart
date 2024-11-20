@@ -6,9 +6,10 @@ import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/onboading_flow/login/login.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
-import '../../core/onboading_flow/onboarding_flow.dart';
-import 'widgets/privacy_pop_up.dart';
+import '../../../onboading_flow/onboarding_flow.dart';
+import '../../widgets/privacy_pop_up.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -148,8 +149,11 @@ class WelcomePage extends StatelessWidget {
                           backgroundColor: AppColors.background,
                           textColor: AppColors.primary,
                           onPressed: () {
-                            AppNavigator.push(
-                                context, VerifyPage(currentPage: 3));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                            );
                           },
                         ),
                         SizedBox(

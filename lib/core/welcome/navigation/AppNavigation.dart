@@ -9,7 +9,7 @@
 // import '../../core/onboading_flow/login/login.dart';
 // import '../../core/onboading_flow/registration/registration_bloc.dart';
 // import '../../core/onboading_flow/registration/registration_state.dart';
-// import '../../main/pages/home.dart';
+// import '../../main/pages/base_page.dart';
 // import '../pages/welcome.dart';
 // import '../splash/block/splash_state.dart';
 //

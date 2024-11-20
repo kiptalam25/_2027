@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 
 import '../../config/themes/app_colors.dart';
-import '../../../main/pages/home.dart';
+import '../../main/pages/base_page.dart';
+import '../../main/pages/home_page.dart';
 
 void showCustomModalBottomSheet(BuildContext context) {
   showModalBottomSheet(
@@ -63,8 +64,8 @@ void showCustomModalBottomSheet(BuildContext context) {
 // import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 //
 // import '../../core/config/themes/app_colors.dart';
-// import '../../core/onboading_flow/choose_categories.dart';
-// import '../../main/pages/home.dart';
+// import '../../core/onboading_flow/choose.dart';
+// import '../../main/pages/base_page.dart';
 //
 // void showCustomPopup(BuildContext context) {
 //   showDialog(

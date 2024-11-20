@@ -9,7 +9,7 @@ import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
-import 'package:swapifymobile/core/onboading_flow/choose_categories.dart';
+import 'package:swapifymobile/core/onboading_flow/choose.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
@@ -30,13 +30,27 @@ class ProfilePage extends StatefulWidget {
   // ProfilePage({Key? key}) : super(key: key);
 
   final int currentPage;
-  ProfilePage({required this.currentPage});
+  final String email;
+  ProfilePage({required this.currentPage, required this.email});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  late SharedPreferences sharedPreferences;
+  @override
+  void initState() {
+    _updateText();
+    super.initState();
+  }
+
+  void _updateText() {
+    setState(() {
+      _emailController.text = widget.email;
+    });
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _fullNameController = TextEditingController();
@@ -172,38 +186,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           );
 
-                          saveEmail(_emailController.text);
+                          saveCredentials(
+                              _emailController.text, _passwordController.text);
 
-                          AppNavigator.pushReplacement(
+                          AppNavigator.push(
                               context,
                               VerifyPage(
-                                currentPage: 2,
+                                currentPage: 3,
                               ));
-
-                          // Dispatch a LoginSubmitted event for auto-login
-                          // final loginBloc = BlocProvider.of<LoginBloc>(context);
-                          // loginBloc.add(LoginSubmitted(
-                          //     _emailController.text,
-                          //     _passwordController
-                          //         .text)); // Pass `username` and `password`
-                          //
-                          // // Listen to LoginBloc to handle auto-login success
-                          // loginBloc.stream.listen((loginState) {
-                          //   if (loginState is LoginSuccess) {
-                          //     // Navigate to another page after successful login
-                          //     // Navigator.of(context)
-                          //     //     .pushReplacementNamed('/home');
-                          //     AppNavigator.pushReplacement(
-                          //         context,
-                          //         VerifyPage(
-                          //           currentPage: 2,
-                          //         ));
-                          //   } else if (loginState is LoginFailure) {
-                          //     ScaffoldMessenger.of(context).showSnackBar(
-                          //       SnackBar(content: Text(loginState.error)),
-                          //     );
-                          //   }
-                          // });
                         } else if (state is RegistrationError) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(state.message)),
@@ -262,9 +252,10 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  void saveEmail(String email) async {
+  void saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', email);
+    await prefs.setString('password', password);
   }
 
   Widget _buildProfileImageSection() {
@@ -563,20 +554,20 @@ class _ProfilePageState extends State<ProfilePage> {
               //     VerifyPage(
               //       currentPage: 2,
               //     ));
-              // if (_formKey.currentState?.validate() ?? false) {
-              final _fullPhoneNumber =
-                  '$_selectedCountryCode${_phoneController.text}';
-              BlocProvider.of<RegistrationBloc>(context).add(
-                RegisterUser(
-                  fullName: _fullNameController.text,
-                  email: _emailController.text,
-                  password: _passwordController.text,
-                  name: _usernameController.text,
-                  phoneNumber: _fullPhoneNumber,
-                  bio: _bioController.text,
-                ),
-              );
-              // }
+              if (_formKey.currentState?.validate() ?? false) {
+                final _fullPhoneNumber =
+                    '$_selectedCountryCode${_phoneController.text}';
+                BlocProvider.of<RegistrationBloc>(context).add(
+                  RegisterUser(
+                    fullName: _fullNameController.text,
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    name: _usernameController.text,
+                    phoneNumber: _fullPhoneNumber,
+                    bio: _bioController.text,
+                  ),
+                );
+              }
             },
       content: state is RegistrationLoading
           ? SizedBox(

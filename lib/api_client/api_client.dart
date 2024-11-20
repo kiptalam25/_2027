@@ -91,26 +91,6 @@ class ApiClient {
     throw ApiException(message);
   }
 
-  // Error handling method
-  // String _handleError(DioException error) {
-  //   if (error.response != null) {
-  //     switch (error.response?.statusCode) {
-  //       case 400:
-  //         return 'Bad request: ${error.response?.data}';
-  //       case 401:
-  //         return 'Unauthorized: ${error.response?.data}';
-  //       case 403:
-  //         return 'Forbidden: ${error.response?.data}';
-  //       case 500:
-  //         return 'Internal server error: ${error.response?.data}';
-  //       default:
-  //         return 'Unknown error: ${error.response?.data}';
-  //     }
-  //   } else {
-  //     return 'Network error: ${error.message}';
-  //   }
-  // }
-
   // Optional method for setting auth tokens
   void setAuthToken(String token) {
     _dio.options.headers["Authorization"] = "Bearer $token";

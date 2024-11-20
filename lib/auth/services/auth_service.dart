@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
+import 'package:swapifymobile/core/onboading_flow/profile/profile_event.dart';
 
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
@@ -33,7 +34,7 @@ class AuthService {
             success: false, message: response.data['message']);
       }
     } catch (e) {
-      return LoginResponseModel(success: false, message: 'An error occurred');
+      return LoginResponseModel(success: false, message: e.toString());
     }
   }
   // Future<UserModel> login(String email, String password) async {
@@ -121,7 +122,7 @@ class AuthService {
     try {
       final response = await apiClient.put(
         ApiConstants.completeVerification,
-        data: {'email': email, 'code': code},
+        data: {'email': email, 'verificationCode': code},
       );
 
       if (response.data['success']) {

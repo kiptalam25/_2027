@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
-import 'package:swapifymobile/main/pages/home.dart';
-
-import '../../common/helper/navigator/app_navigator.dart';
-import '../../core/config/themes/app_colors.dart';
+import '../../config/themes/app_colors.dart';
 
 class ProductDescription extends StatefulWidget {
   const ProductDescription({Key? key}) : super(key: key);
@@ -242,7 +239,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                             ),
                             Row(
                               children: [
-                                const Padding(
+                                Padding(
                                   padding: EdgeInsets.all(2.0),
                                   child: CircleAvatar(
                                     radius:
@@ -333,27 +330,44 @@ class _ProductDescriptionState extends State<ProductDescription> {
   }
 
   Widget _addToWishlistBtn() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _continueButton(context),
-        ElevatedButton(
-          onPressed: () {
-            // AppNavigator.push(context, const EnterPasswordPage());
-          },
-          style: ElevatedButton.styleFrom(
-            // padding: EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Color(0xFF50644C),
-
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Text(
-            'Make swap offer',
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        )
+        BasicAppButton(
+          onPressed: () {},
+          backgroundColor: AppColors.primary,
+          title: "Make Swap Offer",
+          radius: 24,
+          textColor: AppColors.background,
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        BasicAppButton(
+          onPressed: () {},
+          backgroundColor: AppColors.background,
+          radius: 24,
+          title: "Add to Wishlist",
+          textColor: AppColors.primary,
+        ),
+        // _continueButton(context),
+        // ElevatedButton(
+        //   onPressed: () {
+        //     // AppNavigator.push(context, const EnterPasswordPage());
+        //   },
+        //   style: ElevatedButton.styleFrom(
+        //     // padding: EdgeInsets.symmetric(vertical: 16),
+        //     backgroundColor: Color(0xFF50644C),
+        //
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(10),
+        //     ),
+        //   ),
+        //   child: Text(
+        //     'Make swap offer',
+        //     style: TextStyle(fontSize: 18, color: Colors.white),
+        //   ),
+        // )
       ],
     );
   }

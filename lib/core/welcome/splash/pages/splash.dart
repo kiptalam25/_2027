@@ -1,19 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:swapifymobile/core/main/pages/base_page.dart';
 import 'package:swapifymobile/core/onboading_flow/create_account.dart';
+import 'package:swapifymobile/core/onboading_flow/login/login.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
-import 'package:swapifymobile/main/pages/home.dart';
-import 'package:swapifymobile/presentation/splash/block/splash_cubit.dart';
-import 'package:swapifymobile/presentation/splash/block/splash_state.dart';
-import 'package:swapifymobile/presentation/pages/welcome.dart';
-import 'package:swapifymobile/presentation/splash/pages/widgets/animating_photo.dart';
-import 'package:swapifymobile/presentation/splash/pages/widgets/sequential_animations.dart';
 import 'dart:math' as math;
 
-import '../../../auth/bloc/auth_state.dart';
-import '../../../core/config/themes/app_colors.dart';
-import '../../../core/onboading_flow/registration/registration_state.dart';
+import '../../../config/themes/app_colors.dart';
+import '../../../main/pages/home_page.dart';
+import 'welcome.dart';
+import '../block/splash_cubit.dart';
+import '../block/splash_state.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -22,33 +20,7 @@ class SplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SplashCubit, SplashState>(
       listener: (context, state) {
-        // if (state is UnAuthenticated) {
-        //   Navigator.pushReplacement(
-        //       context, MaterialPageRoute(builder: (context) => WelcomePage()));
-        // }
-        //
-        // if (state is Authenticated) {
-        //   Navigator.pushReplacement(
-        //       context, MaterialPageRoute(builder: (context) => HomePage()));
-        // }
         if (state is UnAuthenticated) {
-          // final registrationState =
-          //     (state as IncompleteRegistration).registrationState;
-          //
-          // if (registrationState is RegistrationSuccess) {
-          //   if (registrationState is VerificationComplete) {
-          //     Navigator.pushReplacement(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => HomePage() ),
-          //     );
-          //   } else {
-          //     Navigator.pushReplacement(
-          //       context,
-          //       MaterialPageRoute(
-          //           builder: (context) => VerifyPage(currentPage: 3)),
-          //     );
-          //   }
-          // } else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => WelcomePage()),
@@ -59,13 +31,19 @@ class SplashPage extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (context) => HomePage()),
           );
-        } else if (state is Unregistered) {
+        } else if (state is UnRegistered) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
                 builder: (context) => Registration(currentPage: 0)),
           );
-        } else if (state is IncompleteRegistration) {}
+        } else if (state is IncompleteRegistration) {
+          Navigator.push(
+              context,
+              // MaterialPageRoute(
+              //     builder: (context) => VerifyPage(currentPage: 3)));
+              MaterialPageRoute(builder: (context) => WelcomePage()));
+        }
       },
       child: Scaffold(
         // backgroundColor: AppColors.primary, body: SequentialAnimations()
