@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
+import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../config/themes/app_colors.dart';
+import '../../onboading_flow/choose_categories.dart';
 
 class CustomDrawer extends StatelessWidget {
   // final PageController pageController;
   // final Function(int) onPageSelected;
+  // BuildContext context;
+  logout(BuildContext context) async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    sharedPreferences.clear();
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WelcomePage(),
+        ));
+  }
 
   const CustomDrawer({Key? key}) : super(key: key);
 
@@ -72,6 +87,11 @@ class CustomDrawer extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context);
                   // onPageSelected(6);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ListedItemsPage(),
+                      ));
                 },
               ),
               ListTile(
@@ -79,7 +99,11 @@ class CustomDrawer extends StatelessWidget {
                 title: Text('Saved Searches'),
                 onTap: () {
                   Navigator.pop(context); // Close the drawer
-                  // onPageSelected(1);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChooseCategories(currentPage: 4),
+                      ));
                 },
               ),
               ListTile(
@@ -115,8 +139,17 @@ class CustomDrawer extends StatelessWidget {
                 leading: Icon(Icons.logout),
                 title: Text('Logout'),
                 onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                  // Perform logout action
+                  // bool loggedOut =
+                  //     await isLoggedOut(); // Check if logout was successful
+                  // if (loggedOut) {
+                  //   print("Logged out..............................");
+                  // }
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => LoginPage()),
+                  // );
+                  Navigator.pop(context);
+                  logout(context);
                 },
               ),
             ],
@@ -124,5 +157,17 @@ class CustomDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<bool> isLoggedOut() async {
+    try {
+      await Future.delayed(Duration(seconds: 1));
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      return true;
+    } catch (e) {
+      print('Logout error: $e');
+      return false; // Indicate logout failure
+    }
   }
 }

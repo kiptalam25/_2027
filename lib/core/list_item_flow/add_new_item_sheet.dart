@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
@@ -13,6 +14,10 @@ import '../../api_constants/api_constants.dart';
 import '../onboading_flow/choose_categories.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_textfield.dart';
+import '../widgets/dialog.dart';
+import 'add_item_event.dart';
+import 'add_item_state.dart';
+import 'item_bloc.dart';
 
 class AddNewItemSheet extends StatefulWidget {
   // final PageController pageController;
@@ -34,26 +39,28 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
 
   bool isFirstStep = true;
   bool _isLoading = true;
+  bool _isFetchingSubCategories = false;
   late Map<String, dynamic> itemData;
 
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceRange = TextEditingController();
+  final TextEditingController itemCondition = TextEditingController();
 
   // Method to create JSON from the selected checkboxes
   String getCheckboxJson() {
     Map<String, String> selectedItems;
     if (isDonationChecked && isBarterChecked) {
       selectedItems = {
-        'exchangeMethod': "Both",
+        'exchangeMethod': "both",
       };
     } else if (isBarterChecked) {
       selectedItems = {
-        'exchangeMethod': "Barter",
+        'exchangeMethod': "swap",
       };
     } else if (isDonationChecked) {
       selectedItems = {
-        'exchangeMethod': "Donation",
+        'exchangeMethod': "donation",
       };
     } else {
       selectedItems = {
@@ -63,30 +70,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
 
     return jsonEncode(selectedItems); // Convert map to JSON string
   }
-
-  // Method to create JSON from the selected items
-  // String getSelectedItemsAsJson() {
-  //   Map<String, String> selectedItems;
-  //   if (isDonationChecked && isBarterChecked) {
-  //     selectedItems = {
-  //       'exchangeMethod': "Both",
-  //     };
-  //   } else if (isBarterChecked) {
-  //     selectedItems = {
-  //       'exchangeMethod': "Barter",
-  //     };
-  //   } else if (isDonationChecked) {
-  //     selectedItems = {
-  //       'exchangeMethod': "Donation",
-  //     };
-  //   } else {
-  //     selectedItems = {
-  //       'exchangeMethod': "",
-  //     };
-  //   }
-  //
-  //   return jsonEncode(selectedItems); // Convert map to JSON string
-  // }
 
   String getCategoriesOfInterestAsJson() {
     Map<String, List<String>> selectedItems = {
@@ -99,7 +82,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
     Map<String, dynamic> additionalData = {
       'title': itemNameController.text,
       'description': descriptionController.text,
-      'condition': selectedCondition!,
+      'condition': itemCondition.text,
       'priceRange': priceRange.text,
       'categoryId': selectedCategory!,
       'subCategoryId': itemSubCategory!,
@@ -121,11 +104,12 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   }
 
   List<Map<String, String>> _categories = [];
+  List<Map<String, String>> _subCategories = [];
   String? selectedCategoryId;
   late String? selectedCondition;
-  late String? selectedCategory;
+  late String? selectedCategory = "";
   late String? selectedCategoryOfInterest;
-  late String? itemSubCategory;
+  late String? itemSubCategory = "";
 
   @override
   void initState() {
@@ -140,18 +124,19 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
     List<Map<String, String>> categories =
         await categoryService.fetchCategories();
     setState(() {
-      _categories = //categories;
-          [
-        {'id': '1', 'name': 'Bicycles'},
-        {'id': '2', 'name': 'Toys'},
-      ];
+      _categories = categories;
+      //     [
+      //   {'id': '1', 'name': 'Bicycles'},
+      //   {'id': '2', 'name': 'Toys'},
+      // ];
       _isLoading = false;
 
       if (_categories.isNotEmpty) {
         selectedCondition = _categories.first['id']!;
         selectedCategory = _categories.first['id']!;
+        findSubCAtegories(selectedCategory!);
         selectedCategoryOfInterest = _categories.first['id']!;
-        itemSubCategory = _categories.first['id']!;
+        // itemSubCategory = _categories.first['id']!;
       }
     });
   }
@@ -278,19 +263,25 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
               SizedBox(
                 height: 16,
               ),
-              Text("Condition*"),
-              _categories.isEmpty
-                  ? CircularProgressIndicator()
-                  : CustomDropdown(
-                      value: selectedCondition,
-                      items: _categories,
-                      // hintText: 'Item Category*',
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedCondition = newValue!;
-                        });
-                      },
-                    ),
+              // Text("Condition*"),
+              InputSection(
+                label: "Condition*",
+                hintText: "Item Condition",
+                controller: itemCondition,
+                maxCharacters: 0,
+              ),
+              // _categories.isEmpty
+              //     ? CircularProgressIndicator()
+              //     : CustomDropdown(
+              //         value: selectedCondition,
+              //         items: _categories,
+              //         // hintText: 'Item Category*',
+              //         onChanged: (String? newValue) {
+              //           setState(() {
+              //             selectedCondition = newValue!;
+              //           });
+              //         },
+              //       ),
               const SizedBox(
                 height: 16,
               ),
@@ -309,7 +300,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
               ),
               Text("Item Category*"),
               _categories.isEmpty
-                  ? CircularProgressIndicator()
+                  ? SizedBox(
+                      height: 20, width: 20, child: CircularProgressIndicator())
                   : CustomDropdown(
                       value: selectedCategory,
                       items: _categories,
@@ -317,6 +309,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedCategory = newValue!;
+                          _subCategories = [];
+                          findSubCAtegories(newValue);
                         });
                       },
                     ),
@@ -324,11 +318,13 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 height: 16,
               ),
               Text("Item Sub-category*"),
-              _categories.isEmpty
-                  ? CircularProgressIndicator()
+              _subCategories.isEmpty && _isFetchingSubCategories
+                  ? SizedBox(
+                      height: 20, width: 20, child: CircularProgressIndicator())
+                  // if (itemSubCategory!.isNotEmpty)
                   : CustomDropdown(
                       value: itemSubCategory,
-                      items: _categories,
+                      items: _subCategories,
                       // hintText: 'Item Category*',
                       onChanged: (String? newValue) {
                         setState(() {
@@ -344,8 +340,13 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 Text("Categories of interest (Barter only)"),
                 SingleChildScrollView(
                   child: _categories.isEmpty
-                      ? Center(child: CircularProgressIndicator())
+                      ? Center(
+                          child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator()))
                       : FilteredItemSelector(
+                          returnType: "name",
                           allItems: _categories,
                           onItemAdded: (selectedIds) {
                             setState(() {
@@ -414,38 +415,25 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                       String itemListedFor = getCheckboxJson();
                       String jsonAdditional = getAdditionalFieldsJson();
                       String jsonInterests = getCategoriesOfInterestAsJson();
+
                       String finalJson = combineJson(
                           itemListedFor, jsonAdditional, jsonInterests);
-
-                      // jsonDecode(finalJson);
-
                       print(finalJson);
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   SnackBar(
-                      //     content: Text('Final JSON: $finalJson'),
-                      //     duration: Duration(
-                      //         seconds:
-                      //             3), // Duration for how long the SnackBar will be visible
-                      //   ),
-                      // );
-                      // Navigator.pop(context);
-                      //
-                      // widget.pageController.animateToPage(
-                      //   4,
-                      //   duration: Duration(milliseconds: 300),
-                      //   curve: Curves.easeInOut,
-                      // );
-                      AppNavigator.pushReplacement(
-                          context,
-                          AddItemPhoto(
-                            itemData: itemData,
-                            categories: _categories,
-                          ));
+                      if (context.read<AddItemBloc>().state
+                          is! AddItemLoading) {
+                        context
+                            .read<AddItemBloc>()
+                            .add(AddItemSubmit(itemData));
+                      }
+                      // AppNavigator.pushReplacement(
+                      //     context,
+                      //     AddItemPhoto(
+                      //       itemData: itemData,
+                      //       categories: _categories,
+                      //     ));
                     }
-                    // String jsonSelectedItems = getSelectedItemsAsJson();
-                    // print(jsonSelectedItems);
-                    // Navigator.pop(context);
                   },
+                  content: !isFirstStep ? _blockBuilder() : null,
                 ),
                 if (!isFirstStep) ...[
                   SizedBox(height: 16),
@@ -485,4 +473,154 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       ),
     );
   }
+
+  Future<void> findSubCAtegories(String newValue) async {
+    _isFetchingSubCategories = true;
+    List<Map<String, String>> subCategories =
+        await categoryService.fetchSubCategories(newValue);
+    setState(() {
+      _subCategories = subCategories;
+      //     [
+      //   {'id': '1', 'name': 'Mountain Bike'},
+      //   {'id': '2', 'name': 'Black Mamba'},
+      // ];
+      _isFetchingSubCategories = false;
+
+      if (_subCategories.isNotEmpty) {
+        itemSubCategory = _subCategories.first['id']!;
+      }
+    });
+  }
 }
+
+Widget _blockBuilder() {
+  return BlocListener<AddItemBloc, AddItemState>(
+    listener: (context, state) {
+      if (state is AddItemFailure) {
+        // Show error SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.error),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (state is AddItemSuccess) {
+        // Show success dialog
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Prevent dismissing the dialog manually
+          builder: (context) => AlertDialog(
+            title: Text('Success'),
+            content: Text(state.message),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  // Navigate to AddItemPhoto page
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddItemPhoto(itemId: state.itemId),
+                    ),
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    },
+    child: BlocBuilder<AddItemBloc, AddItemState>(
+      builder: (context, state) {
+        if (state is AddItemLoading) {
+          return SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            ),
+          );
+        }
+
+        return Text(
+          "Create Item",
+          style: TextStyle(color: Colors.white),
+        );
+      },
+    ),
+  );
+}
+
+// Widget _blockBuilder() {
+//   return BlocListener<AddItemBloc, AddItemState>(
+//     listener: (context, state) {
+//       if (state is AddItemFailure) {
+//         print(state.error);
+//         WidgetsBinding.instance.addPostFrameCallback((_) {
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(
+//               content: Text(state.error),
+//               backgroundColor: Colors.red,
+//             ),
+//           );
+//         });
+//       } else if (state is AddItemSuccess) {
+//         showDialog(
+//           context: context,
+//           builder: (context) => AlertDialog(
+//             title: Text('Success'),
+//             content: Text(state.message),
+//             actions: [
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: Text('OK'),
+//               ),
+//             ],
+//           ),
+//         );
+//         WidgetsBinding.instance.addPostFrameCallback((_) {
+//           // showAutoDismissDialog(
+//           //   context: context,
+//           //   title: '',
+//           //   message: state.message,
+//           // );
+//           Navigator.push(
+//               context,
+//               MaterialPageRoute(
+//                 builder: (context) => AddItemPhoto(
+//                   itemId: state.itemId,
+//                 ),
+//               ));
+//
+//           print("Item id...................." + state.itemId);
+//           // if (state.itemId.isNotEmpty) {
+//
+//           Navigator.pop(context);
+//         });
+//       }
+//     },
+//     child: BlocBuilder<AddItemBloc, AddItemState>(
+//       builder: (context, state) {
+//         if (state is AddItemLoading) {
+//           return SizedBox(
+//             height: 20,
+//             width: 20,
+//             child: CircularProgressIndicator(
+//               color: Colors.white,
+//               strokeWidth: 2,
+//             ),
+//           );
+//         }
+//
+//         return Text(
+//           "Create Item",
+//           style: TextStyle(color: Colors.white),
+//         );
+//       },
+//     ),
+//   );
+// }

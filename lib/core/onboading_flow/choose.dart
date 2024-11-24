@@ -83,6 +83,7 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                 _topTitle(),
                 SingleChildScrollView(
                   child: FilteredItemSelector(
+                    returnType: "id",
                     allItems: items,
                     onItemAdded: (selectedItems) {
                       print("Selected Items: $selectedItems");

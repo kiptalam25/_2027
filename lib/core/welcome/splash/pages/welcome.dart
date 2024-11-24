@@ -64,7 +64,11 @@ class WelcomePage extends StatelessWidget {
                     content: Text('You accepted the Privacy Policy'),
                   ),
                 );
-                AppNavigator.pushReplacement(context, OnboardFlow());
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OnboardFlow(),
+                    ));
               },
             ),
           ),

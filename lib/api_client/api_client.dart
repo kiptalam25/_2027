@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api_constants/api_constants.dart';
 
@@ -18,8 +19,13 @@ class ApiClient {
           ),
         ) {
     _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
+      onRequest: (options, handler) async {
         print('Request[${options.method}] => PATH: ${options.path}');
+        String? token = await _getToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        // print("Token.............." + token!);
         handler.next(options);
       },
       onResponse: (response, handler) {
@@ -94,6 +100,11 @@ class ApiClient {
   // Optional method for setting auth tokens
   void setAuthToken(String token) {
     _dio.options.headers["Authorization"] = "Bearer $token";
+  }
+
+  Future<String?> _getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
   }
 }
 

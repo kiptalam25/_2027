@@ -22,9 +22,7 @@ import '../../auth/services/auth_service.dart';
 import '../../common/helper/navigator/app_navigator.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
-import 'login/login_bloc.dart';
-import 'login/login_event.dart';
-import 'login/login_state.dart';
+import '../widgets/custom_dropdown.dart';
 
 class ProfilePage extends StatefulWidget {
   // ProfilePage({Key? key}) : super(key: key);
@@ -42,6 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     _updateText();
+    _selectedCountryCode = countryCodes.first['id'];
     super.initState();
   }
 
@@ -65,6 +64,12 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _bioController = TextEditingController();
 
   // final sharedPreferences = await SharedPreferences.getInstance();
+
+  List<Map<String, String>> countryCodes = [
+    {'id': '372', 'name': '+372'},
+    // {'id': '1', 'name': '+1'},
+    // {'id': '44', 'name': '+44'},
+  ];
 
   String? _selectedCountryCode;
   final AuthService _authService = AuthService(ApiClient());
@@ -146,6 +151,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(
                       height: 16,
                     ),
+
+                    // TextFormField(
+                    //   controller: _emailController,
+                    //   enabled: false,
+                    // ),
 
                     _buildInputSection(
                         "Email", "Enter your email", _emailController, (value) {
@@ -276,11 +286,21 @@ class _ProfilePageState extends State<ProfilePage> {
                             fit: BoxFit.cover,
                           )
                         : DecorationImage(
-                            image: AssetImage('images/default_user.png'),
+                            image: AssetImage('images/profile.png'),
                             fit: BoxFit.cover,
                           ),
                   ),
                 ),
+                Positioned(
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    left: 0,
+                    child: Icon(
+                      Icons.person_outline,
+                      size: 32,
+                      color: AppColors.primary,
+                    )),
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -349,16 +369,6 @@ class _ProfilePageState extends State<ProfilePage> {
           child: TextFormField(
             obscureText: true,
             controller: controller,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a password';
-              }
-              if (!AppConstants.passwordRegex.hasMatch(value)) {
-                return 'Password must be at least 8 characters, include\n'
-                    'a capital letter, a number, and a special character.';
-              }
-              return null;
-            },
             decoration: InputDecoration(
               suffixIcon: Icon(
                 Icons.lock,
@@ -396,6 +406,7 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           height: 40,
           child: TextFormField(
+            enabled: controller == _emailController ? false : true,
             controller: controller,
             // keyboardType: keyboardType ? keyboardType : ,
             validator: validator,
@@ -431,8 +442,13 @@ class _ProfilePageState extends State<ProfilePage> {
         SizedBox(
           height: 83,
           child: TextFormField(
-            controller:
-                _bioController, // You can assign a TextEditingController here
+            controller: _bioController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your full name';
+              }
+              return null;
+            },
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(color: AppColors.hintColor),
@@ -467,35 +483,15 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(
               width: 100,
               height: 40,
-              child: DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  // errorMaxLines: 2,
-                  // contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                        color: AppColors.textFieldBorder, width: 2.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: AppColors.textFieldBorder, width: 1.0),
-                  ),
-                ),
-                style: TextStyle(fontSize: 16, color: Colors.black),
+              child: CustomDropdown(
                 value: _selectedCountryCode,
-                items: [
-                  DropdownMenuItem(value: '+254', child: Text('+254')),
-                  DropdownMenuItem(value: '+1', child: Text('+1')),
-                  DropdownMenuItem(value: '+44', child: Text('+44')),
-                  DropdownMenuItem(value: '+91', child: Text('+91')),
-                ],
-                onChanged: (value) {
+                items: countryCodes,
+                // hintText: 'Item Category*',
+                onChanged: (String? newValue) {
                   setState(() {
-                    _selectedCountryCode = value;
+                    _selectedCountryCode = newValue!;
                   });
                 },
-                validator: (value) =>
-                    value == null ? 'Please select a country code' : null,
               ),
             ),
             SizedBox(
@@ -610,7 +606,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   bool _isValidPhoneNumber(String phoneNumber) {
-    return phoneNumber.length >= 7; // Basic length validation
+    return phoneNumber.length >= 4; // Basic length validation
   }
 
   Future<void> saveUserData(RegisterUser registerUser) async {

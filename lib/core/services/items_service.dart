@@ -1,6 +1,7 @@
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
+import '../usecases/item.dart';
 
 class ItemsService {
   final ApiClient apiClient;
@@ -21,6 +22,20 @@ class ItemsService {
     }
   }
 
+  Future<ResponseModel> updateItem(String itemData, String itemId) async {
+    try {
+      final response = await apiClient.put(
+        ApiConstants.items + "/$itemId",
+        data: itemData,
+      );
+
+      return ResponseModel.fromJson(response.data);
+    } catch (e) {
+      // return ResponseModel(success: , message: message)
+      throw Exception("Failed to Update Item: $e");
+    }
+  }
+
   Future<List<Map<String, String>>> fetchCategories() async {
     try {
       final response = await ApiClient()
@@ -37,6 +52,30 @@ class ItemsService {
     } catch (e) {
       print('Error fetching categories: $e');
       return [];
+    }
+  }
+
+  Future<Item> fetchItem(String itemId) async {
+    try {
+      final response = await apiClient.get(ApiConstants.items + "/$itemId");
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data != null && data['item'] != null) {
+          return Item.fromJson(data['item']);
+        } else {
+          throw Exception('Invalid item structure');
+        }
+        // final responseData = response.data;
+        // return Item.fromJson(responseData['item']);
+      } else {
+        throw Exception(
+            'Failed to fetch item. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception(
+        'Failed to fetch item. Error $e',
+      );
     }
   }
 }

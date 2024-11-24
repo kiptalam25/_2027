@@ -12,6 +12,7 @@ import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
+import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../../api_client/api_client.dart';
 import '../../../auth/services/auth_service.dart';
@@ -20,6 +21,8 @@ import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
 import '../../main/pages/base_page.dart';
 import '../../main/pages/home_page.dart';
+import '../create_account.dart';
+import '../widgets/social_links.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -120,23 +123,80 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                                 return null;
                               }, TextInputType.emailAddress),
+                              SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .end, // Aligns to the right
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      // Add your action here
+                                    },
+                                    child: Text(
+                                      "Forgot Password",
+                                      style: TextStyle(
+                                        color: Colors
+                                            .blue, // Make it look like a link
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               _buildInputPassword("Password",
                                   "Enter your password", _passwordController),
                               SizedBox(height: 27),
                               _blockConsumer(),
+                              SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Don’t have an account yet? "),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => WelcomePage(),
+                                          ));
+                                    },
+                                    child: Text("Sign Up"),
+                                  )
+                                ],
+                              ),
+                              SizedBox(height: 27),
+                              Center(
+                                child: Text("Or"),
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              SocialLinks(
+                                onSocialClicked: (social) {
+                                  if (social == "facebook") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(social)),
+                                    );
+                                  }
+                                  if (social == "google") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(social)),
+                                    );
+                                  }
+                                  if (social == "x") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(social)),
+                                    );
+                                  }
+
+                                  // setState(() {
+                                  //   // selectedItemIds =
+                                  //   //     selectedIds; // Update selected IDs
+                                  // });
+                                },
+                              ),
                               SizedBox(
                                 height: 10,
-                              ),
-                              GestureDetector(
-                                onTap: () {},
-                                child: Text(
-                                  "Forgot Password",
-                                  style: TextStyle(
-                                    color:
-                                        Colors.blue, // Make it look like a link
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
                               ),
                             ],
                           ),
@@ -161,14 +221,14 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: const [
         Text(
-          "Login",
+          "Welcome Back",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(
           height: 16,
         ),
         Text(
-          'Start Swapping.',
+          'Login to continue swapping.',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12),
         ),
@@ -180,7 +240,8 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) async {
         if (state is LoginSuccess) {
-          AppNavigator.pushReplacement(context, HomePage());
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => HomePage()));
         } else if (state is LoginFailure) {
           // String jsonString = state.message
           String response = state.message;
@@ -207,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response)),
+              SnackBar(content: Text("Request Timeout")),
             );
           }
         }
@@ -223,46 +284,24 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 16),
-        Text(label),
-        SizedBox(height: 20),
+        // SizedBox(height: 16),
+        // SizedBox(height: 20),
         SizedBox(
           // height: 40,
           child: TextFormField(
-            obscureText: true,
-            controller: controller,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a password';
-              }
-              if (!AppConstants.passwordRegex.hasMatch(value)) {
-                return 'Password must be at least 8 characters, include\n'
-                    'a capital letter, a number, and a special character.';
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              suffixIcon: Icon(
-                Icons.lock,
-                color: AppColors.textFieldBorder,
-              ),
-              hintText: hintText,
-              hintStyle: TextStyle(color: AppColors.hintColor),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-
-              // contentPadding: EdgeInsets.symmetric(horizontal: 10),
-            ),
-          ),
+              obscureText: true,
+              controller: controller,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a password';
+                }
+                if (!AppConstants.passwordRegex.hasMatch(value)) {
+                  return 'Password must be at least 8 characters, include\n'
+                      'a capital letter, a number, and a special character.';
+                }
+                return null;
+              },
+              decoration: _decoration(hintText)),
         ),
       ],
     );
@@ -274,7 +313,6 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
         SizedBox(height: 12),
         SizedBox(
           // height: 40,
@@ -282,19 +320,7 @@ class _LoginPageState extends State<LoginPage> {
             controller: controller,
             // keyboardType: keyboardType ? keyboardType : ,
             validator: validator,
-            decoration: InputDecoration(
-                hintText: hintText,
-                hintStyle: TextStyle(color: AppColors.hintColor),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-                ),
-                contentPadding: EdgeInsets.all(8)),
+            decoration: _decoration(hintText),
           ),
         ),
       ],
@@ -330,6 +356,23 @@ class _LoginPageState extends State<LoginPage> {
           // )
           : null,
     );
+  }
+
+  InputDecoration _decoration(String label) {
+    return InputDecoration(
+        border: UnderlineInputBorder(),
+        labelText: label,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide(color: AppColors.primary, width: 2.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide(color: AppColors.primary, width: 1.0),
+        ),
+        // hintText: 'Enter password',
+        hintStyle: const TextStyle(color: AppColors.hintColor),
+        contentPadding: const EdgeInsets.all(10));
   }
 }
 

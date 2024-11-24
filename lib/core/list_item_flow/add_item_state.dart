@@ -11,8 +11,9 @@ class AddItemLoading extends AddItemState {}
 
 class AddItemSuccess extends AddItemState {
   final String message;
+  final String itemId;
 
-  AddItemSuccess(this.message);
+  AddItemSuccess(this.message, this.itemId);
 
   @override
   List<Object?> get props => [message];

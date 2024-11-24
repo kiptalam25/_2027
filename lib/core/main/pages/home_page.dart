@@ -43,7 +43,11 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
-                  AppNavigator.push(context, WelcomePage());
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WelcomePage(),
+                      ));
                 },
               ),
               PopupMenuButton<int>(

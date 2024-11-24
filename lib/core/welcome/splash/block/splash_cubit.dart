@@ -4,29 +4,32 @@ import 'package:swapifymobile/core/welcome/splash/block/splash_state.dart';
 
 class SplashCubit extends Cubit<SplashState> {
   SplashCubit() : super(DisplaySplash());
+
   Future<void> appStarted() async {
     await Future.delayed(const Duration(seconds: 3));
-    SharedPreferences? sharedPreferences;
 
-    if (_loadToken() != null) {
+    String? token = await _getToken();
+
+    if (token != null) {
       emit(Authenticated());
+    } else {
+      // You can uncomment and use this if you want to check the email as a fallback
+      // String? email = await _loadEmail();
+      // if (email != null) {
+      //   emit(IncompleteRegistration());
+      // } else {
+      emit(UnAuthenticated());
+      // }
     }
-    //else if (_loadEmail() != null) {
-    //   emit(IncompleteRegistration());
-    // } else {
-    emit(UnAuthenticated());
-    // }
+  }
+
+  Future<String?> _getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
   }
 
   Future<String?> _loadEmail() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var email = prefs.getString('email');
-    return email;
-  }
-
-  Future<String?> _loadToken() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-    return token;
+    return prefs.getString('email');
   }
 }

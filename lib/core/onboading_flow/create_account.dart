@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
+import 'package:swapifymobile/core/onboading_flow/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
+import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
 
 import '../../common/helper/navigator/app_navigator.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
 import '../config/themes/app_colors.dart';
+import '../form_validators.dart';
 
 class Registration extends StatefulWidget {
   final int currentPage;
@@ -18,6 +22,14 @@ class Registration extends StatefulWidget {
 }
 
 class _RegistrationState extends State<Registration> {
+  late final RegistrationService registrationService =
+      RegistrationService(new ApiClient());
+
+  final _formKey = GlobalKey<FormState>();
+  final FocusNode _emailFocusNode = FocusNode();
+  String? _errorText;
+  bool isLoading = false;
+
   late SharedPreferences sharedPreferences;
   final TextEditingController _emailController = TextEditingController();
 
@@ -106,38 +118,40 @@ class _RegistrationState extends State<Registration> {
                   ),
                   Column(
                     children: [
-                      SizedBox(
-                        // height: 40,
-                        child: TextFormField(
-                          controller: _emailController,
-                          onChanged: (value) {
-                            setState(() {
-                              username = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please valid email';
-                            }
-                          },
-                          style: TextStyle(),
-                          decoration: InputDecoration(
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: BorderSide(
-                                    color: AppColors.textFieldBorder,
-                                    width: 2.0),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: BorderSide(
-                                    color: AppColors.textFieldBorder,
-                                    width: 1.0),
-                              ),
-                              hintText: 'Enter email',
-                              hintStyle:
-                                  const TextStyle(color: AppColors.hintColor),
-                              contentPadding: const EdgeInsets.all(10)),
+                      Form(
+                        key: _formKey,
+                        child: SizedBox(
+                          // height: 40,
+                          child: TextFormField(
+                            controller: _emailController,
+                            onChanged: (value) {
+                              setState(() {
+                                username = value;
+                              });
+                            },
+                            // keyboardType: TextInputType.emailAddress,
+                            validator: FormValidators.validateEmail,
+                            style: TextStyle(),
+                            focusNode: _emailFocusNode,
+                            decoration: InputDecoration(
+                                errorText: _errorText,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(
+                                      color: AppColors.textFieldBorder,
+                                      width: 2.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(
+                                      color: AppColors.textFieldBorder,
+                                      width: 1.0),
+                                ),
+                                hintText: 'Enter email',
+                                hintStyle:
+                                    const TextStyle(color: AppColors.hintColor),
+                                contentPadding: const EdgeInsets.all(10)),
+                          ),
                         ),
                       ),
                       SizedBox(height: 16),
@@ -146,17 +160,32 @@ class _RegistrationState extends State<Registration> {
                         backgroundColor: AppColors.primary,
                         title: "Sign Up",
                         radius: 24,
-                        onPressed: () {
-                          // _saveEmailToPreferences(_emailController.text);
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProfilePage(
-                                  currentPage: 1,
-                                  email: _emailController.text,
-                                ),
-                              ));
-                        },
+                        onPressed: isLoading
+                            ? null
+                            : checkAndValidateUsername, // Disable button during loading
+                        content: isLoading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
+                              )
+                            : null,
+
+                        // checkAndValidateUsername,
+                        // if (_formKey.currentState?.validate() ?? false) {
+                        //   if (await emailExists(_emailController.text)) {
+                        //     Navigator.push(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //           builder: (context) => ProfilePage(
+                        //             currentPage: 1,
+                        //             email: _emailController.text,
+                        //           ),
+                        //         ));
+                        //   }
+                        // }
+                        // },
                       ),
                     ],
                   ),
@@ -167,138 +196,8 @@ class _RegistrationState extends State<Registration> {
                   SizedBox(
                     height: 40,
                   ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        width: 374,
-                        height: 46, // Set the desired width
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // AppNavigator.pushReplacement(context, LoginPage());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFF13C00),
-                            // Custom button background color
-                            side: BorderSide(
-                              color: Color(0xFFF13C00),
-                              // Custom border color
-                              width: 2, // Border width
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  12), // Custom border radius
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .center, // Center the icon and text
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons
-                                    .google, // Font Awesome Google icon
-                                color: Color(0xFFFFFFFF), // Icon color
-                              ),
-                              SizedBox(width: 8),
-                              // Space between icon and text
-                              Text(
-                                'Sign up with Google',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFFFFFFFF), // Text color
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      SizedBox(
-                        width: 374,
-                        height: 46, // Set the desired width
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // AppNavigator.pushReplacement(context, LoginPage());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3D5A98),
-                            // Custom button background color
-                            side: const BorderSide(
-                              color: Color(0xFF3D5A98),
-                              // Custom border color
-                              width: 2, // Border width
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  12), // Custom border radius
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .center, // Center the icon and text
-                            children: const [
-                              FaIcon(
-                                FontAwesomeIcons
-                                    .facebook, // Font Awesome Google icon
-                                color: Color(0xFFFFFFFF), // Icon color
-                              ),
-                              SizedBox(
-                                  width: 10), // Space between icon and text
-                              Text(
-                                'Sign up with Facebook',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFFFFFFFF), // Text color
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      SizedBox(
-                        width: 374,
-                        height: 46, // Set the desired width
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // AppNavigator.pushReplacement(context, LoginPage());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF000000),
-                            // Custom button background color
-                            side: BorderSide(
-                              color: Color(0xFF000000),
-                              // Custom border color
-                              width: 2, // Border width
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  12), // Custom border radius
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment
-                                .center, // Center the icon and text
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Image.asset("images/x.png"),
-                              ),
-                              SizedBox(width: 0),
-                              // Space between icon and text
-                              Text(
-                                'Sign up with X',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFFFFFFFF), // Text color
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  SocialLinks(
+                    onSocialClicked: (p0) {},
                   ),
                   SizedBox(
                     height: 16,
@@ -308,5 +207,70 @@ class _RegistrationState extends State<Registration> {
             ),
           ));
         }));
+  }
+
+  bool _isValidEmail(String email) {
+    const emailRegex = r'^[^@\s]+@[^@\s]+\.[^@\s]+$';
+    return RegExp(emailRegex).hasMatch(email);
+  }
+
+  Future<void> checkAndValidateUsername() async {
+    final username = _emailController.text.trim();
+
+    if (username.isEmpty) {
+      setState(() {
+        _errorText = 'Username is required';
+      });
+      _emailFocusNode.requestFocus();
+      return;
+    }
+
+    final isEmail = _isValidEmail(username);
+    if (!isEmail) {
+      setState(() {
+        _errorText = 'Enter a valid email (min 3 characters)';
+      });
+      _emailFocusNode.requestFocus();
+      return;
+    }
+
+    setState(() {
+      isLoading = true; // Show loading spinner
+      _errorText = null; // Clear previous error
+    });
+
+    try {
+      final result = await registrationService.checkEmail(username);
+
+      if (result.success && !result.available) {
+        setState(() {
+          _errorText = result.message; // e.g., "Username is taken"
+        });
+        _emailFocusNode.requestFocus();
+      } else {
+        setState(() {
+          // isLoading = true;
+          _errorText = null; // Clear the error if the username is valid
+        });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(
+                currentPage: 1,
+                email: _emailController.text,
+              ),
+            ));
+      }
+    } catch (e) {
+      print("Error .............................+" + e.toString());
+      setState(() {
+        _errorText = 'Failed to validate username. Please try again.';
+      });
+      _emailFocusNode.requestFocus();
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loading spinner
+      });
+    }
   }
 }

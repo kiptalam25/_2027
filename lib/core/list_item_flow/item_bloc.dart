@@ -20,12 +20,16 @@ class AddItemBloc extends Bloc<AddItemEvent, AddItemState> {
         ApiConstants.addItem, // Replace with your endpoint
         data: event.itemData,
       );
+      final responseData = response.data;
 
       // Handle successful response
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        emit(AddItemSuccess("Item created successfully!"));
+      if (responseData['success']) {
+        final message = responseData['message'] ?? 'Item created successfully!';
+        final itemId = responseData['item']['_id'];
+        emit(AddItemSuccess(message, itemId));
       } else {
-        emit(AddItemFailure("Unexpected response: ${response.statusCode}"));
+        emit(AddItemFailure("Unexpected response: ${response.statusCode}"
+            " ${responseData['message']}"));
       }
     } catch (e) {
       // Catch and handle errors

@@ -45,8 +45,9 @@ class AuthService {
   //   return UserModel.fromJson(response.data);
   // }
 
-  Future<void> logout() async {
-    await apiClient.post(ApiConstants.logout);
+  Future<ResponseModel> logout(String email) async {
+    final response = await apiClient.post(ApiConstants.logout);
+    return ResponseModel.fromJson(response.data);
   }
 
   Future<ResponseModel> register(
@@ -83,7 +84,7 @@ class AuthService {
 
   /// Check if a username is available
   Future<bool> checkUsername(String username) async {
-    final url = Uri.parse(ApiConstants.checkusername + '/check-username');
+    final url = Uri.parse(ApiConstants.checkUsername + '?username=$username');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

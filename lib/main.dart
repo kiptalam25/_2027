@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/Global.dart';
+import 'package:swapifymobile/core/onboading_flow/logout/logout_bloc.dart';
 import 'api_client/api_client.dart';
 import 'auth/services/auth_service.dart';
 import 'core/config/themes/app_colors.dart';
@@ -29,6 +30,9 @@ Future<void> main() async {
       ),
       BlocProvider(
         create: (context) => AddItemBloc(apiClient),
+      ),
+      BlocProvider(
+        create: (context) => LogoutBloc(sharedPreferences),
       ),
     ],
     child: MyApp(),

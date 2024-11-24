@@ -4,6 +4,8 @@ class LoginInitial extends LoginState {}
 
 class LoginLoading extends LoginState {}
 
+class Logout extends LoginState {}
+
 class LoginSuccess extends LoginState {
   final String token;
 

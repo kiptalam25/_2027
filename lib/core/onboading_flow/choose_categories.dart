@@ -10,18 +10,14 @@ import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/profile/profile_bloc.dart';
-import 'package:swapifymobile/core/onboading_flow/profile/profile_event.dart';
 import 'package:swapifymobile/core/onboading_flow/profile/profile_state.dart';
 import 'package:swapifymobile/core/onboading_flow/services/profile_service.dart';
+import 'package:swapifymobile/core/onboading_flow/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/popup.dart';
-
 import '../../api_client/api_client.dart';
-import '../../auth/services/auth_service.dart';
-import '../main/pages/base_page.dart';
+import '../../auth/models/response_model.dart';
 import '../main/pages/home_page.dart';
-import 'registration/registration_event.dart';
-import '../usecases/user_profile.dart';
 
 class ChooseCategories extends StatefulWidget {
   final int currentPage;
@@ -32,6 +28,11 @@ class ChooseCategories extends StatefulWidget {
 }
 
 class _ChooseCategoriesState extends State<ChooseCategories> {
+  bool isUpdating = false;
+  bool isComplete = false;
+  bool isFetchingCategories = false;
+  final RegistrationService registrationService =
+      RegistrationService(new ApiClient());
   List<Map<String, String>> items = [];
   List<String> selectedItemIds = []; // To store selected item IDs
 
@@ -41,49 +42,85 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
     fetchItemsFromApi();
   }
 
-  Future<RegisterUser?> getUserData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userData = prefs.getString('registerUser'); // Get JSON string
-    if (userData != null) {
-      Map<String, dynamic> userMap = jsonDecode(userData); // Decode JSON to map
-      return RegisterUser.fromJson(userMap); // Convert map to RegisterUser
-    }
-    return null; // Return null if no data found
+  // Future<RegisterUser?> getUserData() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? userData = prefs.getString('registerUser'); // Get JSON string
+  //   if (userData != null) {
+  //     Map<String, dynamic> userMap = jsonDecode(userData); // Decode JSON to map
+  //     return RegisterUser.fromJson(userMap); // Convert map to RegisterUser
+  //   }
+  //   return null; // Return null if no data found
+  // }
+
+  // Future<UserProfile?> assembleProfile() async {
+  //   RegisterUser? user = await getUserData();
+  //
+  //   if (user != null) {
+  //     UserProfile userProfile = UserProfile(
+  //       fullName: user.fullName,
+  //       profilePicUrls: [
+  //         "https://example.com/pic1.jpg",
+  //         "https://example.com/pic2.jpg"
+  //       ],
+  //       bio: user.bio,
+  //       location: Location(
+  //         country: "United States",
+  //         city: "San Francisco",
+  //       ),
+  //       interests: Interests(
+  //         subCategoryId: selectedItemIds, // Use selected item IDs here
+  //         city: ["New York", "Los Angeles"],
+  //       ),
+  //     );
+  //     return userProfile;
+  //
+  //     // Now you can use userProfile, e.g., post it to an API
+  //   } else {
+  //     print("No user data found in SharedPreferences.");
+  //     return null;
+  //   }
+  // }
+  Future<String> getSwapCategoriesAsJson() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    final Map<String, dynamic> jsonMap = {
+      "categories": selectedItemIds,
+      "userId": sharedPreferences.get("userId")
+    };
+    return jsonEncode(jsonMap);
   }
 
-  Future<UserProfile?> assembleProfile() async {
-    RegisterUser? user = await getUserData();
-
-    if (user != null) {
-      UserProfile userProfile = UserProfile(
-        fullName: user.fullName,
-        profilePicUrls: [
-          "https://example.com/pic1.jpg",
-          "https://example.com/pic2.jpg"
-        ],
-        bio: user.bio,
-        location: Location(
-          country: "United States",
-          city: "San Francisco",
-        ),
-        interests: Interests(
-          subCategoryId: selectedItemIds, // Use selected item IDs here
-          city: ["New York", "Los Angeles"],
-        ),
+  Future<void> updateSwapInterests(BuildContext context) async {
+    try {
+      setState(() {
+        isUpdating = true;
+      });
+      String payload = await getSwapCategoriesAsJson();
+      final response = await registrationService.updateSwapInterests(payload);
+      if (response.success) {
+        setState(() {
+          isUpdating = false;
+        });
+        showCustomModalBottomSheet(context);
+      } else {
+        isUpdating = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${response.success}   ${response.message}')),
+        );
+      }
+    } catch (e) {
+      isUpdating = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${e}')),
       );
-      return userProfile;
-
-      // Now you can use userProfile, e.g., post it to an API
-    } else {
-      print("No user data found in SharedPreferences.");
-      return null;
     }
   }
 
   Future<void> fetchItemsFromApi() async {
+    isFetchingCategories = true;
     try {
       final response = await Dio().get(ApiConstants.categories);
       if (response.statusCode == 200) {
+        isFetchingCategories = false;
         setState(() {
           items = response.data
               .map<Map<String, String>>((item) => {
@@ -109,83 +146,61 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                 hideBack: true),
             body: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  _topTitle(),
-                  SingleChildScrollView(
-                    child: items.isEmpty
-                        ? Center(child: CircularProgressIndicator())
-                        : FilteredItemSelector(
-                            allItems: items,
-                            onItemAdded: (selectedIds) {
-                              setState(() {
-                                selectedItemIds =
-                                    selectedIds; // Update selected IDs
-                              });
-                            },
-                            onItemRemoved: (selectedIds) {
-                              setState(() {
-                                selectedItemIds =
-                                    selectedIds; // Update selected IDs
-                              });
-                            },
-                          ),
-                  ),
-                  Spacer(),
-                  BlocConsumer<ProfileBloc, ProfileState>(
-                    listener: (context, state) {
-                      if (state is CreateProfileSuccess) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Profile Created!')),
-                        );
-
-                        AppNavigator.pushReplacement(context, HomePage());
-                      } else if (state is CreateProfileError) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(state.message)),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return SizedBox(
-                        width: double.infinity,
-                        child: BasicAppButton(
-                            title: "Continue",
-                            width: double.infinity,
-                            radius: 24,
-                            onPressed: state is CreateProfileLoading
-                                ? null
-                                : () async {
-                                    UserProfile? userProfile =
-                                        await assembleProfile();
-                                    if (userProfile != null) {
-                                      BlocProvider.of<ProfileBloc>(context)
-                                          .add(CreateUserProfile(userProfile));
-                                    }
-                                  }
-                            //     () {
-                            //   createProfile(); // Call createProfile with selected IDs
-                            //   showCustomModalBottomSheet(context);
-                            // },
-                            ),
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      AppNavigator.pushReplacement(context, HomePage());
-                    },
-                    child: Text("Skip for now",
-                        style: TextStyle(fontWeight: FontWeight.w700)),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  )
-                ],
-              ),
+              child: isFetchingCategories
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Column(
+                      children: [
+                        _topTitle(),
+                        SingleChildScrollView(
+                          child: items.isEmpty
+                              ? Center(child: CircularProgressIndicator())
+                              : FilteredItemSelector(
+                                  returnType: "id",
+                                  allItems: items,
+                                  onItemAdded: (selectedIds) {
+                                    setState(() {
+                                      selectedItemIds =
+                                          selectedIds; // Update selected IDs
+                                    });
+                                  },
+                                  onItemRemoved: (selectedIds) {
+                                    setState(() {
+                                      selectedItemIds =
+                                          selectedIds; // Update selected IDs
+                                    });
+                                  },
+                                ),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          child: BasicAppButton(
+                              title: "Continue",
+                              width: double.infinity,
+                              radius: 24,
+                              onPressed: isUpdating
+                                  ? null
+                                  : () async {
+                                      updateSwapInterests(context);
+                                    }),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            AppNavigator.pushReplacement(context, HomePage());
+                          },
+                          child: Text("Skip for now",
+                              style: TextStyle(fontWeight: FontWeight.w700)),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        )
+                      ],
+                    ),
             )),
       ),
     );
@@ -210,8 +225,8 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
 }
 
 class FilteredItemSelector extends StatefulWidget {
-  final List<Map<String, String>>
-      allItems; // Updated to accept list of maps with 'id' and 'name'
+  final List<Map<String, String>> allItems;
+  final String returnType;
   final Function(List<String>) onItemAdded;
   final Function(List<String>) onItemRemoved;
   final String labelText;
@@ -224,6 +239,7 @@ class FilteredItemSelector extends StatefulWidget {
     required this.onItemRemoved,
     this.labelText = 'Choose Categories',
     this.hintText = 'Type to choose...',
+    required this.returnType,
   }) : super(key: key);
 
   @override
@@ -260,7 +276,8 @@ class _FilteredItemSelectorState extends State<FilteredItemSelector> {
         filteredItems = widget.allItems; // Reset the filtered list
       });
       widget.onItemAdded(selectedItems
-          .map((item) => item['id']!)
+          .map((item) =>
+              widget.returnType == "name" ? item['name']! : item['id']!)
           .toList()); // Notify parent of selected IDs
     }
   }
@@ -271,7 +288,8 @@ class _FilteredItemSelectorState extends State<FilteredItemSelector> {
       selectedItems.removeWhere((selected) => selected['id'] == item['id']);
     });
     widget.onItemRemoved(selectedItems
-        .map((item) => item['id']!)
+        .map(
+            (item) => widget.returnType == "name" ? item['name']! : item['id']!)
         .toList()); // Notify parent of selected IDs
   }
 

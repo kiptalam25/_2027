@@ -25,4 +25,31 @@ class CategoryService {
       return [];
     }
   }
+
+  Future<List<Map<String, String>>> fetchSubCategories(String newValue) async {
+    try {
+      final response =
+          await ApiClient().get(ApiConstants.subcategories + "/" + newValue);
+
+      // Validate the response structure
+      if (response.data == null || !response.data['success']) {
+        throw Exception("Failed to fetch subcategories");
+      }
+
+      // Extract the 'subCategories' array
+      final List<dynamic> subCategories = response.data['subCategories'];
+
+      // Transform the data to List<Map<String, String>>
+      return subCategories.map<Map<String, String>>((subCategory) {
+        return {
+          'id': subCategory['_id'], // '_id' is already a string
+          'name': subCategory['name'], // 'name' is already a string
+        };
+      }).toList();
+    } catch (e) {
+      // Handle exceptions gracefully
+      print("Error fetching subcategories: $e");
+      throw e;
+    }
+  }
 }

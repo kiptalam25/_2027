@@ -198,7 +198,7 @@ class _VerifyPageState extends State<VerifyPage> {
       String token = response.token ?? '';
       final prefs = await SharedPreferences.getInstance();
 
-      await prefs.setString('auth_token', token); // Store token
+      await prefs.setString('token', token); // Store token
       ApiClient().setAuthToken(token);
 
       // Optionally, store any other user data like name, userId, etc.
@@ -319,7 +319,7 @@ class _VerifyPageState extends State<VerifyPage> {
       onPressed: state is VerificationComplete
           ? null
           : () {
-              email ??= "kiptalamj@gmail.com";
+              email ??= "";
               if (areAllFieldsFilled()) {
                 BlocProvider.of<RegistrationBloc>(context)
                     .add(CompleteVerification(

@@ -11,8 +11,12 @@ class ApiConstants {
   static const String checkemail = '/users/auth/check-email';
   static const String initiateVerification = '/users/auth/verification'; //post
   static const String completeVerification = '/users/auth/verification'; //put
-  static const String checkusername = '/users/auth/check_username';
+  static const String checkEmail = '/users/availability/email';
+  static const String checkUsername = '/users/availability/username';
+
+  static const String updateSwapInterests = '/users/profile/categories';
   static const String categories = baseUrl + '/categories';
+  static const String subcategories = baseUrl + '/subcategories/category';
 
   // User endpoints
   static const String userProfile = '/user/profile';

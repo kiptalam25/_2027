@@ -49,7 +49,7 @@ void showCustomModalBottomSheet(BuildContext context) {
               height: 46,
               onPressed: () {
                 Navigator.of(context).pop(); // Close the modal
-                Navigator.push(context,
+                Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => HomePage()));
               },
             ),

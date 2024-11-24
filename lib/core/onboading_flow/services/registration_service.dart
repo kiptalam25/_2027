@@ -1,3 +1,6 @@
+import 'package:dio/src/response.dart';
+import 'package:swapifymobile/auth/models/response_model.dart';
+
 import '../../../api_client/api_client.dart';
 import '../../../api_constants/api_constants.dart';
 import '../../../auth/services/auth_service.dart';
@@ -30,5 +33,51 @@ class RegistrationService {
       // return "Failed";
       print('Failed to load items: $e');
     }
+  }
+
+  Future<UsernameCheckResponse> checkEmail(String username) async {
+    final String path =
+        '?username=$username'; // Adjust the endpoint as necessary
+    try {
+      final response = await apiClient.get(ApiConstants.checkEmail + path);
+
+      // Parse the response into a UsernameCheckResponse object
+      final data = UsernameCheckResponse.fromJson(response.data);
+
+      return data;
+    } catch (e) {
+      print('Error checking username: $e');
+      rethrow;
+    }
+  }
+
+  Future<ResponseModel> updateSwapInterests(String swapCategoriesAsJson) async {
+    final response = await apiClient.post(ApiConstants.updateSwapInterests,
+        data: swapCategoriesAsJson);
+    return ResponseModel.fromJson(response.data);
+  }
+}
+
+class UsernameCheckResponse {
+  final bool success;
+  final bool available;
+  final String message;
+  // final List<String> suggestions;
+
+  UsernameCheckResponse({
+    required this.success,
+    required this.available,
+    required this.message,
+    // required this.suggestions,
+  });
+
+  // Factory constructor to create an instance from JSON
+  factory UsernameCheckResponse.fromJson(Map<String, dynamic> json) {
+    return UsernameCheckResponse(
+      success: json['success'],
+      available: json['available'],
+      message: json['message'],
+      // suggestions: List<String>.from(json['suggestions'] ?? []),
+    );
   }
 }
