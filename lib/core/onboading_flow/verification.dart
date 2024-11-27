@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/login/login.dart';
@@ -26,7 +27,7 @@ class CountdownTimer extends StatefulWidget {
 }
 
 class _CountdownTimerState extends State<CountdownTimer> {
-  int secondsRemaining = 30;
+  int secondsRemaining = 1000;
   Timer? timer;
 
   @override
@@ -112,11 +113,13 @@ class _VerifyPageState extends State<VerifyPage> {
 
   _loadEmail() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      email = prefs.getString('email'); // Get the email from SharedPreferences
-      password =
-          prefs.getString('password'); // Get the pass from SharedPreferences
+    setState(() async {
+      email = await prefs
+          .getString('email'); // Get the email from SharedPreferences
+      password = await prefs
+          .getString('password'); // Get the pass from SharedPreferences
     });
+    print("Credentials Loaded................................................");
     // BlocProvider.of<RegistrationBloc>(context).add(ResendVerificationEmail(
     //   email!,
     // ));
@@ -134,6 +137,9 @@ class _VerifyPageState extends State<VerifyPage> {
       // Move focus to the next field if it exists
       if (index < fieldCount - 1) {
         FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+      } else {
+        // Optionally, close the keyboard after the last field
+        _focusNodes[index].unfocus();
       }
     } else if (index > 0) {
       // Move back to the previous field if deleted
@@ -200,10 +206,13 @@ class _VerifyPageState extends State<VerifyPage> {
   }
 
   Future<bool> _autoLogin(BuildContext context) async {
-    // Retrieve user credentials (email, password) or use saved credentials
-    String? email = this.email; // Example, replace with actual value
-    String? password = this.password; // Example, replace with actual value
-
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? email = await sharedPreferences
+        .getString("email"); // Example, replace with actual value
+    String? password = await sharedPreferences
+        .getString("password"); // Example, replace with actual value
+    print(
+        "Autologin begun using................................................");
     // Perform login using AuthService
     final authService = AuthService(ApiClient());
     try {
@@ -217,7 +226,7 @@ class _VerifyPageState extends State<VerifyPage> {
       ApiClient().setAuthToken(token);
 
       // Optionally, store any other user data like name, userId, etc.
-      await prefs.setString('user_id', response.userId.toString());
+      await prefs.setString('userId', response.userId.toString());
 
       return true;
     } catch (e) {
@@ -255,20 +264,26 @@ class _VerifyPageState extends State<VerifyPage> {
           height: 48,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(fieldCount, (index) {
-            return SizedBox(
+            return Container(
               width: 60,
-              child: TextField(
+              margin: const EdgeInsets.symmetric(horizontal: 5),
+              child: TextFormField(
                 controller: _controllers[index],
                 focusNode: _focusNodes[index],
+                keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
                 maxLength: 1,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
-                  counterText: "",
+                  counterText: "", // Hides the character counter
                   border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                          width: 1, color: AppColors.textFieldBorder)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 // keyboardType: TextInputType.number,
                 onChanged: (value) => _onChanged(value, index),

@@ -2,43 +2,41 @@ import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/main/pages/home_page.dart';
 import '../../../../auth/login/login.dart';
 import '../../../onboading_flow/onboarding_flow.dart';
 import '../../widgets/privacy_pop_up.dart';
 
-class WelcomePage extends StatelessWidget {
+class WelcomePage extends StatefulWidget {
   const WelcomePage({Key? key}) : super(key: key);
 
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
   // void _showPrivacyPopup(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     builder: (context) => DraggableScrollableSheet(
-  //       initialChildSize: 0.5,
-  //       maxChildSize: 0.8,
-  //       minChildSize: 0.3,
-  //       expand: false,
-  //       builder: (BuildContext context, ScrollController scrollController) {
-  //         return PrivacyPolicyPopup(
-  //           onCancel: () {
-  //             Navigator.pop(context); // Close the popup on Cancel
-  //           },
-  //           onContinue: () {
-  //             Navigator.pop(context); // Close the popup and show a message
-  //             ScaffoldMessenger.of(context).showSnackBar(
-  //               SnackBar(
-  //                 content: Text('You accepted the Privacy Policy'),
-  //               ),
-  //             );
-  //           },
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
+  @override
+  void initState() {
+    checkIfLoggedIn(context);
+    super.initState();
+  }
+
+  checkIfLoggedIn(BuildContext context) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = await sharedPreferences.getString("token");
+    if (token!.isNotEmpty) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
+          ));
+    }
+  }
 
   void _showPrivacyPopup(BuildContext context) {
     showDialog(

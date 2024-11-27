@@ -80,13 +80,13 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
   //     return null;
   //   }
   // }
-  Future<String> getSwapCategoriesAsJson() async {
+  Future<Map<String, dynamic>> getSwapCategoriesAsJson() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     final Map<String, dynamic> jsonMap = {
       "categories": selectedItemIds,
       "userId": sharedPreferences.get("userId")
     };
-    return jsonEncode(jsonMap);
+    return jsonMap;
   }
 
   Future<void> updateSwapInterests(BuildContext context) async {
@@ -94,7 +94,8 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
       setState(() {
         isUpdating = true;
       });
-      String payload = await getSwapCategoriesAsJson();
+      var payload = await getSwapCategoriesAsJson();
+      print(jsonEncode(payload));
       final response = await registrationService.updateSwapInterests(payload);
       if (response.success) {
         setState(() {
@@ -102,7 +103,9 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
         });
         showCustomModalBottomSheet(context);
       } else {
-        isUpdating = false;
+        setState(() {
+          isUpdating = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${response.success}   ${response.message}')),
         );
@@ -180,6 +183,19 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                               title: "Continue",
                               width: double.infinity,
                               radius: 24,
+                              content: isUpdating
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary,
+                                      ),
+                                    )
+                                  : Text(
+                                      "Continue",
+                                      style: TextStyle(
+                                          color: AppColors.background),
+                                    ),
                               onPressed: isUpdating
                                   ? null
                                   : () async {

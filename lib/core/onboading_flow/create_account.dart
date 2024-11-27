@@ -29,13 +29,7 @@ class _RegistrationState extends State<Registration> {
   String? _errorText;
   bool isLoading = false;
 
-  late SharedPreferences sharedPreferences;
   final TextEditingController _emailController = TextEditingController();
-
-  Future<void> _saveEmailToPreferences(String email) async {
-    sharedPreferences.clear();
-    await sharedPreferences.setString('email', email);
-  }
 
   String username = '';
   String password = '';
@@ -215,6 +209,8 @@ class _RegistrationState extends State<Registration> {
   }
 
   Future<void> checkAndValidateUsername() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.clear();
     final username = _emailController.text.trim();
 
     if (username.isEmpty) {

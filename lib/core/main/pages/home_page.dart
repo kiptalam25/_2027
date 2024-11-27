@@ -1,14 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
-import 'package:swapifymobile/core/main/pages/product_description.dart';
+import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
-import '../../../common/helper/navigator/app_navigator.dart';
-import '../../../common/widgets/button/basic_app_button.dart';
 import '../../config/themes/app_colors.dart';
 import '../../list_item_flow/add_new_item_sheet.dart';
 import '../../usecases/item.dart';
-import '../../welcome/splash/pages/welcome.dart';
 import '../../widgets/search_input.dart';
 import '../item_grid.dart';
 import '../widgets/bottom_navigation.dart';
@@ -23,7 +20,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ItemsService itemsService = ItemsService(ApiClient());
 
-  // final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
   late List<Item> items = [];
   bool isLoading = false;
 
@@ -123,13 +119,18 @@ class _HomePageState extends State<HomePage> {
                     value: 1,
                     child: Text('Option 1'),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 2,
-                    child: Text('Option 2'),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VerifyPage(currentPage: 3),
+                        )),
+                    child: const Text('Option 2'),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 3,
-                    child: Text('Option 3'),
+                    child: const Text('Option 3'),
                   )
                 ],
               )

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/src/response.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
 
@@ -56,9 +58,10 @@ class RegistrationService {
     }
   }
 
-  Future<ResponseModel> updateSwapInterests(String swapCategoriesAsJson) async {
+  Future<ResponseModel> updateSwapInterests(
+      Map<String, dynamic> swapCategoriesAsJson) async {
     final response = await apiClient.post(ApiConstants.updateSwapInterests,
-        data: swapCategoriesAsJson);
+        data: jsonEncode(swapCategoriesAsJson));
     return ResponseModel.fromJson(response.data);
   }
 }

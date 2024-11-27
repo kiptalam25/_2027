@@ -328,18 +328,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           ));
                           final _fullPhoneNumber =
                               '$_selectedCountryCode${_phoneController.text}';
-                          saveUserData(
-                            RegisterUser(
-                              profilePicUrls:
-                                  uploadedUrl != null ? uploadedUrl : "",
-                              fullName: _fullNameController.text,
-                              email: _emailController.text,
-                              password: "",
-                              name: _usernameController.text,
-                              phoneNumber: _fullPhoneNumber,
-                              bio: _bioController.text,
-                            ),
-                          );
+                          // saveUserData(
+                          //   RegisterUser(
+                          //     profilePicUrls:
+                          //         uploadedUrl != null ? uploadedUrl : "",
+                          //     fullName: _fullNameController.text,
+                          //     email: _emailController.text,
+                          //     password: "",
+                          //     name: _usernameController.text,
+                          //     phoneNumber: _fullPhoneNumber,
+                          //     bio: _bioController.text,
+                          //   ),
+                          // );
 
                           saveCredentials(
                               _emailController.text, _passwordController.text);
@@ -399,6 +399,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', email);
     await prefs.setString('password', password);
+    print("Credentials Saved................................................");
+    print(email);
+    print(password);
   }
 
   Widget _buildProfileImageSection() {
