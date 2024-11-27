@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swapifymobile/core/main/pages/base_page.dart';
 import 'package:swapifymobile/core/onboading_flow/create_account.dart';
-import 'package:swapifymobile/core/onboading_flow/login/login.dart';
-import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'dart:math' as math;
 
 import '../../../config/themes/app_colors.dart';

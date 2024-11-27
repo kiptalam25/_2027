@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/auth/login/login.dart';
 import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 // import 'package:swapifymobile/core/onboading_flow/choose.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
@@ -157,17 +158,31 @@ class _VerifyPageState extends State<VerifyPage> {
                 BlocConsumer<RegistrationBloc, RegistrationState>(
                   listener: (context, state) async {
                     if (state is VerificationComplete) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Verification successful')),
-                      );
+                      bool isLoggedIn = await _autoLogin(context);
 
-                      await _autoLogin(context);
-
-                      AppNavigator.pushReplacement(
-                          context,
-                          ChooseCategories(
-                            currentPage: 4,
-                          ));
+                      if (isLoggedIn) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Verification successful')),
+                        );
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChooseCategories(
+                                currentPage: 4,
+                              ),
+                            ));
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Autologin Failed!\n Account is Verified')),
+                        );
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ));
+                      }
                     } else if (state is RegistrationError) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(state.message)),
@@ -184,7 +199,7 @@ class _VerifyPageState extends State<VerifyPage> {
     );
   }
 
-  Future<void> _autoLogin(BuildContext context) async {
+  Future<bool> _autoLogin(BuildContext context) async {
     // Retrieve user credentials (email, password) or use saved credentials
     String? email = this.email; // Example, replace with actual value
     String? password = this.password; // Example, replace with actual value
@@ -204,12 +219,10 @@ class _VerifyPageState extends State<VerifyPage> {
       // Optionally, store any other user data like name, userId, etc.
       await prefs.setString('user_id', response.userId.toString());
 
-      // You may want to notify the user that login was successful
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logged in successfully!')),
-      );
+      return true;
     } catch (e) {
       // Handle login failure
+      return false;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login failed: $e')),
       );

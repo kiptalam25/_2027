@@ -1,3 +1,5 @@
+import 'package:dio/src/response.dart';
+
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
@@ -19,6 +21,30 @@ class ItemsService {
     } catch (e) {
       // return ResponseModel(success: , message: message)
       throw Exception("Failed to create profile: $e");
+    }
+  }
+
+  Future<Response?> fetchItems(String keyword) async {
+    final apiClient = ApiClient();
+    try {
+      final response = await apiClient.get(
+        ApiConstants.searchItems,
+        queryParameters: {
+          'keyword': keyword,
+          'category': '',
+          'condition': '',
+          'sort': 'createdAt',
+          'page': 1,
+          'limit': 50,
+          'order': 'desc', // or 'desc'
+        },
+      );
+
+      print('Response data: ${response.data}');
+      return response;
+    } catch (e) {
+      print('Error: $e');
+      return null;
     }
   }
 

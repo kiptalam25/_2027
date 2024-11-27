@@ -2,12 +2,10 @@ import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
-import 'package:swapifymobile/core/onboading_flow/login/login.dart';
-import 'package:swapifymobile/core/onboading_flow/verification.dart';
+import '../../../../auth/login/login.dart';
 import '../../../onboading_flow/onboarding_flow.dart';
 import '../../widgets/privacy_pop_up.dart';
 

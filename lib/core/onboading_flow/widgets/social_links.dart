@@ -4,9 +4,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SocialLinks extends StatefulWidget {
   final Function(String) onSocialClicked;
+  final String page;
   // final Function(List<String>) onItemRemoved;
 
-  const SocialLinks({Key? key, required this.onSocialClicked})
+  const SocialLinks(
+      {Key? key, required this.onSocialClicked, required this.page})
       : super(key: key);
 
   @override
@@ -44,16 +46,19 @@ class _SocialLinksState extends State<SocialLinks> {
             child: Row(
               mainAxisAlignment:
                   MainAxisAlignment.center, // Center the icon and text
-              children: const [
-                FaIcon(
+              children: [
+                const FaIcon(
                   FontAwesomeIcons.google, // Font Awesome Google icon
                   color: Color(0xFFFFFFFF), // Icon color
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 // Space between icon and text
+
                 Text(
-                  'Sign up with Google',
-                  style: TextStyle(
+                  widget.page == "login"
+                      ? 'Continue with Google'
+                      : 'Sign up with Google',
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFFFFFFFF), // Text color
                   ),
@@ -85,15 +90,17 @@ class _SocialLinksState extends State<SocialLinks> {
             child: Row(
               mainAxisAlignment:
                   MainAxisAlignment.center, // Center the icon and text
-              children: const [
-                FaIcon(
+              children: [
+                const FaIcon(
                   FontAwesomeIcons.facebook, // Font Awesome Google icon
                   color: Color(0xFFFFFFFF), // Icon color
                 ),
-                SizedBox(width: 10), // Space between icon and text
+                const SizedBox(width: 10), // Space between icon and text
                 Text(
-                  'Sign up with Facebook',
-                  style: TextStyle(
+                  widget.page == "login"
+                      ? 'Continue with Facebook'
+                      : "Sign up with facebook",
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFFFFFFFF), // Text color
                   ),
@@ -135,7 +142,7 @@ class _SocialLinksState extends State<SocialLinks> {
                 SizedBox(width: 0),
                 // Space between icon and text
                 Text(
-                  'Sign up with X',
+                  widget.page == "login" ? 'Continue with X' : 'Sign up with X',
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFFFFFFFF), // Text color

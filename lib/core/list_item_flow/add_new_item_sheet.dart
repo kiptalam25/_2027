@@ -35,6 +35,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   // pageController = this.pageController;
   bool isBarterChecked = false;
   bool isDonationChecked = false;
+  final _formKey = GlobalKey<FormState>();
   // final int _maxCharacters = 500;
 
   bool isFirstStep = true;
@@ -45,7 +46,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceRange = TextEditingController();
-  final TextEditingController itemCondition = TextEditingController();
 
   // Method to create JSON from the selected checkboxes
   String getCheckboxJson() {
@@ -82,7 +82,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
     Map<String, dynamic> additionalData = {
       'title': itemNameController.text,
       'description': descriptionController.text,
-      'condition': itemCondition.text,
+      'condition': selectedCondition,
       'priceRange': priceRange.text,
       'categoryId': selectedCategory!,
       'subCategoryId': itemSubCategory!,
@@ -94,19 +94,26 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   }
 
   // Method to combine JSON objects
-  String combineJson(String json1, String json2, String json3) {
+  Map<String, dynamic> combineJson(String json1, String json2, String json3) {
     itemData = {
       ...jsonDecode(json1),
       ...jsonDecode(json2),
       ...jsonDecode(json3)
     };
-    return jsonEncode(itemData);
+    return itemData;
   }
 
   List<Map<String, String>> _categories = [];
+  List<Map<String, String>> _conditions = [
+    {'id': 'new', 'name': 'New'},
+    {'id': 'like new', 'name': 'Like New'},
+    {'id': 'used', 'name': 'Used'},
+    {'id': 'fair', 'name': 'Fair'},
+    {'id': 'poor', 'name': 'Poor'},
+  ];
   List<Map<String, String>> _subCategories = [];
   String? selectedCategoryId;
-  late String? selectedCondition;
+  late String? selectedCondition = _conditions.first['id'];
   late String? selectedCategory = "";
   late String? selectedCategoryOfInterest;
   late String? itemSubCategory = "";
@@ -132,7 +139,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       _isLoading = false;
 
       if (_categories.isNotEmpty) {
-        selectedCondition = _categories.first['id']!;
+        // selectedCondition = _conditions.first['id']!;
         selectedCategory = _categories.first['id']!;
         findSubCAtegories(selectedCategory!);
         selectedCategoryOfInterest = _categories.first['id']!;
@@ -171,304 +178,316 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
         right: 16.0,
       ),
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // Makes the sheet's height flexible
-          children: [
-            Column(
-              children: [
-                const SizedBox(
-                  height: 24,
-                ),
-                Center(
-                  child: Container(
-                    height: 3,
-                    width: 40,
-                    color: AppColors.dashColor, // Set the background color
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Makes the sheet's height flexible
+            children: [
+              Column(
+                children: [
+                  const SizedBox(
+                    height: 24,
                   ),
-                ),
-                const SizedBox(
-                  height: 32,
-                  child: Align(
-                    alignment:
-                        Alignment.bottomCenter, // Align the text at the bottom
-                    child: Text(
-                      'List New Item',
-                      style: TextStyle(fontSize: 16, color: AppColors.primary),
+                  Center(
+                    child: Container(
+                      height: 3,
+                      width: 40,
+                      color: AppColors.dashColor, // Set the background color
                     ),
                   ),
-                ),
-                Divider(
-                  // Line under the title
-                  color: AppColors.dividerColor, // Color of the line
-                  thickness: 2, // Thickness of the line
-                ),
-              ],
-            ),
-
-            // const SizedBox(height: 48),
-            if (isFirstStep) ...[
-              CheckboxListTile(
-                title: Text('Barter'),
-                value: isBarterChecked,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isBarterChecked = value ?? false;
-                  });
-                },
-                activeColor: AppColors.primary,
-                checkColor: Colors.white,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              CheckboxListTile(
-                title: Text('Donation'),
-                value: isDonationChecked,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isDonationChecked = value ?? false;
-                  });
-                },
-                activeColor: AppColors.primary,
-                checkColor: Colors.white,
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-              )
-            ] else ...[
-              SizedBox(
-                height: 16,
-              ),
-              InputSection(
-                label: "Item Name*",
-                hintText: "Enter item name",
-                controller: itemNameController,
-                maxCharacters: 0, // Optional
-              ),
-
-              // _buildInputSection(
-              //     "Item Name*", "Enter item name", itemNameController, 0),
-              SizedBox(
-                height: 16,
-              ),
-              // TextField(
-              // controller: descriptionController,
-              InputSection(
-                label: "Description*",
-                hintText: "Briefly describe the item",
-                controller: descriptionController,
-                maxCharacters: 500, // Optional
-              ),
-              // _buildInputSection("Description*", "Briefly describe the item",
-              //     descriptionController, 500),
-              SizedBox(
-                height: 16,
-              ),
-              // Text("Condition*"),
-              InputSection(
-                label: "Condition*",
-                hintText: "Item Condition",
-                controller: itemCondition,
-                maxCharacters: 0,
-              ),
-              // _categories.isEmpty
-              //     ? CircularProgressIndicator()
-              //     : CustomDropdown(
-              //         value: selectedCondition,
-              //         items: _categories,
-              //         // hintText: 'Item Category*',
-              //         onChanged: (String? newValue) {
-              //           setState(() {
-              //             selectedCondition = newValue!;
-              //           });
-              //         },
-              //       ),
-              const SizedBox(
-                height: 16,
-              ),
-              if (isBarterChecked) ...[
-                InputSection(
-                  label: "Price Range",
-                  hintText: "Enter price range of the item",
-                  controller: priceRange,
-                  maxCharacters: 0,
-                ),
-                // _buildInputSection("Price Range",
-                //     "Enter price range of the item", priceRange, 0),
-              ],
-              const SizedBox(
-                height: 16,
-              ),
-              Text("Item Category*"),
-              _categories.isEmpty
-                  ? SizedBox(
-                      height: 20, width: 20, child: CircularProgressIndicator())
-                  : CustomDropdown(
-                      value: selectedCategory,
-                      items: _categories,
-                      // hintText: 'Item Category*',
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedCategory = newValue!;
-                          _subCategories = [];
-                          findSubCAtegories(newValue);
-                        });
-                      },
+                  const SizedBox(
+                    height: 32,
+                    child: Align(
+                      alignment: Alignment
+                          .bottomCenter, // Align the text at the bottom
+                      child: Text(
+                        'List New Item',
+                        style:
+                            TextStyle(fontSize: 16, color: AppColors.primary),
+                      ),
                     ),
-              const SizedBox(
-                height: 16,
-              ),
-              Text("Item Sub-category*"),
-              _subCategories.isEmpty && _isFetchingSubCategories
-                  ? SizedBox(
-                      height: 20, width: 20, child: CircularProgressIndicator())
-                  // if (itemSubCategory!.isNotEmpty)
-                  : CustomDropdown(
-                      value: itemSubCategory,
-                      items: _subCategories,
-                      // hintText: 'Item Category*',
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          itemSubCategory = newValue!;
-                        });
-                      },
-                    ),
-              SizedBox(
-                height: 16,
+                  ),
+                  Divider(
+                    // Line under the title
+                    color: AppColors.dividerColor, // Color of the line
+                    thickness: 2, // Thickness of the line
+                  ),
+                ],
               ),
 
-              if (isBarterChecked) ...[
-                Text("Categories of interest (Barter only)"),
-                SingleChildScrollView(
-                  child: _categories.isEmpty
-                      ? Center(
-                          child: SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator()))
-                      : FilteredItemSelector(
-                          returnType: "name",
-                          allItems: _categories,
-                          onItemAdded: (selectedIds) {
-                            setState(() {
-                              selectedCategoryIds =
-                                  selectedIds; // Update selected IDs
-                            });
-                          },
-                          onItemRemoved: (selectedIds) {
-                            setState(() {
-                              selectedCategoryIds =
-                                  selectedIds; // Update selected IDs
-                            });
-                          },
-                        ),
-                ),
-                // SizedBox(
-                //   height: 40,
-                //   child: CustomDropdown(
-                //     value: selectedCategoryOfInterest,
-                //     items: _categories,
-                //     // hintText: 'Item Category*',
-                //     onChanged: (String? newValue) {
-                //       setState(() {
-                //         selectedCategoryOfInterest = newValue!;
-                //       });
-                //     },
-                //   ),
-                // ),
-              ],
-              SizedBox(height: 16),
-            ],
-
-            Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                BasicAppButton(
-                  title: isFirstStep ? "Next" : "Submit",
-                  radius: 24,
-                  height: 46,
-                  width: MediaQuery.of(context).size.width,
-                  // width: isFirstStep ? 300 : 160,
-                  onPressed: () async {
-                    if (isFirstStep) {
-                      // Move to the second step
-                      if (isBarterChecked || isDonationChecked) {
-                        setState(() {
-                          isFirstStep = false;
-                        });
-                      } else {
-                        await showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text('Select Exchange Method'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text('cancel'),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    } else {
-                      String itemListedFor = getCheckboxJson();
-                      String jsonAdditional = getAdditionalFieldsJson();
-                      String jsonInterests = getCategoriesOfInterestAsJson();
-
-                      String finalJson = combineJson(
-                          itemListedFor, jsonAdditional, jsonInterests);
-                      print(finalJson);
-                      if (context.read<AddItemBloc>().state
-                          is! AddItemLoading) {
-                        context
-                            .read<AddItemBloc>()
-                            .add(AddItemSubmit(itemData));
-                      }
-                      // AppNavigator.pushReplacement(
-                      //     context,
-                      //     AddItemPhoto(
-                      //       itemData: itemData,
-                      //       categories: _categories,
-                      //     ));
-                    }
+              // const SizedBox(height: 48),
+              if (isFirstStep) ...[
+                CheckboxListTile(
+                  title: Text('Barter'),
+                  value: isBarterChecked,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      isBarterChecked = value ?? false;
+                    });
                   },
-                  content: !isFirstStep ? _blockBuilder() : null,
+                  activeColor: AppColors.primary,
+                  checkColor: Colors.white,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
                 ),
-                if (!isFirstStep) ...[
-                  SizedBox(height: 16),
+                CheckboxListTile(
+                  title: Text('Donation'),
+                  value: isDonationChecked,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      isDonationChecked = value ?? false;
+                    });
+                  },
+                  activeColor: AppColors.primary,
+                  checkColor: Colors.white,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                )
+              ] else ...[
+                SizedBox(
+                  height: 16,
+                ),
+                InputSection(
+                  label: "Item Name*",
+                  hintText: "Enter item name",
+                  controller: itemNameController,
+                  maxCharacters: 0, // Optional
+                ),
+
+                // _buildInputSection(
+                //     "Item Name*", "Enter item name", itemNameController, 0),
+                SizedBox(
+                  height: 16,
+                ),
+                // TextField(
+                // controller: descriptionController,
+                InputSection(
+                  label: "Description*",
+                  hintText: "Briefly describe the item",
+                  controller: descriptionController,
+                  maxCharacters: 500, // Optional
+                ),
+                // _buildInputSection("Description*", "Briefly describe the item",
+                //     descriptionController, 500),
+                SizedBox(
+                  height: 16,
+                ),
+                // Text("Condition*"),
+                // InputSection(
+                //   label: "Condition*",
+                //   hintText: "Item Condition",
+                //   controller: itemCondition,
+                //   maxCharacters: 0,
+                // ),
+                // _conditions.isEmpty
+                // ? SizedBox(
+                // height: 20, width: 20, child: CircularProgressIndicator())
+                CustomDropdown(
+                  value: selectedCondition,
+                  items: _conditions,
+                  // hintText: 'Item Category*',
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCondition = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                if (isBarterChecked) ...[
+                  InputSection(
+                    label: "Price Range",
+                    hintText: "Enter price range of the item",
+                    controller: priceRange,
+                    maxCharacters: 0,
+                  ),
+                  // _buildInputSection("Price Range",
+                  //     "Enter price range of the item", priceRange, 0),
+                ],
+                const SizedBox(
+                  height: 16,
+                ),
+                Text("Item Category*"),
+                _categories.isEmpty
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator())
+                    : CustomDropdown(
+                        value: selectedCategory,
+                        items: _categories,
+                        // hintText: 'Item Category*',
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedCategory = newValue!;
+                            _subCategories = [];
+                            findSubCAtegories(newValue);
+                          });
+                        },
+                      ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Text("Item Sub-category*"),
+                _subCategories.isEmpty && _isFetchingSubCategories
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator())
+                    // if (itemSubCategory!.isNotEmpty)
+                    : CustomDropdown(
+                        value: itemSubCategory,
+                        items: _subCategories,
+                        // hintText: 'Item Category*',
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            itemSubCategory = newValue!;
+                          });
+                        },
+                      ),
+                SizedBox(
+                  height: 16,
+                ),
+
+                if (isBarterChecked) ...[
+                  Text("Categories of interest (Barter only)"),
+                  SingleChildScrollView(
+                    child: _categories.isEmpty
+                        ? Center(
+                            child: SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator()))
+                        : FilteredItemSelector(
+                            returnType: "name",
+                            allItems: _categories,
+                            onItemAdded: (selectedIds) {
+                              setState(() {
+                                selectedCategoryIds =
+                                    selectedIds; // Update selected IDs
+                              });
+                            },
+                            onItemRemoved: (selectedIds) {
+                              setState(() {
+                                selectedCategoryIds =
+                                    selectedIds; // Update selected IDs
+                              });
+                            },
+                          ),
+                  ),
+                  // SizedBox(
+                  //   height: 40,
+                  //   child: CustomDropdown(
+                  //     value: selectedCategoryOfInterest,
+                  //     items: _categories,
+                  //     // hintText: 'Item Category*',
+                  //     onChanged: (String? newValue) {
+                  //       setState(() {
+                  //         selectedCategoryOfInterest = newValue!;
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
+                ],
+                SizedBox(height: 16),
+              ],
+
+              Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
                   BasicAppButton(
-                    title: "Cancel",
-                    width: MediaQuery.of(context).size.width,
+                    title: isFirstStep ? "Next" : "Submit",
                     radius: 24,
                     height: 46,
-                    backgroundColor: AppColors.background,
-                    textColor: AppColors.primary,
-                    onPressed: () {
-                      Navigator.pop(context);
+                    width: MediaQuery.of(context).size.width,
+                    // width: isFirstStep ? 300 : 160,
+                    onPressed: () async {
+                      if (isFirstStep) {
+                        // Move to the second step
+                        if (isBarterChecked || isDonationChecked) {
+                          setState(() {
+                            isFirstStep = false;
+                          });
+                        } else {
+                          await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Select Exchange Method'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('cancel'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      } else {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          String itemListedFor = getCheckboxJson();
+                          String jsonAdditional = getAdditionalFieldsJson();
+                          String jsonInterests =
+                              getCategoriesOfInterestAsJson();
+
+                          var finalItemData = combineJson(
+                              itemListedFor, jsonAdditional, jsonInterests);
+
+                          if (context.read<AddItemBloc>().state
+                              is! AddItemLoading) {
+                            context
+                                .read<AddItemBloc>()
+                                .add(AddItemSubmit(finalItemData));
+                          }
+                        }
+                        // AppNavigator.pushReplacement(
+                        //     context,
+                        //     AddItemPhoto(
+                        //       itemData: itemData,
+                        //       categories: _categories,
+                        //     ));
+                      }
                     },
+                    content: !isFirstStep ? _blockBuilder() : null,
                   ),
-                  // Spacer(),
+                  if (!isFirstStep) ...[
+                    SizedBox(height: 16),
+                    BasicAppButton(
+                      title: "Cancel",
+                      width: MediaQuery.of(context).size.width,
+                      radius: 24,
+                      height: 46,
+                      backgroundColor: AppColors.background,
+                      textColor: AppColors.primary,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    // Spacer(),
+                  ],
                 ],
-              ],
-            )
-            // SizedBox(
-            //   width: double.infinity, // Full-width button
-            //   child: ElevatedButton(
-            //     onPressed: () {
-            //       String jsonSelectedItems = getSelectedItemsAsJson();
-            //       print(jsonSelectedItems); // Print the JSON string to console
-            //
-            //       Navigator.pop(context); // Close the bottom sheet
-            //     },
-            //     child: Text('Submit'),
-            //     style: ElevatedButton.styleFrom(
-            //       padding: EdgeInsets.symmetric(vertical: 16),
-            //       textStyle: TextStyle(fontSize: 18),
-            //     ),
-            //   ),
-            // ),
-          ],
+              )
+              // SizedBox(
+              //   width: double.infinity, // Full-width button
+              //   child: ElevatedButton(
+              //     onPressed: () {
+              //       String jsonSelectedItems = getSelectedItemsAsJson();
+              //       print(jsonSelectedItems); // Print the JSON string to console
+              //
+              //       Navigator.pop(context); // Close the bottom sheet
+              //     },
+              //     child: Text('Submit'),
+              //     style: ElevatedButton.styleFrom(
+              //       padding: EdgeInsets.symmetric(vertical: 16),
+              //       textStyle: TextStyle(fontSize: 18),
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );

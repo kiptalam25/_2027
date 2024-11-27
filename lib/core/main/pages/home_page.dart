@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/core/main/pages/product_description.dart';
+import 'package:swapifymobile/core/services/items_service.dart';
 import '../../../common/helper/navigator/app_navigator.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
 import '../../config/themes/app_colors.dart';
 import '../../list_item_flow/add_new_item_sheet.dart';
+import '../../usecases/item.dart';
 import '../../welcome/splash/pages/welcome.dart';
 import '../../widgets/search_input.dart';
+import '../item_grid.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/drawer.dart';
 
@@ -17,14 +21,61 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
+  final ItemsService itemsService = ItemsService(ApiClient());
+
+  // final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
+  late List<Item> items = [];
+  bool isLoading = false;
 
   final TextEditingController _searchController = TextEditingController();
-  // void updateIndex(int index) {
-  //   setState(() {
-  //     widget.currentIndex = index;
-  //   });
-  // }
+  @override
+  void initState() {
+    fetchItems();
+    super.initState();
+  }
+
+  fetchItems() async {
+    setState(() {
+      items = [];
+      isLoading = true;
+    });
+
+    String keyword = _searchController.text;
+    var response = await itemsService.fetchItems(keyword);
+    if (response != null) {
+      setState(() {
+        isLoading = false;
+      });
+      final responseData = response.data;
+
+      if (responseData['success'] == true) {
+        setState(() {
+          items = (responseData['data']['items'] as List)
+              .map((item) => Item.fromJson(item))
+              .toList();
+        });
+
+        // Process each item
+        // for (var item in items) {
+        //   print('Title: ${item.title}, Created At: ${item.createdAt}');
+        // }
+      } else {
+        print('Request failed with message: ${responseData["message"]}');
+      }
+    } else {
+      print('Service returned null');
+      setState(() {
+        isLoading = false;
+      });
+    }
+    //
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Items Fetched successfully'),
+    //     ),
+    //   );
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +92,14 @@ class _HomePageState extends State<HomePage> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.notifications),
+                icon: const Icon(Icons.refresh),
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WelcomePage(),
-                      ));
+                  fetchItems();
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => WelcomePage(),
+                  //     ));
                 },
               ),
               PopupMenuButton<int>(
@@ -85,128 +137,137 @@ class _HomePageState extends State<HomePage> {
         drawer: CustomDrawer(
             // onPageSelected: updateIndex,
             ),
+        body: items.isNotEmpty
+            ? ItemGrid(items: items)
+            : isLoading
+                ? Center(
+                    child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator()))
+                : const Center(child: Text('No items available')),
 
-        body: Column(
-          children: [
-            Flexible(
-                child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.6,
-              ),
-              padding: EdgeInsets.all(10.0),
-              itemCount: items.length,
-              itemBuilder: (context, index) => Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.white, // Background color of the card
-                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5), // Shadow color
-                      spreadRadius: 2, // How far the shadow spreads
-                      blurRadius: 5, // How blurry the shadow is
-                      offset: Offset(0, 3), // Offset to position the shadow
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: SizedBox(
-                          height: 130.0, // Set a fixed height for the image
-                          width: double.infinity,
-                          child: Image.asset(
-                            "images/home_images/m2.png",
-                            fit: BoxFit
-                                .cover, // Adjust the image to cover the container
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: const Divider(
-                        // Line under the title
-                        color: AppColors.dividerColor, // Color of the line
-                        thickness: 2, // Thickness of the line
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        "Brown Brogues",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary),
-                      ),
-                    ),
-                    // const SizedBox(
-                    //   height: 10,
-                    // ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          BasicAppButton(
-                            title: "Barter",
-                            width: 52,
-                            height: 18,
-                            radius: 24,
-                            onPressed: () {},
-                          ),
-                          const Spacer(),
-                          const Icon(
-                            Icons.pin_drop_outlined,
-                            size: 16,
-                          ),
-                          Text(
-                            '3Km',
-                            style: TextStyle(
-                              color: Color(0xFF5e5e5e), // Text color
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDescription(),
-                              ));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: const [
-                            Text("See details"),
-                            Spacer(),
-                            Icon(
-                              Icons.arrow_forward,
-                              size: 16,
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )),
-          ],
-        ),
+        // Column(
+        //   children: [
+        //     Flexible(
+        //         child: GridView.builder(
+        //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        //         crossAxisCount: 2,
+        //         crossAxisSpacing: 10,
+        //         mainAxisSpacing: 10,
+        //         childAspectRatio: 0.6,
+        //       ),
+        //       padding: EdgeInsets.all(10.0),
+        //       itemCount: items?.length,
+        //       itemBuilder: (context, index) => Container(
+        //         alignment: Alignment.center,
+        //         decoration: BoxDecoration(
+        //           color: Colors.white, // Background color of the card
+        //           borderRadius: BorderRadius.circular(12.0), // Rounded corners
+        //           boxShadow: [
+        //             BoxShadow(
+        //               color: Colors.grey.withOpacity(0.5), // Shadow color
+        //               spreadRadius: 2, // How far the shadow spreads
+        //               blurRadius: 5, // How blurry the shadow is
+        //               offset: Offset(0, 3), // Offset to position the shadow
+        //             ),
+        //           ],
+        //         ),
+        //         child: Column(
+        //           crossAxisAlignment: CrossAxisAlignment.start,
+        //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //           children: [
+        //             Padding(
+        //               padding: const EdgeInsets.all(8.0),
+        //               child: ClipRRect(
+        //                 borderRadius: BorderRadius.circular(10.0),
+        //                 child: SizedBox(
+        //                   height: 130.0, // Set a fixed height for the image
+        //                   width: double.infinity,
+        //                   child: Image.asset(
+        //                     "images/home_images/m2.png",
+        //                     fit: BoxFit
+        //                         .cover, // Adjust the image to cover the container
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //             Padding(
+        //               padding: const EdgeInsets.all(8.0),
+        //               child: const Divider(
+        //                 // Line under the title
+        //                 color: AppColors.dividerColor, // Color of the line
+        //                 thickness: 2, // Thickness of the line
+        //               ),
+        //             ),
+        //             const Padding(
+        //               padding: EdgeInsets.only(left: 8.0),
+        //               child: Text(
+        //                 "Brown Brogues",
+        //                 style: TextStyle(
+        //                     fontSize: 14,
+        //                     fontWeight: FontWeight.w700,
+        //                     color: AppColors.primary),
+        //               ),
+        //             ),
+        //             // const SizedBox(
+        //             //   height: 10,
+        //             // ),
+        //             Padding(
+        //               padding: const EdgeInsets.symmetric(horizontal: 8),
+        //               child: Row(
+        //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //                 children: [
+        //                   BasicAppButton(
+        //                     title: "Barter",
+        //                     width: 52,
+        //                     height: 18,
+        //                     radius: 24,
+        //                     onPressed: () {},
+        //                   ),
+        //                   const Spacer(),
+        //                   const Icon(
+        //                     Icons.pin_drop_outlined,
+        //                     size: 16,
+        //                   ),
+        //                   Text(
+        //                     '3Km',
+        //                     style: TextStyle(
+        //                       color: Color(0xFF5e5e5e), // Text color
+        //                     ),
+        //                   ),
+        //                 ],
+        //               ),
+        //             ),
+        //             Padding(
+        //               padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        //               child: InkWell(
+        //                 onTap: () {
+        //                   Navigator.push(
+        //                       context,
+        //                       MaterialPageRoute(
+        //                         builder: (context) => ProductDescription(),
+        //                       ));
+        //                 },
+        //                 child: Row(
+        //                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //                   children: const [
+        //                     Text("See details"),
+        //                     Spacer(),
+        //                     Icon(
+        //                       Icons.arrow_forward,
+        //                       size: 16,
+        //                     )
+        //                   ],
+        //                 ),
+        //               ),
+        //             )
+        //           ],
+        //         ),
+        //       ),
+        //     )),
+        //   ],
+        // ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             // AppNavigator.pushReplacement(context, MultiDropdownExample());

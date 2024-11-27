@@ -25,6 +25,7 @@ class ApiConstants {
 
   // Item endpoints (example for another feature)
   static const String items = '/items';
+  static const String searchItems = '/items/search';
   static const String itemDetails = '/items/details';
   static const String addItem = '/items';
   static const String deleteItem = '/items/delete';

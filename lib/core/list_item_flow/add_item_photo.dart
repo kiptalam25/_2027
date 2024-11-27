@@ -118,28 +118,30 @@ class _AddItemPhoto extends State<AddItemPhoto> {
           // Extract URL from the response
           String imageUrl = response.data['secure_url'];
           uploadedUrls.add(imageUrl);
-          final jsonResult = getUrlsAsJson();
-          final response2 = await itemsService.updateItem(jsonResult, item!.id);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${response2.message}'),
-            ),
-          );
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ListedItemsPage(),
-              ));
-          setState(() {
-            _uploadingImages = false;
-          });
         }
       }
-
       setState(() {
         _uploadedImageUrls = uploadedUrls;
       });
+      if (_uploadedImageUrls.isNotEmpty) {
+        final jsonResult = getUrlsAsJson();
+        final response2 = await itemsService.updateItem(jsonResult, item!.id);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${response2.message}'),
+          ),
+        );
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ListedItemsPage(),
+            ));
+
+        setState(() {
+          _uploadingImages = false;
+        });
+      }
 
       print("Uploaded URLs: $_uploadedImageUrls");
     } catch (e) {

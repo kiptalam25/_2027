@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/core/config/themes/app_colors.dart';
 
 class CustomDropdown extends StatelessWidget {
   final String? value;
@@ -24,6 +25,12 @@ class CustomDropdown extends StatelessWidget {
       height: 40,
       child: DropdownButtonFormField<String>(
         value: value,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'This field is required';
+          }
+          return null; // Return null if validation passes
+        },
         items: items.map((category) {
           return DropdownMenuItem<String>(
             value: category['id'],
@@ -35,7 +42,16 @@ class CustomDropdown extends StatelessWidget {
           labelText: hintText,
           contentPadding: contentPadding,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderSide:
+                BorderSide(color: AppColors.textFieldBorder), // Default border
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: AppColors.textFieldBorder, width: 1.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+                color: AppColors.primary, width: 2.0), // Custom focused border
           ),
         ),
       ),

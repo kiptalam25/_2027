@@ -1,26 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
+import 'package:swapifymobile/core/onboading_flow/choose.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
-import '../../api_client/api_client.dart';
-import '../../auth/services/auth_service.dart';
-import '../../common/helper/navigator/app_navigator.dart';
-import '../../common/widgets/appbar/app_bar.dart';
-import '../../common/widgets/button/basic_app_button.dart';
-import '../widgets/custom_dropdown.dart';
-import '../widgets/custom_textfield.dart';
+import '../../../api_client/api_client.dart';
+import '../../../auth/services/auth_service.dart';
+import '../../../common/helper/navigator/app_navigator.dart';
+import '../../../common/widgets/appbar/app_bar.dart';
+import '../../../common/widgets/button/basic_app_button.dart';
+import '../../widgets/custom_dropdown.dart';
 
 class ProfilePage extends StatefulWidget {
   // ProfilePage({Key? key}) : super(key: key);
@@ -46,75 +47,6 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       _emailController.text = widget.email;
     });
-  }
-
-  File? _image;
-  bool isUploadingImage = false;
-
-  // Function to pick an image from gallery or camera
-  Future<void> _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-
-    final pickedFile = await picker.pickImage(source: source);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path); // Update the image
-      });
-    }
-  }
-
-  String? uploadedUrl;
-
-  Future<bool> _uploadImage() async {
-    setState(() {
-      isUploadingImage = true;
-    });
-    const cloudName = "dqjv3o9zi";
-    // const apiKey = "672828653332493";
-    // const apiSecret = "lTbaGnstK6FWbVl92Q_ckPXPYKI";
-    const uploadPreset = "l9sim6rm";
-
-    final dio = Dio();
-    List<String> uploadedUrls = [];
-
-    try {
-      // for (var image in _imageFiles!) {
-      final formData = FormData.fromMap({
-        "file": await MultipartFile.fromFile(_image!.path),
-        "upload_preset": uploadPreset,
-      });
-
-      final response = await dio.post(
-        "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
-        data: formData,
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          isUploadingImage = false;
-        });
-        // Extract URL from the response
-        String imageUrl = response.data['secure_url'];
-        uploadedUrl = imageUrl;
-        setState(() {
-          uploadedUrl = imageUrl;
-        });
-        return true;
-      }
-      return false;
-      print("Uploaded URLs: $uploadedUrl");
-    } catch (e) {
-      print("Error uploading profile picture: $e");
-      return false;
-    }
-  }
-
-  String getImageUrlAsJson() {
-    final Map<String, dynamic> jsonMap = {
-      "profilePicUrls": uploadedUrl,
-    };
-    return jsonEncode(jsonMap);
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -163,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
   //     }
   //   }
   // }
-  var textLength = 0;
+
   // Default country code
   @override
   Widget build(BuildContext context) {
@@ -236,84 +168,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     }, TextInputType.emailAddress),
                     _buildInputPassword(
                         "Password", "Enter your password", _passwordController),
-                    // InputSection(
-                    //   label: "Bio*",
-                    //   hintText: "Tell us something fun about you",
-                    //   controller: _bioController,
-                    //   maxCharacters: 200,
-                    //   // Optional
-                    // ),
-                    SizedBox(
-                      height: 16,
-                    ),
-                    SizedBox(
-                      // height: 40,
-                      child: TextFormField(
-                        controller: _bioController,
-                        maxLength: 200,
-                        maxLines: 5, // Maximum lines before scroll
-                        minLines: 5,
-                        decoration: InputDecoration(
-                          hintText: "Tell us something fun about you",
-                          hintStyle: TextStyle(color: Colors.grey),
-                          isDense:
-                              true, // Reduces vertical padding for compactness
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 8.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: AppColors.textFieldBorder, width: 1.0),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: AppColors.textFieldBorder, width: 2.0),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.red, width: 1.5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.red, width: 2.0),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          counterText: '', // Hides character counter
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Minimum 25 characters required';
-                          }
-                          if (value.length < 25) {
-                            return 'Minimum 25 characters required';
-                          }
-                          return null;
-                        },
-                        onChanged: (text) {
-                          setState(() {
-                            textLength = _bioController.text.length;
-                          });
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0, right: 5),
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          '${textLength}/200',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                    ),
-
-                    // _textareaBio("Bio", "Tell us something fun about you",
-                    //     _bioController),
+                    _textareaBio("Bio", "Tell us something fun about you",
+                        _bioController),
                     SizedBox(height: 27),
                     BlocConsumer<RegistrationBloc, RegistrationState>(
                       listener: (context, state) {
@@ -330,8 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               '$_selectedCountryCode${_phoneController.text}';
                           saveUserData(
                             RegisterUser(
-                              profilePicUrls:
-                                  uploadedUrl != null ? uploadedUrl : "",
+                              profilePicUrls: "",
                               fullName: _fullNameController.text,
                               email: _emailController.text,
                               password: "",
@@ -344,12 +199,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           saveCredentials(
                               _emailController.text, _passwordController.text);
 
-                          Navigator.pushReplacement(
+                          AppNavigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => VerifyPage(
-                                  currentPage: 3,
-                                ),
+                              VerifyPage(
+                                currentPage: 3,
                               ));
                         } else if (state is RegistrationError) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -393,6 +246,20 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ],
     );
+  }
+
+  File? _image;
+
+  // Function to pick an image from gallery or camera
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path); // Update the image
+      });
+    }
   }
 
   void saveCredentials(String email, String password) async {
@@ -489,8 +356,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  bool _isObscured = true;
-
   Widget _buildInputPassword(
       String label, String hintText, TextEditingController controller) {
     return Column(
@@ -500,35 +365,14 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(label),
         SizedBox(height: 20),
         SizedBox(
-          // height: 40,
+          height: 40,
           child: TextFormField(
-            obscureText: _isObscured,
+            obscureText: true,
             controller: controller,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              final passwordRegEx =
-                  r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$';
-
-              if (!RegExp(passwordRegEx).hasMatch(value)) {
-                return 'Password must be at least 8 characters long,\n '
-                    'include an uppercase letter, lowercase letter, \n'
-                    'a number, and a special character.';
-              }
-              return null;
-            },
             decoration: InputDecoration(
-              isDense: true,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _isObscured ? Icons.visibility_off : Icons.visibility,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _isObscured = !_isObscured; // Toggle password visibility
-                  });
-                },
+              suffixIcon: Icon(
+                Icons.lock,
+                color: AppColors.textFieldBorder,
               ),
               hintText: hintText,
               hintStyle: TextStyle(color: AppColors.hintColor),
@@ -543,6 +387,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               contentPadding:
                   const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+
               // contentPadding: EdgeInsets.symmetric(horizontal: 10),
             ),
           ),
@@ -559,75 +404,27 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(label),
         SizedBox(height: 12),
         SizedBox(
-          // height: 40,
+          height: 40,
           child: TextFormField(
             enabled: controller == _emailController ? false : true,
             controller: controller,
-            // maxLength: maxCharacters > 0 ? maxCharacters : null,
+            // keyboardType: keyboardType ? keyboardType : ,
+            validator: validator,
             decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: TextStyle(color: Colors.grey),
-              isDense: true, // Reduces vertical padding for compactness
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-              // border: OutlineInputBorder(
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              // errorBorder: OutlineInputBorder(
-              //   borderSide: BorderSide(color: Colors.red, width: 1.5),
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              // focusedErrorBorder: OutlineInputBorder(
-              //   borderSide: BorderSide(color: Colors.red, width: 2.0),
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              counterText: '', // Hides character counter
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'This field cannot be empty';
-              }
-              // if (value.length < minCharacters!) {
-              //   return 'Minimum $minCharacters characters required';
-              // }
-              return null;
-            },
+                hintText: hintText,
+                hintStyle: TextStyle(color: AppColors.hintColor),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide:
+                      BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.textFieldBorder, width: 1.0),
+                ),
+                contentPadding: EdgeInsets.all(8)),
           ),
         ),
-
-        // child: TextField(
-        //   enabled: controller == _emailController ? false : true,
-        //   controller: controller,
-        //   // keyboardType: keyboardType ? keyboardType : ,
-        //   // validator: validator,
-        //   decoration: InputDecoration(
-        //     hintText: hintText,
-        //     hintStyle: TextStyle(color: Colors.grey),
-        //     border: OutlineInputBorder(
-        //       borderRadius: BorderRadius.circular(10),
-        //     ),
-        //     focusedBorder: OutlineInputBorder(
-        //       borderSide: BorderSide(color: AppColors.primary, width: 2.0),
-        //     ),
-        //     enabledBorder: OutlineInputBorder(
-        //       borderSide: BorderSide(color: Colors.grey, width: 1.0),
-        //     ),
-        //     contentPadding:
-        //         EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-        //     counterText: '', // Hides the default Flutter counter
-        //   ),
-        // ),
-        // ),
       ],
     );
   }
@@ -654,7 +451,6 @@ class _ProfilePageState extends State<ProfilePage> {
             },
             decoration: InputDecoration(
               hintText: hintText,
-              isDense: true,
               hintStyle: TextStyle(color: AppColors.hintColor),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -703,7 +499,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Expanded(
               child: SizedBox(
-                // height: 40,
+                height: 40,
                 child: TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
@@ -717,7 +513,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     return null;
                   },
                   decoration: InputDecoration(
-                    isDense: true,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
@@ -749,45 +544,29 @@ class _ProfilePageState extends State<ProfilePage> {
       title: "Sign Up",
       onPressed: state is RegistrationLoading
           ? null
-          : () async {
-              if (uploadedUrl != null && uploadedUrl != "") {
-                bool isImageUploaded = await _uploadImage();
-                if (isImageUploaded) {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    final _fullPhoneNumber =
-                        '$_selectedCountryCode${_phoneController.text}';
-                    BlocProvider.of<RegistrationBloc>(context).add(
-                      RegisterUser(
-                        profilePicUrls: uploadedUrl != null ? uploadedUrl : "",
-                        fullName: _fullNameController.text,
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                        name: _usernameController.text,
-                        phoneNumber: _fullPhoneNumber,
-                        bio: _bioController.text,
-                      ),
-                    );
-                  }
-                }
-              } else {
-                if (_formKey.currentState?.validate() ?? false) {
-                  final _fullPhoneNumber =
-                      '$_selectedCountryCode${_phoneController.text}';
-                  BlocProvider.of<RegistrationBloc>(context).add(
-                    RegisterUser(
-                      profilePicUrls: uploadedUrl != null ? uploadedUrl : "",
-                      fullName: _fullNameController.text,
-                      email: _emailController.text,
-                      password: _passwordController.text,
-                      name: _usernameController.text,
-                      phoneNumber: _fullPhoneNumber,
-                      bio: _bioController.text,
-                    ),
-                  );
-                }
+          : () {
+              // AppNavigator.push(
+              //     context,
+              //     VerifyPage(
+              //       currentPage: 2,
+              //     ));
+              if (_formKey.currentState?.validate() ?? false) {
+                final _fullPhoneNumber =
+                    '$_selectedCountryCode${_phoneController.text}';
+                BlocProvider.of<RegistrationBloc>(context).add(
+                  RegisterUser(
+                    profilePicUrls: "",
+                    fullName: _fullNameController.text,
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    name: _usernameController.text,
+                    phoneNumber: _fullPhoneNumber,
+                    bio: _bioController.text,
+                  ),
+                );
               }
             },
-      content: state is RegistrationLoading || isUploadingImage
+      content: state is RegistrationLoading
           ? SizedBox(
               width: 24,
               height: 24,
@@ -806,25 +585,6 @@ class _ProfilePageState extends State<ProfilePage> {
         VerifyPage(
           currentPage: 2,
         ));
-    // Collect data from fields
-    // final username = _usernameController.text;
-    // final phone = _phoneController.text;
-    // final email = _emailController.text;
-    // final password = _passwordController.text;
-    // final bio = _bioController.text;
-    //
-    // // Create a JSON object
-    // final Map<String, dynamic> userProfile = {
-    //   'username': username,
-    //   'phone': '$_selectedCountryCode$phone',
-    //   'email': email,
-    //   'password': password,
-    //   'bio': bio,
-    // };
-    //
-    // final jsonString = jsonEncode(userProfile);
-    //
-    // print(jsonString);
   }
 
   bool _isValidPhoneNumber(String phoneNumber) {
@@ -837,27 +597,4 @@ class _ProfilePageState extends State<ProfilePage> {
         jsonEncode(registerUser.toJson()); // Convert to JSON string
     await prefs.setString('registerUser', userData); // Save JSON string
   }
-
-  // BlocListener<dynamic, dynamic> login() {
-  //   return BlocListener<LoginBloc, LoginState>(
-  //     listener: (context, state) {
-  //       if (state is LoginSuccess) {
-  //         Navigator.pushReplacementNamed(context, '/home');
-  //       } else if (state is LoginFailure) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text(state.error)),
-  //         );
-  //       }
-  //     },
-  //     child: BlocBuilder<LoginBloc, LoginState>(
-  //       builder: (context, state) {
-  //         if (state is LoginLoading) {
-  //           return CircularProgressIndicator();
-  //         }
-  //         // return LoginForm();
-  //       },
-  //     ),
-  //   );
-  // }
-  // }
 }

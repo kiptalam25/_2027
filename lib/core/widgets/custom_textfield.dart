@@ -26,30 +26,35 @@ class InputSection extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
         ),
         SizedBox(
-          height: maxCharacters != null && maxCharacters > 0 ? 126 : 40,
-          child: TextField(
+          height: 16,
+        ),
+        SizedBox(
+          height: maxCharacters > 0 ? 126 : 40,
+          child: TextFormField(
             controller: controller,
-            maxLength: maxCharacters != null && maxCharacters > 0
-                ? maxCharacters
-                : null,
-            maxLines: maxCharacters != null && maxCharacters > 0
-                ? 5
-                : 1, // Maximum lines before scroll
-            minLines: maxCharacters != null && maxCharacters > 0
-                ? 5
-                : 1, // Initial height for 5 lines
+
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'This field is required';
+              }
+              return null; // Return null if validation passes
+            },
+            maxLength: maxCharacters > 0 ? maxCharacters : null,
+            maxLines: maxCharacters > 0 ? 5 : 1, // Maximum lines before scroll
+            minLines: maxCharacters > 0 ? 5 : 1, // Initial height for 5 lines
             decoration: InputDecoration(
+              isDense: true,
               hintText: hintText,
               hintStyle: TextStyle(color: Colors.grey),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: AppColors.primary, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey, width: 1.0),
-              ),
+              // border: OutlineInputBorder(
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
+              // focusedBorder: OutlineInputBorder(
+              //   borderSide: BorderSide(color: AppColors.primary, width: 2.0),
+              // ),
+              // enabledBorder: OutlineInputBorder(
+              //   borderSide: BorderSide(color: Colors.grey, width: 1.0),
+              // ),
               contentPadding:
                   EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               counterText: '', // Hides the default Flutter counter
@@ -59,7 +64,7 @@ class InputSection extends StatelessWidget {
             },
           ),
         ),
-        if (maxCharacters != null && maxCharacters > 0)
+        if (maxCharacters > 0)
           Padding(
             padding: const EdgeInsets.only(top: 5, right: 5),
             child: Align(

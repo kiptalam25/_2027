@@ -35,17 +35,22 @@ class RegistrationService {
     }
   }
 
-  Future<UsernameCheckResponse> checkEmail(String username) async {
-    final String path =
-        '?username=$username'; // Adjust the endpoint as necessary
+  Future<EmailCheckResponse> checkEmail(String username) async {
+    final String path = '?email=$username'; // Adjust the endpoint as necessary
     try {
       final response = await apiClient.get(ApiConstants.checkEmail + path);
 
       // Parse the response into a UsernameCheckResponse object
-      final data = UsernameCheckResponse.fromJson(response.data);
+      final data = EmailCheckResponse.fromJson(response.data);
 
       return data;
     } catch (e) {
+      if (e.toString().contains("Email already exists")) {
+        return EmailCheckResponse(
+            success: true, available: false, message: "Email already exists");
+      }
+      return EmailCheckResponse(
+          success: false, available: false, message: e.toString());
       print('Error checking username: $e');
       rethrow;
     }
@@ -74,6 +79,30 @@ class UsernameCheckResponse {
   // Factory constructor to create an instance from JSON
   factory UsernameCheckResponse.fromJson(Map<String, dynamic> json) {
     return UsernameCheckResponse(
+      success: json['success'],
+      available: json['available'],
+      message: json['message'],
+      // suggestions: List<String>.from(json['suggestions'] ?? []),
+    );
+  }
+}
+
+class EmailCheckResponse {
+  final bool success;
+  final bool available;
+  final String message;
+  // final List<String> suggestions;
+
+  EmailCheckResponse({
+    required this.success,
+    required this.available,
+    required this.message,
+    // required this.suggestions,
+  });
+
+  // Factory constructor to create an instance from JSON
+  factory EmailCheckResponse.fromJson(Map<String, dynamic> json) {
+    return EmailCheckResponse(
       success: json['success'],
       available: json['available'],
       message: json['message'],

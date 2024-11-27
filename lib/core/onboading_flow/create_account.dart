@@ -24,7 +24,6 @@ class Registration extends StatefulWidget {
 class _RegistrationState extends State<Registration> {
   late final RegistrationService registrationService =
       RegistrationService(new ApiClient());
-
   final _formKey = GlobalKey<FormState>();
   final FocusNode _emailFocusNode = FocusNode();
   String? _errorText;
@@ -197,6 +196,7 @@ class _RegistrationState extends State<Registration> {
                     height: 40,
                   ),
                   SocialLinks(
+                    page: 'signup',
                     onSocialClicked: (p0) {},
                   ),
                   SizedBox(
@@ -247,7 +247,7 @@ class _RegistrationState extends State<Registration> {
           _errorText = result.message; // e.g., "Username is taken"
         });
         _emailFocusNode.requestFocus();
-      } else {
+      } else if (result.available) {
         setState(() {
           // isLoading = true;
           _errorText = null; // Clear the error if the username is valid
@@ -260,11 +260,16 @@ class _RegistrationState extends State<Registration> {
                 email: _emailController.text,
               ),
             ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.message)),
+        );
       }
     } catch (e) {
       print("Error .............................+" + e.toString());
       setState(() {
-        _errorText = 'Failed to validate username. Please try again.';
+        _errorText =
+            'Connection: Failed to validate username.\n Please try again.';
       });
       _emailFocusNode.requestFocus();
     } finally {
