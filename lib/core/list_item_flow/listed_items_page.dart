@@ -3,7 +3,7 @@ import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/single_column_grid.dart';
-import 'package:swapifymobile/core/onboading_flow/edit_profile_page.dart';
+import 'package:swapifymobile/core/profile/edit_profile_page.dart';
 
 import '../../common/helper/navigator/app_navigator.dart';
 import '../onboading_flow/profile_setup.dart';

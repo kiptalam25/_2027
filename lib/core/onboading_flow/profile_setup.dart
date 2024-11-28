@@ -20,11 +20,8 @@ import '../../common/helper/navigator/app_navigator.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
 import '../widgets/custom_dropdown.dart';
-import '../widgets/custom_textfield.dart';
 
 class ProfilePage extends StatefulWidget {
-  // ProfilePage({Key? key}) : super(key: key);
-
   final int currentPage;
   final String email;
   ProfilePage({required this.currentPage, required this.email});

@@ -248,8 +248,13 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) async {
         if (state is LoginSuccess) {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomePage()));
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+            (Route<dynamic> route) => false, // Remove all previous routes
+          );
+          // Navigator.pushReplacement(
+          //     context, MaterialPageRoute(builder: (context) => HomePage()));
         } else if (state is LoginFailure) {
           // String jsonString = state.message
           String response = state.message;

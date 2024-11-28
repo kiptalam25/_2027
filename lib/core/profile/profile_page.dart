@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
+import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
+import 'package:swapifymobile/core/profile/edit_profile_page.dart';
 
 class ProfileEditPage extends StatefulWidget {
   const ProfileEditPage({Key? key}) : super(key: key);
@@ -14,13 +16,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BasicAppbar(
-        hideBack: true,
-      ),
-      body: BasePage(
-        initialIndex: 3,
-        child: Text("Hello Profile feature coming soon"),
-      ),
+      appBar: AppBar(),
+      body: BasePage(initialIndex: 3, child: EditProfilePage()),
     );
   }
 }

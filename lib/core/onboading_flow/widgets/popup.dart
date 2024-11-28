@@ -49,8 +49,13 @@ void showCustomModalBottomSheet(BuildContext context) {
               height: 46,
               onPressed: () {
                 Navigator.of(context).pop(); // Close the modal
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => HomePage()));
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                  (Route<dynamic> route) => false, // Remove all previous routes
+                );
+                // Navigator.pushReplacement(context,
+                //     MaterialPageRoute(builder: (context) => HomePage()));
               },
             ),
           ],

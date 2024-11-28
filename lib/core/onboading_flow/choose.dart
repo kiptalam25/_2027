@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_constants/api_constants.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
-import 'package:swapifymobile/core/onboading_flow/services/registration_service.dart';
+import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
 import '../../api_client/api_client.dart';

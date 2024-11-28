@@ -4,7 +4,7 @@ import 'package:swapifymobile/core/onboading_flow/profile/profile_event.dart';
 import 'package:swapifymobile/core/onboading_flow/profile/profile_state.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
-import 'package:swapifymobile/core/onboading_flow/services/profile_service.dart';
+import 'package:swapifymobile/core/services/profile_service.dart';
 import 'package:swapifymobile/core/usecases/user_profile.dart';
 
 import '../../../auth/services/auth_service.dart';

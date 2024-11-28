@@ -50,13 +50,15 @@ class AuthService {
     return ResponseModel.fromJson(response.data);
   }
 
-  Future<ResponseModel> register(
-      String email, String password, String name, phone, bio) async {
+  Future<ResponseModel> register(String email, String password, String name,
+      phone, fullName, profilePicUrls, bio) async {
     final response = await apiClient.post(ApiConstants.register, data: {
       'email': email,
       'password': password,
       'username': name,
       'phoneNumber': phone,
+      'fullName': fullName,
+      'profilePicUrls': profilePicUrls,
       'bio': bio
     });
     return ResponseModel.fromJson(response.data);

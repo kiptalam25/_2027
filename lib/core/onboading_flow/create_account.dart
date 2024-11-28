@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
-import 'package:swapifymobile/core/onboading_flow/services/registration_service.dart';
+import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
 

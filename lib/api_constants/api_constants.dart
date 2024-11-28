@@ -19,9 +19,10 @@ class ApiConstants {
   static const String subcategories = baseUrl + '/subcategories/category';
 
   // User endpoints
-  static const String userProfile = '/user/profile';
-  static const String updateUser = '/user/update';
-  static const String deleteUser = '/user/delete';
+  static const String userProfile = '/users/profile';
+  static const String updateProfile = '/users/profile';
+  static const String updateUser = '/users/update';
+  static const String deleteUser = '/users/delete';
 
   // Item endpoints (example for another feature)
   static const String items = '/items';

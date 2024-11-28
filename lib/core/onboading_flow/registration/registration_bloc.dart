@@ -11,8 +11,14 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     on<RegisterUser>((event, emit) async {
       emit(RegistrationLoading());
       try {
-        ResponseModel res = await authService.register(event.email,
-            event.password, event.name, event.phoneNumber, event.bio);
+        ResponseModel res = await authService.register(
+            event.email,
+            event.password,
+            event.name,
+            event.phoneNumber,
+            event.fullName,
+            event.profilePicUrls,
+            event.bio);
         emit(RegistrationSuccess(res.message));
         // emit(RegistrationSuccess("Successfully registered!"));
       } catch (e) {

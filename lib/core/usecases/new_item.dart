@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'location.dart';
+
 class NewItem {
   final String fullName;
   final List<String> profilePicUrls;
@@ -22,22 +24,6 @@ class NewItem {
         'bio': bio,
         'location': location.toJson(),
         'interests': interests.toJson(),
-      };
-}
-
-class Location {
-  final String country;
-  final String city;
-
-  Location({
-    required this.country,
-    required this.city,
-  });
-
-  // Convert Location to JSON
-  Map<String, dynamic> toJson() => {
-        'country': country,
-        'city': city,
       };
 }
 

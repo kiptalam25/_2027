@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
+import 'package:swapifymobile/core/profile/edit_profile_page.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../config/themes/app_colors.dart';
@@ -76,7 +77,11 @@ class CustomDrawer extends StatelessWidget {
                 leading: Icon(Icons.person),
                 title: Text('Profile'),
                 onTap: () {
-                  // AppNavigator.push(context, HorizontalScrollPage());
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfilePage(),
+                      ));
                   Navigator.pop(context);
                   // onPageSelected(2);
                 },
