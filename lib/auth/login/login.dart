@@ -10,7 +10,7 @@ import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../../api_client/api_client.dart';
-import '../../../auth/services/auth_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../../common/widgets/appbar/app_bar.dart';
 import '../../../common/widgets/button/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';

@@ -1,6 +1,6 @@
 // lib/bloc/registration_event.dart
 
-import '../../usecases/user_profile.dart';
+import '../usecases/user_profile.dart';
 
 abstract class ProfileEvent {}
 

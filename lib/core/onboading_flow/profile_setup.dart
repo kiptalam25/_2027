@@ -15,8 +15,8 @@ import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
 import '../../api_client/api_client.dart';
-import '../../auth/services/auth_service.dart';
-import '../../common/helper/navigator/app_navigator.dart';
+import '../../common/widgets/navigation/app_navigator.dart';
+import '../services/auth_service.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
 import '../widgets/custom_dropdown.dart';
@@ -801,7 +801,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _onSubmit(BuildContext context) {
-    AppNavigator.push(
+    AppNavigator.pushAndRemove(
         context,
         VerifyPage(
           currentPage: 2,

@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
 import 'package:swapifymobile/core/profile/edit_profile_page.dart';
 

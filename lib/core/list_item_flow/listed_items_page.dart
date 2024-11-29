@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
+import 'package:swapifymobile/core/list_item_flow/widgets/list_view.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/single_column_grid.dart';
-import 'package:swapifymobile/core/profile/edit_profile_page.dart';
-
-import '../../common/helper/navigator/app_navigator.dart';
-import '../onboading_flow/profile_setup.dart';
+import '../../api_client/api_client.dart';
+import '../../common/widgets/navigation/app_navigator.dart';
+import '../profile/edit_profile_page.dart';
+import '../services/items_service.dart';
+import '../usecases/item.dart';
 import '../widgets/initial_circle.dart';
 import '../widgets/search_input.dart';
 
@@ -18,10 +19,72 @@ class ListedItemsPage extends StatefulWidget {
 }
 
 class _ListedItemsPageState extends State<ListedItemsPage> {
-  final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
+  // final List<String> items = List.generate(10, (index) => 'Item ${index + 1}');
   // final List<String> items = ["Item 1", "Item 2", "Item 3", "Item 4"];
   final TextEditingController _searchController = TextEditingController();
+  final ItemsService itemsService = ItemsService(ApiClient());
+
+  late List<Item> items = [];
+  List<Item> filteredItems = [];
+  bool isLoading = false;
   bool isBarter = true;
+  @override
+  void initState() {
+    fetchItems();
+    filterItems("swap");
+    super.initState();
+  }
+
+  void filterItems(String query) {
+    setState(() {
+      // Filter items where exchangeMethod is 'both' or contains the query
+      filteredItems = items.where((item) {
+        return item.exchangeMethod.toLowerCase() == "both" ||
+            item.exchangeMethod.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      // Sort the items so that those with 'both' come first
+      filteredItems.sort((a, b) {
+        if (a.exchangeMethod.toLowerCase() == query) {
+          return -1;
+        } else if (b.exchangeMethod.toLowerCase() == query) {
+          return 1;
+        }
+        return 0; // No change in order for other items
+      });
+    });
+  }
+
+  void fetchItems() async {
+    setState(() {
+      items = [];
+      isLoading = true;
+    });
+    String keyword = _searchController.text;
+    var response = await itemsService.fetchItems(keyword);
+    if (response != null) {
+      setState(() {
+        isLoading = false;
+      });
+      final responseData = response.data;
+
+      if (responseData['success'] == true) {
+        setState(() {
+          items = (responseData['data']['items'] as List)
+              .map((item) => Item.fromJson(item))
+              .toList();
+          filteredItems = items;
+        });
+      } else {
+        print('Request failed with message: ${responseData["message"]}');
+      }
+    } else {
+      print('Service returned null');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +146,35 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
                 children: [_switchBtns()],
               ),
               Expanded(
-                child: Column(
-                  children: [_itemsGrid()],
-                ),
+                child: items.length > 0
+                    ? ReusableListView(
+                        items: filteredItems,
+                        onDetailsTap: (itemId) async {
+                          final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddItemPhoto(
+                                  itemId: itemId,
+                                  action: 'old',
+                                ),
+                              ));
+                          if (result == 'refresh') {
+                            setState(() {
+                              fetchItems();
+                            });
+                          }
+                        },
+                      )
+                    : Center(
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                // child: Column(
+                //   children: [_itemsGrid()],
+                // ),
               )
               // _switchBtns(),
               // _itemsGrid(),
@@ -98,19 +187,20 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
     print("Tapped on $item"); // Handle item tap here
   }
 
-  Widget _itemsGrid() {
-    return Flexible(
-      child: SingleColumnGrid(
-        items: items,
-        onTap: handleTap,
-      ),
-    );
-  }
+  // Widget _itemsGrid() {
+  //   return Flexible(
+  //     child: SingleColumnGrid(
+  //       items: items,
+  //       onTap: handleTap,
+  //     ),
+  //   );
+  // }
 
   Widget _switchBtns() {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       ElevatedButton(
         onPressed: () {
+          filterItems('swap');
           setState(() {
             isBarter = true;
           });
@@ -135,6 +225,7 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
       ),
       ElevatedButton(
         onPressed: () {
+          filterItems('donation');
           setState(() {
             isBarter = false;
           });

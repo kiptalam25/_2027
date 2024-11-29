@@ -2,37 +2,31 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
-import 'package:swapifymobile/common/constants/app_constants.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'dart:io';
 
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
+import 'package:swapifymobile/common/widgets/navigation/app_navigator.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
-import 'package:swapifymobile/core/list_item_flow/post_item_page.dart';
-import 'package:swapifymobile/core/list_item_flow/widgets/image_display.dart';
+import 'package:swapifymobile/core/list_item_flow/widgets/confirm_item_delete.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/image_upload_options.dart';
-import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
+import 'package:swapifymobile/core/main/item_card.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
 import 'package:swapifymobile/core/usecases/item.dart';
+import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
-import '../../api_constants/api_constants.dart';
-import '../../auth/models/response_model.dart';
-import '../../auth/services/auth_service.dart';
-import 'add_item_event.dart';
-import 'add_item_state.dart';
-import 'item_bloc.dart';
+import '../main/widgets/images_display.dart';
 
 class AddItemPhoto extends StatefulWidget {
   final String itemId;
+  final String action;
   // final List<Map<String, String>> categories;
 
-  const AddItemPhoto({super.key, required this.itemId});
+  const AddItemPhoto({super.key, required this.itemId, required this.action});
 
   @override
   _AddItemPhoto createState() => _AddItemPhoto();
@@ -54,11 +48,22 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   }
 
   final ImagePicker _picker = ImagePicker();
-  List<XFile>? _imageFiles = [];
+  List<dynamic>? _imageFiles = [];
+  bool isNewItem = true;
 
   @override
   void initState() {
     _fetchItem(widget.itemId);
+    switch (widget.action) {
+      case 'new':
+        isNewItem = true;
+        break;
+      case 'old':
+        isNewItem = false;
+        break;
+      default:
+        isNewItem = true;
+    }
     super.initState();
   }
 
@@ -67,10 +72,8 @@ class _AddItemPhoto extends State<AddItemPhoto> {
       item = await itemsService.fetchItem(itemId);
       setState(() {
         isLoading = false;
+        _uploadedImageUrls = item!.imageUrls;
       });
-      print('Item Title: ${item?.title}');
-      print('Item ID: ${item?.id}');
-      print('Tags: ${item?.tags}');
     } catch (e) {
       print('Error fetching item: $e');
     }
@@ -202,7 +205,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BasicAppbar(
-        hideBack: true,
+        hideBack: isNewItem ? true : false,
         title: Text("Add photos of item"),
       ),
       body: isLoading
@@ -217,37 +220,42 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                     SizedBox(
                       height: MediaQuery.of(context).size.width * 0.7,
                       width: MediaQuery.of(context).size.width,
-                      child: _imageFiles!.isNotEmpty
-                          ? GestureDetector(
-                              child: ImageDisplay(
-                                images: _imageFiles!,
-                              ),
-                              onTap: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text('Choose other image(s)'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('No'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          setState(() {
-                                            _imageFiles?.clear();
-                                          });
-                                        },
-                                        child: Text('Yes'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                      child: _imageFiles!.isNotEmpty ||
+                              item!.imageUrls.isNotEmpty
+                          ? ImagesDisplay(
+                              images: _imageFiles!.isNotEmpty
+                                  ? _imageFiles!
+                                  : item!.imageUrls,
                             )
+                          // child: ImageDisplay(
+                          //   images: _imageFiles!,
+                          // ),
+                          // onTap: () async {
+                          //   await showDialog(
+                          //     context: context,
+                          //     builder: (context) => AlertDialog(
+                          //       title: Text('Choose other image(s)'),
+                          //       actions: [
+                          //         TextButton(
+                          //           onPressed: () {
+                          //             Navigator.pop(context);
+                          //           },
+                          //           child: Text('No'),
+                          //         ),
+                          //         TextButton(
+                          //           onPressed: () {
+                          //             Navigator.pop(context);
+                          //             setState(() {
+                          //               _imageFiles?.clear();
+                          //             });
+                          //           },
+                          //           child: Text('Yes'),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   );
+                          // },
+                          // )
                           : Container(
                               decoration: BoxDecoration(
                                 borderRadius:
@@ -297,7 +305,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "${item?.title}",
+                          "${item?.title.toTitleCase}",
                           // widget.itemData['title'],
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
@@ -311,15 +319,16 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           // if (item.exchangeMethod == "Barter") ...[
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0, vertical: 4.0),
+                                horizontal: 4.0, vertical: 2.0),
                             decoration: BoxDecoration(
-                              border: Border(),
+                              border: Border.all(
+                                  width: 1, color: AppColors.primary),
                               color: AppColors.smallBtnBackground,
                               borderRadius: BorderRadius.circular(12.0),
                             ),
                             child: Text(
                               {item?.exchangeMethod} == "both"
-                                  ? "${item?.exchangeMethod}"
+                                  ? "${item?.exchangeMethod.toTitleCase}"
                                   : "Barter & Donation",
                               style: TextStyle(
                                 color: AppColors
@@ -336,7 +345,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text("${item?.description}"),
+                        Text("${item?.description.toCapitalized}"),
                         SizedBox(
                           height: 20,
                         ),
@@ -345,7 +354,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text("${item?.condition}"),
+                        Text("${item?.condition.toTitleCase}"),
                         SizedBox(
                           height: 20,
                         ),
@@ -416,38 +425,96 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                         SizedBox(
                           height: 20,
                         ),
-                        Column(
-                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            BasicAppButton(
+                        if (isNewItem) ...[
+                          Column(
+                            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              BasicAppButton(
+                                  radius: 24,
+                                  onPressed: _uploadingImages
+                                      ? null
+                                      : () {
+                                          _uploadImages();
+                                        },
+                                  content: _uploadingImages
+                                      ? CircularProgressIndicator()
+                                      : Text(
+                                          "Upload",
+                                          style: TextStyle(
+                                              color: AppColors.background),
+                                        )),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              BasicAppButton(
+                                onPressed: () {},
+                                width: MediaQuery.of(context).size.width,
+                                title: "Save as draft",
                                 radius: 24,
-                                onPressed: _uploadingImages
-                                    ? null
-                                    : () {
-                                        _uploadImages();
+                                backgroundColor: AppColors.background,
+                                textColor: AppColors.primary,
+                              ),
+                            ],
+                          )
+                        ],
+
+                        if (!isNewItem) ...[
+                          Row(
+                            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Flexible(
+                                flex: 1,
+                                child: BasicAppButton(
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(20)),
+                                      ),
+                                      builder: (BuildContext context) {
+                                        return ConfirmItemDelete(
+                                          onConfirmDelete: () {
+                                            deleteItem(item!.id);
+                                          },
+                                        );
                                       },
-                                content: _uploadingImages
-                                    ? CircularProgressIndicator()
-                                    : Text(
-                                        "Upload",
-                                        style: TextStyle(
-                                            color: AppColors.background),
-                                      )),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            BasicAppButton(
-                              onPressed: () {},
-                              width: MediaQuery.of(context).size.width,
-                              title: "Save as draft",
-                              radius: 24,
-                              backgroundColor: AppColors.background,
-                              textColor: AppColors.primary,
-                            ),
-                            SizedBox(
-                              height: 16,
-                            )
-                          ],
+                                    );
+                                  },
+                                  height: 40,
+                                  width: MediaQuery.of(context).size.width,
+                                  title: "Delete item",
+                                  radius: 24,
+                                  backgroundColor: AppColors.background,
+                                  textColor: AppColors.primary,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Flexible(
+                                flex: 1,
+                                child: BasicAppButton(
+                                    height: 40,
+                                    radius: 24,
+                                    onPressed: _uploadingImages
+                                        ? null
+                                        : () {
+                                            // _uploadImages();
+                                          },
+                                    content: _uploadingImages
+                                        ? CircularProgressIndicator()
+                                        : Text(
+                                            "Edit item",
+                                            style: TextStyle(
+                                                color: AppColors.background),
+                                          )),
+                              ),
+                            ],
+                          )
+                        ],
+                        SizedBox(
+                          height: 16,
                         )
                       ],
                     )
@@ -536,5 +603,23 @@ class _AddItemPhoto extends State<AddItemPhoto> {
         backgroundColor: Colors.red,
       ),
     );
+  }
+
+  Future<void> deleteItem(String id) async {
+    var response = await itemsService.deleteItem(id);
+    if (response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${response.message}'),
+        ),
+      );
+      Navigator.pop(context, 'refresh');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${response.message}'),
+        ),
+      );
+    }
   }
 }

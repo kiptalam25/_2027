@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
+import '../../common/widgets/navigation/app_navigator.dart';
 import '../config/themes/app_colors.dart';
 import '../main/widgets/bottom_navigation.dart';
 import '../main/widgets/drawer.dart';
@@ -52,7 +52,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 IconButton(
                   icon: const Icon(Icons.notifications),
                   onPressed: () {
-                    AppNavigator.push(context, WelcomePage());
+                    // AppNavigator.push(context, WelcomePage());
                   },
                 ),
                 PopupMenuButton<int>(

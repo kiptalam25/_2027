@@ -3,7 +3,7 @@ import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
 
-import '../../../auth/services/auth_service.dart';
+import '../../services/auth_service.dart';
 
 class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   final AuthService authService;

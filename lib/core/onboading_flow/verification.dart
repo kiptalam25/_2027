@@ -1,13 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/login/login.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
-// import 'package:swapifymobile/core/onboading_flow/choose.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
@@ -15,11 +12,9 @@ import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/choose_categories.dart';
 
 import '../../api_client/api_client.dart';
-import '../../auth/services/auth_service.dart';
+import '../services/auth_service.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
-import '../config/themes/app_colors.dart';
-import 'widgets/popup.dart';
 
 class CountdownTimer extends StatefulWidget {
   @override

@@ -45,7 +45,7 @@ class BasicAppButton extends StatelessWidget {
               fontSize: 14,
               color: textColor ??
                   Colors.white, // Use passed text color or fallback
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w700,
             ),
           ),
     );

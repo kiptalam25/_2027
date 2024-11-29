@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/common/widgets/navigation/app_navigator.dart';
+import 'package:swapifymobile/core/main/pages/product_description.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../config/themes/app_colors.dart';
 import '../usecases/item.dart';
@@ -63,24 +65,23 @@ class ItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment
-                      .spaceBetween, // Align items to the edges
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Flexible(
-                      flex: 1,
+                      // flex: 1,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 5.0),
                         decoration: BoxDecoration(
-                          border: Border(),
+                          border:
+                              Border.all(width: 1, color: AppColors.primary),
                           color: AppColors.smallBtnBackground,
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Text(item.exchangeMethod.toCapitalized),
                       ),
                     ),
-                    // Text with icon on the right
                     Flexible(
-                      flex: 1,
+                      // flex: 1,
                       child: Text.rich(
                         TextSpan(
                           children: [
@@ -88,7 +89,7 @@ class ItemCard extends StatelessWidget {
                               child: Icon(
                                 Icons.pin_drop_outlined,
                                 size: 16,
-                                color: Color(0xFF5e5e5e),
+                                color: AppColors.primary,
                               ),
                             ),
                             TextSpan(
@@ -106,11 +107,8 @@ class ItemCard extends StatelessWidget {
                 ),
                 InkWell(
                   onTap: () {
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => ProductDescription(),
-                    //     ));
+                    AppNavigator.push(
+                        context, ProductDescription(itemId: item.id));
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,

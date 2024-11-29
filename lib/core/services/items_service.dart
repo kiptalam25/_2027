@@ -104,4 +104,34 @@ class ItemsService {
       );
     }
   }
+
+  Future<ResponseModel> deleteItem(String itemId) async {
+    try {
+      final response = await apiClient.delete(ApiConstants.items + "/$itemId");
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data != null) {
+          return ResponseModel.fromJson(response.data);
+          ;
+        } else {
+          return ResponseModel(
+              success: false,
+              message: "${response.statusCode}: Failed to delete");
+          // throw Exception('Invalid item structure');
+        }
+        // final responseData = response.data;
+        // return Item.fromJson(responseData['item']);
+      } else {
+        return ResponseModel(
+            success: false,
+            message: "${response.statusCode}: Failed to delete");
+        throw Exception(
+            'Failed to delete item. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      return ResponseModel(
+          success: false, message: "Internal error Failed to delete: ${e}");
+    }
+  }
 }

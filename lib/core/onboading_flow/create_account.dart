@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
 import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
-
-import '../../common/helper/navigator/app_navigator.dart';
 import '../../common/widgets/appbar/app_bar.dart';
 import '../../common/widgets/button/basic_app_button.dart';
 import '../config/themes/app_colors.dart';

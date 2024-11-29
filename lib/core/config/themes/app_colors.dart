@@ -13,6 +13,7 @@ class AppColors {
   static const hintColor = Color(0xffE3E3DE);
   static const secondBackground = Color(0xff342F3F); //#
   static const Color primaryBaseColor = Color(0xFF50644C);
+  static const Color deleteBtn = Color(0xffA93532);
 
   // Primary Swatch generated from the custom color
   static final MaterialColor primarySwatch =

@@ -5,7 +5,7 @@ import 'package:swapifymobile/auth/models/response_model.dart';
 
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
-import '../../auth/services/auth_service.dart';
+import 'auth_service.dart';
 
 class RegistrationService {
   final ApiClient apiClient;

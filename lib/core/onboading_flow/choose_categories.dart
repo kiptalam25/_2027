@@ -5,18 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_constants/api_constants.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
-import 'package:swapifymobile/core/onboading_flow/profile/profile_bloc.dart';
-import 'package:swapifymobile/core/onboading_flow/profile/profile_state.dart';
+import 'package:swapifymobile/core/profile/profile_bloc.dart';
 import 'package:swapifymobile/core/services/profile_service.dart';
 import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/popup.dart';
 import '../../api_client/api_client.dart';
-import '../../auth/models/response_model.dart';
+import '../../common/widgets/navigation/app_navigator.dart';
 import '../main/pages/home_page.dart';
 
 class ChooseCategories extends StatefulWidget {

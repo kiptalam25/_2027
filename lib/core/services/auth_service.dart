@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
-import 'package:swapifymobile/core/onboading_flow/profile/profile_event.dart';
+import 'package:swapifymobile/core/profile/profile_event.dart';
 
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
-import '../models/user_model.dart';
+import '../../auth/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {

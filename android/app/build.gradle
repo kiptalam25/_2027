@@ -30,30 +30,30 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        release {
-            keyAlias 'your-key-alias'
-            keyPassword 'Smartkip@86'
-            storeFile file('C:/Users/HP/your-keystore-name.jks')
-            storePassword 'Smartkip@86'
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources false
-            // Other settings
-        }
-    }
-
-//    buildTypes {
+//    signingConfigs {
 //        release {
-//            // TODO: Add your own signing config for the release build.
-//            // Signing with the debug keys for now, so `flutter run --release` works.
-//            signingConfig = signingConfigs.debug
+//            keyAlias 'your-key-alias'
+//            keyPassword 'Smartkip@86'
+//            storeFile file('C:/Users/HP/your-keystore-name.jks')
+//            storePassword 'Smartkip@86'
 //        }
 //    }
+//    buildTypes {
+//        release {
+//            signingConfig signingConfigs.release
+//            minifyEnabled false
+//            shrinkResources false
+//            // Other settings
+//        }
+//    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.debug
+        }
+    }
 }
 
 flutter {

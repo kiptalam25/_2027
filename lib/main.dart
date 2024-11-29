@@ -5,7 +5,7 @@ import 'package:swapifymobile/Global.dart';
 import 'package:swapifymobile/core/onboading_flow/logout/logout_bloc.dart';
 import 'api_client/api_client.dart';
 import 'auth/login/login_bloc.dart';
-import 'auth/services/auth_service.dart';
+import 'core/services/auth_service.dart';
 import 'core/config/themes/app_colors.dart';
 import 'core/list_item_flow/item_bloc.dart';
 import 'core/onboading_flow/registration/registration_bloc.dart';

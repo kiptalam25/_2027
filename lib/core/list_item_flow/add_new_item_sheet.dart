@@ -1,20 +1,17 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
-import 'package:swapifymobile/common/helper/navigator/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
 import 'package:swapifymobile/core/config/themes/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
 
-import '../../api_constants/api_constants.dart';
 import '../onboading_flow/choose_categories.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_textfield.dart';
-import '../widgets/dialog.dart';
+import '../widgets/date_picker.dart';
 import 'add_item_event.dart';
 import 'add_item_state.dart';
 import 'item_bloc.dart';
@@ -46,6 +43,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceRange = TextEditingController();
+  var estimatedDateOfPurchase;
 
   // Method to create JSON from the selected checkboxes
   String getCheckboxJson() {
@@ -86,6 +84,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       'priceRange': priceRange.text,
       'categoryId': selectedCategory!,
       'subCategoryId': itemSubCategory!,
+      'estimatedDateOfPurchase': estimatedDateOfPurchase!.toString(),
       'tags': "....",
       'additionalInformation': "....",
       'warrantStatus': false,
@@ -273,7 +272,10 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 SizedBox(
                   height: 16,
                 ),
-                // Text("Condition*"),
+                Text("Condition*"),
+                SizedBox(
+                  height: 10,
+                ),
                 // InputSection(
                 //   label: "Condition*",
                 //   hintText: "Item Condition",
@@ -296,16 +298,34 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 const SizedBox(
                   height: 16,
                 ),
-                if (isBarterChecked) ...[
-                  InputSection(
-                    label: "Price Range",
-                    hintText: "Enter price range of the item",
-                    controller: priceRange,
-                    maxCharacters: 0,
-                  ),
-                  // _buildInputSection("Price Range",
-                  //     "Enter price range of the item", priceRange, 0),
-                ],
+                Text("Estimated date of purchase*"),
+                SizedBox(
+                  height: 10,
+                ),
+                DatePickerTextField(
+                  // labelText: 'Start Date',
+                  hintText: 'YYYY-MM-DD',
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a date.';
+                    }
+                    return null;
+                  },
+                  onDateSelected: (selectedDate) {
+                    estimatedDateOfPurchase = selectedDate;
+                    // print("Selected Start Date: $selectedDate");
+                  },
+                ),
+                // if (isBarterChecked) ...[
+                //   InputSection(
+                //     label: "Price Range",
+                //     hintText: "Enter price range of the item",
+                //     controller: priceRange,
+                //     maxCharacters: 0,
+                //   ),
+                // ],
                 const SizedBox(
                   height: 16,
                 ),
@@ -539,7 +559,10 @@ Widget _blockBuilder() {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddItemPhoto(itemId: state.itemId),
+                      builder: (context) => AddItemPhoto(
+                        itemId: state.itemId,
+                        action: 'new',
+                      ),
                     ),
                   );
                 },
