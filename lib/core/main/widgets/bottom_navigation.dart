@@ -3,7 +3,8 @@ import 'package:swapifymobile/core/main/pages/home_page.dart';
 import 'package:swapifymobile/core/profile/profile_page.dart';
 
 import '../../chat/pages/chat_page.dart';
-import '../../config/themes/app_colors.dart';
+import '../../../common/app_colors.dart';
+import '../../chat/pages/chatpage.dart';
 import '../../onboading_flow/categories_page.dart';
 import '../../onboading_flow/profile_setup.dart';
 
@@ -92,8 +93,8 @@ class _BasePageState extends State<BasePage> {
             context, MaterialPageRoute(builder: (context) => CategoriesPage()));
         break;
       case 2:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ChatPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ConversationListPage()));
         break;
       case 3:
         Navigator.pushReplacement(context,

@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
+import 'package:swapifymobile/common/widgets/app_bar.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
+import 'package:swapifymobile/core/main/widgets/make_swap_offer_bottomsheet.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../../../api_client/api_client.dart';
-import '../../config/themes/app_colors.dart';
+import '../../../common/app_colors.dart';
 import '../../services/items_service.dart';
 import '../../usecases/item.dart';
 import '../../widgets/custom_dropdown.dart';
@@ -341,7 +342,25 @@ class _ProductDescriptionState extends State<ProductDescription> {
       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         BasicAppButton(
-          onPressed: () {},
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              builder: (BuildContext context) {
+                return Padding(
+                  padding: const EdgeInsets.only(
+                      // bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                  child:
+                      SingleChildScrollView(child: MakeSwapOfferBottomsheet()),
+                );
+              },
+              shape: const RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20))),
+              // borderRadius: BorderRadius.zero),
+              isScrollControlled: true,
+            );
+          },
           backgroundColor: AppColors.primary,
           title: "Make Swap Offer",
           radius: 24,

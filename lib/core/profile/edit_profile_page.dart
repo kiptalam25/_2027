@@ -5,13 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/services/profile_service.dart';
 
 import '../../api_client/api_client.dart';
 import '../services/auth_service.dart';
-import '../../common/widgets/button/basic_app_button.dart';
+import '../../common/widgets/basic_app_button.dart';
 import '../usecases/location.dart';
 import '../usecases/profile_response.dart';
 import '../usecases/profile_update_request.dart';

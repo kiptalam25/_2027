@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../config/themes/app_colors.dart';
+import '../../common/app_colors.dart';
 
 class InputSection extends StatelessWidget {
   final String label;

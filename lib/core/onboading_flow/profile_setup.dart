@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
@@ -15,10 +15,10 @@ import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
 import '../../api_client/api_client.dart';
-import '../../common/widgets/navigation/app_navigator.dart';
+import '../../common/widgets/app_navigator.dart';
 import '../services/auth_service.dart';
-import '../../common/widgets/appbar/app_bar.dart';
-import '../../common/widgets/button/basic_app_button.dart';
+import '../../common/widgets/app_bar.dart';
+import '../../common/widgets/basic_app_button.dart';
 import '../widgets/custom_dropdown.dart';
 
 class ProfilePage extends StatefulWidget {

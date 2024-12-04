@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
+import 'package:swapifymobile/common/widgets/app_bar.dart';
 
 class AnimatingPhoto extends StatefulWidget {
   @override

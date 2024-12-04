@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 
-import '../../config/themes/app_colors.dart';
+import '../../../common/app_colors.dart';
 
 class ConfirmItemDelete extends StatelessWidget {
   final VoidCallback? onConfirmDelete;

@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/Global.dart';
+import 'package:swapifymobile/core/list_item_flow/bloc/update_item_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/logout/logout_bloc.dart';
 import 'api_client/api_client.dart';
 import 'auth/login/login_bloc.dart';
 import 'core/services/auth_service.dart';
-import 'core/config/themes/app_colors.dart';
-import 'core/list_item_flow/item_bloc.dart';
+import 'common/app_colors.dart';
+import 'core/list_item_flow/bloc/item_bloc.dart';
 import 'core/onboading_flow/registration/registration_bloc.dart';
 import 'core/welcome/splash/block/splash_cubit.dart';
 import 'core/welcome/splash/pages/splash.dart';
@@ -33,6 +34,9 @@ Future<void> main() async {
       ),
       BlocProvider(
         create: (context) => LogoutBloc(sharedPreferences),
+      ),
+      BlocProvider(
+        create: (context) => UpdateItemBloc(apiClient),
       ),
     ],
     child: MyApp(),

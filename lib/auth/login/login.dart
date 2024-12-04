@@ -5,14 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/login_with_google/google_login_page.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../../api_client/api_client.dart';
 import '../../core/services/auth_service.dart';
-import '../../../common/widgets/appbar/app_bar.dart';
-import '../../../common/widgets/button/basic_app_button.dart';
+import '../../common/widgets/app_bar.dart';
+import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
 import 'login_bloc.dart';

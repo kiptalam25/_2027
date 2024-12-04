@@ -4,7 +4,7 @@ import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
 import 'package:swapifymobile/core/profile/edit_profile_page.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
-import '../../config/themes/app_colors.dart';
+import '../../../common/app_colors.dart';
 import '../../onboading_flow/choose_categories.dart';
 
 class CustomDrawer extends StatelessWidget {

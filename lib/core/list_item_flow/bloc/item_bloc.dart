@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/api_constants/api_constants.dart';
-import 'package:swapifymobile/core/list_item_flow/add_item_state.dart';
+import 'package:swapifymobile/core/list_item_flow/bloc/add_item_state.dart';
 
-import '../../api_client/api_client.dart';
+import '../../../api_client/api_client.dart';
 import 'add_item_event.dart';
 
 class AddItemBloc extends Bloc<AddItemEvent, AddItemState> {

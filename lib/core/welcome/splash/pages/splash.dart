@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/core/onboading_flow/create_account.dart';
 import 'dart:math' as math;
 
-import '../../../config/themes/app_colors.dart';
+import '../../../../common/app_colors.dart';
 import '../../../main/pages/home_page.dart';
 import 'welcome.dart';
 import '../block/splash_cubit.dart';

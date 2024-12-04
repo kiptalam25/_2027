@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
+import 'package:swapifymobile/common/widgets/app_bar.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
-import '../../common/widgets/navigation/app_navigator.dart';
-import '../../core/config/themes/app_colors.dart';
+import '../../common/widgets/app_navigator.dart';
+import '../../common/app_colors.dart';
 
 class PostItemPage extends StatefulWidget {
   const PostItemPage({Key? key}) : super(key: key);

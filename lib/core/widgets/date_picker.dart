@@ -59,10 +59,10 @@ class _DatePickerTextFieldState extends State<DatePickerTextField> {
       controller: _controller,
       readOnly: true, // Prevent manual editing
       decoration: InputDecoration(
-        labelText: widget.labelText,
-        hintText: widget.hintText,
-        suffixIcon: const Icon(Icons.calendar_today),
-      ),
+          labelText: widget.labelText,
+          hintText: widget.hintText,
+          suffixIcon: const Icon(Icons.calendar_today),
+          contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10)),
       onTap: () => _selectDate(context),
       validator: widget.validator,
     );

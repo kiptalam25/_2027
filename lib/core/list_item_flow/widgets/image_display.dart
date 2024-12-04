@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../config/themes/app_colors.dart';
+import '../../../common/app_colors.dart';
 
 class ImageDisplay extends StatefulWidget {
   final List<XFile> images;

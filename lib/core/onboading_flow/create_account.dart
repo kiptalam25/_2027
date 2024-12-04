@@ -5,9 +5,9 @@ import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
 import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
-import '../../common/widgets/appbar/app_bar.dart';
-import '../../common/widgets/button/basic_app_button.dart';
-import '../config/themes/app_colors.dart';
+import '../../common/widgets/app_bar.dart';
+import '../../common/widgets/basic_app_button.dart';
+import '../../common/app_colors.dart';
 import '../form_validators.dart';
 
 class Registration extends StatefulWidget {

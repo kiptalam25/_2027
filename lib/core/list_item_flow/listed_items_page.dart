@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/list_view.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/single_column_grid.dart';
 import '../../api_client/api_client.dart';
-import '../../common/widgets/navigation/app_navigator.dart';
+import '../../common/widgets/app_navigator.dart';
 import '../profile/edit_profile_page.dart';
 import '../services/items_service.dart';
 import '../usecases/item.dart';

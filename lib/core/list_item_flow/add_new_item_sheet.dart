@@ -3,26 +3,28 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
+import 'package:swapifymobile/core/list_item_flow/bloc/update_item_state.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
 
 import '../onboading_flow/choose_categories.dart';
+import '../usecases/item.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/date_picker.dart';
-import 'add_item_event.dart';
-import 'add_item_state.dart';
-import 'item_bloc.dart';
+import 'bloc/add_item_event.dart';
+import 'bloc/add_item_state.dart';
+import 'bloc/item_bloc.dart';
+import 'bloc/update_item_bloc.dart';
+import 'bloc/update_item_event.dart';
 
 class AddNewItemSheet extends StatefulWidget {
-  // final PageController pageController;
+  final bool isNew;
+  final dynamic item;
   //
-  // AddNewItemSheet({}) {
-  //   // TODO: implement AddNewItemSheet
-  //   throw UnimplementedError();
-  // }
+  const AddNewItemSheet({super.key, required this.isNew, required this.item});
 
   @override
   _AddNewItemSheetState createState() => _AddNewItemSheetState();
@@ -48,6 +50,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   // Method to create JSON from the selected checkboxes
   String getCheckboxJson() {
     Map<String, String> selectedItems;
+
     if (isDonationChecked && isBarterChecked) {
       selectedItems = {
         'exchangeMethod': "both",
@@ -112,6 +115,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   ];
   List<Map<String, String>> _subCategories = [];
   String? selectedCategoryId;
+  late Item item;
   late String? selectedCondition = _conditions.first['id'];
   late String? selectedCategory = "";
   late String? selectedCategoryOfInterest;
@@ -120,7 +124,40 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   @override
   void initState() {
     super.initState();
-    _fetchCategories(); // Fetch categories from the database
+    _fetchCategories();
+    prepareUpdate();
+  }
+
+  prepareUpdate() {
+    if (!widget.isNew) {
+      setState(() {
+        item = widget.item;
+        itemNameController.text = item.title;
+        descriptionController.text = item.description;
+        selectedCondition = item.condition;
+
+        if (_categories.isNotEmpty) {
+          selectedCategory = item.categoryId;
+        }
+        selectedCategoryIds = item.swapInterests;
+      });
+
+      switch (item.exchangeMethod) {
+        case 'both':
+          isDonationChecked = true;
+          isBarterChecked = true;
+          break;
+        case 'swap':
+          isBarterChecked = true;
+          break;
+        case 'donation':
+          isDonationChecked = true;
+          break;
+        default:
+          isDonationChecked = false;
+          isBarterChecked = false;
+      }
+    }
   }
 
   final CategoryService categoryService = CategoryService(ApiClient());
@@ -137,7 +174,15 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       // ];
       _isLoading = false;
 
-      if (_categories.isNotEmpty) {
+      if (_categories.isNotEmpty && !widget.isNew) {
+        // selectedCondition = _conditions.first['id']!;
+        selectedCategory = item.categoryId; //_categories.first['id']!;
+        findSubCAtegories(selectedCategory!);
+
+        if (_subCategories.isNotEmpty) {
+          selectedCategoryOfInterest = item.subCategoryId;
+        }
+      } else if (_categories.isNotEmpty && widget.isNew) {
         // selectedCondition = _conditions.first['id']!;
         selectedCategory = _categories.first['id']!;
         findSubCAtegories(selectedCategory!);
@@ -162,6 +207,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   // }
 
   List<String> selectedCategoryIds = [];
+  bool showList = true;
 
   @override
   Widget build(BuildContext context) {
@@ -195,13 +241,13 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                       color: AppColors.dashColor, // Set the background color
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: 32,
                     child: Align(
                       alignment: Alignment
                           .bottomCenter, // Align the text at the bottom
                       child: Text(
-                        'List New Item',
+                        widget.isNew ? 'List New Item' : "Edit Item",
                         style:
                             TextStyle(fontSize: 16, color: AppColors.primary),
                       ),
@@ -302,21 +348,24 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 SizedBox(
                   height: 10,
                 ),
-                DatePickerTextField(
-                  // labelText: 'Start Date',
-                  hintText: 'YYYY-MM-DD',
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2030),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a date.';
-                    }
-                    return null;
-                  },
-                  onDateSelected: (selectedDate) {
-                    estimatedDateOfPurchase = selectedDate;
-                    // print("Selected Start Date: $selectedDate");
-                  },
+                SizedBox(
+                  height: 40,
+                  child: DatePickerTextField(
+                    // labelText: 'Start Date',
+                    hintText: 'YYYY-MM-DD',
+                    firstDate: DateTime(2010),
+                    lastDate: DateTime(2025),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a date.';
+                      }
+                      return null;
+                    },
+                    onDateSelected: (selectedDate) {
+                      estimatedDateOfPurchase = selectedDate;
+                      // print("Selected Start Date: $selectedDate");
+                    },
+                  ),
                 ),
                 // if (isBarterChecked) ...[
                 //   InputSection(
@@ -374,7 +423,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 if (isBarterChecked) ...[
                   Text("Categories of interest (Barter only)"),
                   SingleChildScrollView(
-                    child: _categories.isEmpty
+                      child: Column(children: [
+                    _categories.isEmpty
                         ? Center(
                             child: SizedBox(
                                 height: 20,
@@ -385,18 +435,45 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                             allItems: _categories,
                             onItemAdded: (selectedIds) {
                               setState(() {
-                                selectedCategoryIds =
-                                    selectedIds; // Update selected IDs
+                                selectedCategoryIds = selectedIds;
+                                showList = false;
                               });
                             },
                             onItemRemoved: (selectedIds) {
                               setState(() {
-                                selectedCategoryIds =
-                                    selectedIds; // Update selected IDs
+                                selectedCategoryIds = selectedIds;
                               });
                             },
                           ),
-                  ),
+                    if (showList) ...[
+                      Container(
+                        height: 80,
+                        child: ListView.builder(
+                            itemCount: selectedCategoryIds.length,
+                            itemBuilder: (context, index) {
+                              final item = selectedCategoryIds[index];
+                              return Row(
+                                children: [
+                                  Text(item),
+                                ],
+                              );
+                            }),
+                      )
+                    ]
+                    // if (selectedCategoryIds.isNotEmpty) ...[
+                    //   Container(
+                    //       child: ListView.builder(
+                    //           itemCount: selectedCategoryIds.length,
+                    //           itemBuilder: (context, index) {
+                    //             final item = selectedCategoryIds[index];
+                    //             // final isSelected = selectedItems
+                    //             //     .any((selected) => selected['id'] == item['id']);
+                    //
+                    //             return Text(item.toString());
+                    //           }))
+                    // ]
+                  ])),
+
                   // SizedBox(
                   //   height: 40,
                   //   child: CustomDropdown(
@@ -456,11 +533,21 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                           var finalItemData = combineJson(
                               itemListedFor, jsonAdditional, jsonInterests);
 
-                          if (context.read<AddItemBloc>().state
-                              is! AddItemLoading) {
-                            context
-                                .read<AddItemBloc>()
-                                .add(AddItemSubmit(finalItemData));
+                          if (widget.isNew) {
+                            if (context.read<AddItemBloc>().state
+                                is! AddItemLoading) {
+                              context
+                                  .read<AddItemBloc>()
+                                  .add(AddItemSubmit(finalItemData));
+                            }
+                          }
+                          if (!widget.isNew) {
+                            print(finalItemData);
+                            if (context.read<UpdateItemBloc>().state
+                                is! UpdateItemLoading) {
+                              context.read<UpdateItemBloc>().add(
+                                  UpdateItemSubmit(finalItemData, item.id));
+                            }
                           }
                         }
                         // AppNavigator.pushReplacement(
@@ -471,7 +558,11 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                         //     ));
                       }
                     },
-                    content: !isFirstStep ? _blockBuilder() : null,
+                    content: !isFirstStep && widget.isNew
+                        ? _blockBuilder()
+                        : !isFirstStep && !widget.isNew
+                            ? _updateBlockBuilder()
+                            : null,
                   ),
                   if (!isFirstStep) ...[
                     SizedBox(height: 16),
@@ -586,9 +677,56 @@ Widget _blockBuilder() {
           );
         }
 
-        return Text(
-          "Create Item",
-          style: TextStyle(color: Colors.white),
+        return Center(
+          child: Text(
+            "Create Item",
+            style: TextStyle(color: Colors.white),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+Widget _updateBlockBuilder() {
+  return BlocListener<UpdateItemBloc, UpdateItemState>(
+    listener: (context, state) {
+      if (state is UpdateItemFailure) {
+        // Show error SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.error),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else if (state is UpdateItemSuccess) {
+        Navigator.pop(context, 'refresh');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.message, style: TextStyle(color: Colors.black)),
+            backgroundColor: AppColors.successColor,
+          ),
+        );
+      }
+    },
+    child: BlocBuilder<UpdateItemBloc, UpdateItemState>(
+      builder: (context, state) {
+        if (state is UpdateItemLoading) {
+          return SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            ),
+          );
+        }
+
+        return Center(
+          child: Text(
+            "Update Item",
+            style: TextStyle(color: Colors.white),
+          ),
         );
       },
     ),

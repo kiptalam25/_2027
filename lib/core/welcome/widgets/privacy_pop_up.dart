@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 
 class PrivacyPolicyPopup extends StatefulWidget {
   final VoidCallback onCancel;

@@ -13,8 +13,8 @@ import 'package:swapifymobile/core/onboading_flow/choose_categories.dart';
 
 import '../../api_client/api_client.dart';
 import '../services/auth_service.dart';
-import '../../common/widgets/appbar/app_bar.dart';
-import '../../common/widgets/button/basic_app_button.dart';
+import '../../common/widgets/app_bar.dart';
+import '../../common/widgets/basic_app_button.dart';
 
 class CountdownTimer extends StatefulWidget {
   @override

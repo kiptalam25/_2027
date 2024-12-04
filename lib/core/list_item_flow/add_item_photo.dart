@@ -6,10 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'dart:io';
 
-import 'package:swapifymobile/common/widgets/appbar/app_bar.dart';
-import 'package:swapifymobile/common/widgets/button/basic_app_button.dart';
-import 'package:swapifymobile/common/widgets/navigation/app_navigator.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/widgets/app_bar.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/confirm_item_delete.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/image_upload_options.dart';
@@ -20,6 +20,7 @@ import 'package:swapifymobile/core/usecases/item.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
 import '../main/widgets/images_display.dart';
+import 'add_new_item_sheet.dart';
 
 class AddItemPhoto extends StatefulWidget {
   final String itemId;
@@ -328,8 +329,8 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                             ),
                             child: Text(
                               {item?.exchangeMethod} == "both"
-                                  ? "${item?.exchangeMethod.toTitleCase}"
-                                  : "Barter & Donation",
+                                  ? "Barter & Donation"
+                                  : "${item?.exchangeMethod.toTitleCase}",
                               style: TextStyle(
                                 color: AppColors
                                     .primary, // Change text color as needed
@@ -367,35 +368,36 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                         SizedBox(
                           height: 20,
                         ),
-                        FutureBuilder<List<Map<String, String>>>(
-                          future: categoryService.fetchCategories(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            } else if (snapshot.hasError) {
-                              return Text("Error: ${snapshot.error}");
-                            } else if (!snapshot.hasData ||
-                                snapshot.data!.isEmpty) {
-                              return Text("No categories available");
-                            } else {
-                              // Filter category by subCategoryId
-                              final categories = snapshot.data!;
-                              final matchingCategory = categories.firstWhere(
-                                (category) =>
-                                    category['_id'] == item!.categoryId,
-                                orElse: () => {},
-                              );
-
-                              if (matchingCategory.isEmpty) {
-                                return Text("Category not found");
-                              } else {
-                                return Text(
-                                    matchingCategory['name'] ?? "Unknown");
-                              }
-                            }
-                          },
-                        ),
+                        Text(item!.subCategoryId),
+                        // FutureBuilder<List<Map<String, String>>>(
+                        //   future: categoryService.fetchCategories(),
+                        //   builder: (context, snapshot) {
+                        //     if (snapshot.connectionState ==
+                        //         ConnectionState.waiting) {
+                        //       return CircularProgressIndicator();
+                        //     } else if (snapshot.hasError) {
+                        //       return Text("Error: ${snapshot.error}");
+                        //     } else if (!snapshot.hasData ||
+                        //         snapshot.data!.isEmpty) {
+                        //       return Text("No categories available");
+                        //     } else {
+                        //       // Filter category by subCategoryId
+                        //       final categories = snapshot.data!;
+                        //       final matchingCategory = categories.firstWhere(
+                        //         (category) =>
+                        //             category['_id'] == item!.categoryId,
+                        //         orElse: () => {},
+                        //       );
+                        //
+                        //       if (matchingCategory.isEmpty) {
+                        //         return Text("Category not found");
+                        //       } else {
+                        //         return Text(
+                        //             matchingCategory['name'] ?? "Unknown");
+                        //       }
+                        //     }
+                        //   },
+                        // ),
                         // Text(
                         //   "Item SubCategory",
                         //   style: TextStyle(
@@ -500,7 +502,26 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                                     onPressed: _uploadingImages
                                         ? null
                                         : () {
-                                            // _uploadImages();
+                                            Navigator.pop(context);
+                                            showModalBottomSheet(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AddNewItemSheet(
+                                                  isNew: false,
+                                                  item: item,
+                                                );
+                                              },
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      20))),
+                                              // borderRadius: BorderRadius.zero),
+                                              isScrollControlled:
+                                                  true, // Makes the bottom sheet more flexible in height
+                                            );
                                           },
                                     content: _uploadingImages
                                         ? CircularProgressIndicator()

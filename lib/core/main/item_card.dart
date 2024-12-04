@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/navigation/app_navigator.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/main/pages/product_description.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
-import '../config/themes/app_colors.dart';
+import '../../common/app_colors.dart';
 import '../usecases/item.dart';
 
 class ItemCard extends StatelessWidget {

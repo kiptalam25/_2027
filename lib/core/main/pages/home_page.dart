@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
-import '../../config/themes/app_colors.dart';
+import '../../../common/app_colors.dart';
 import '../../list_item_flow/add_new_item_sheet.dart';
 import '../../usecases/item.dart';
 import '../../widgets/search_input.dart';
@@ -275,10 +275,7 @@ class _HomePageState extends State<HomePage> {
             showModalBottomSheet(
               context: context,
               builder: (BuildContext context) {
-                return AddNewItemSheet(
-                    // pageController:
-                    //     _pageController
-                    ); // Custom bottom sheet widget
+                return AddNewItemSheet(isNew: true, item: null);
               },
               shape: const RoundedRectangleBorder(
                   borderRadius:

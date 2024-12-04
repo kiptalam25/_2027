@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/core/config/themes/app_colors.dart';
+import 'package:swapifymobile/common/app_colors.dart';
 
 class ImageUploadOptions extends StatelessWidget {
   final Function(String) onGestureSelected;
