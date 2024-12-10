@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
 
 import 'chat_page.dart';
 
@@ -12,29 +13,31 @@ class ConversationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Conversations")),
-      body: ListView.builder(
-        itemCount: conversations.length,
-        itemBuilder: (context, index) {
-          final conversation = conversations[index];
-          return ListTile(
-            leading: CircleAvatar(child: Text(conversation['name'][0])),
-            title: Text(conversation['name']),
-            subtitle: Text(conversation['lastMessage']),
-            trailing: Text(conversation['time']),
-            onTap: () {
-              // Navigate to ChatPage with selected user
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatPage(conversation['name']),
-                ),
+        appBar: AppBar(title: const Text("Conversations")),
+        body: BasePage(
+          initialIndex: 2,
+          child: ListView.builder(
+            itemCount: conversations.length,
+            itemBuilder: (context, index) {
+              final conversation = conversations[index];
+              return ListTile(
+                leading: CircleAvatar(child: Text(conversation['name'][0])),
+                title: Text(conversation['name']),
+                subtitle: Text(conversation['lastMessage']),
+                trailing: Text(conversation['time']),
+                onTap: () {
+                  // Navigate to ChatPage with selected user
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(conversation['name']),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-    );
+          ),
+        ));
   }
 }
 

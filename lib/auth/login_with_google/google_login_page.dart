@@ -1,80 +1,147 @@
-import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
-class GoogleLoginPage extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:dio/dio.dart';
+import 'package:swapifymobile/api_constants/api_constants.dart';
+
+// final GoogleSignIn _googleSignIn = GoogleSignIn(
+//   scopes: ['email'],
+// );
+final GoogleSignIn _googleSignIn = GoogleSignIn(
+  clientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+  scopes: ['email', 'profile'],
+);
+
+class LoginScreen extends StatefulWidget {
   @override
-  _GoogleLoginPageState createState() => _GoogleLoginPageState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _GoogleLoginPageState extends State<GoogleLoginPage> {
-  final String backendBaseUrl = "http://192.168.100.4:8080";
-  Future<void> initiateGoogleLogin() async {
-    final googleLoginUrl = "$backendBaseUrl/auth/google";
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isLoggingIn = false;
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      _isLoggingIn = true;
+    });
+
     try {
-      if (await canLaunch(googleLoginUrl)) {
-        await launch(googleLoginUrl);
-      } else {
-        throw 'Could not launch $googleLoginUrl';
+      // Initiate Google Sign-In
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        setState(() {
+          _isLoggingIn = false;
+        });
+        return;
       }
-    } catch (e) {
-      print("Error launching URL: $e");
+
+      // Get Google ID token
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        print('Failed to retrieve ID Token.');
+        setState(() {
+          _isLoggingIn = false;
+        });
+        return;
+      }
+
+      // Send the token to the backend for sign-up
+      // final response = await Dio().post(
+      //   'http://localhost:5000/auth/google-signup',
+      //   data: {'idToken': idToken},
+      // );
+      final response = await Dio().post(
+        ApiConstants.loginGoogle,
+        data: {'idToken': idToken},
+      );
+
+      if (response.statusCode == 200) {
+        // Successfully signed up
+        final user = response.data['user'];
+        final token = response.data['token'];
+        print('User signed up: $user');
+        print('Token: $token');
+      } else {
+        print('Sign-up failed: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error during Google Sign-In: $error');
+    } finally {
+      setState(() {
+        _isLoggingIn = false;
+      });
     }
   }
 
-  // Future<void> initiateGoogleLogin() async {
-  //   final googleLoginUrl = "$backendBaseUrl/auth/google";
-  //
-  //   // Launch the Google Login URL
-  //   if (await canLaunch(googleLoginUrl)) {
-  //     await launch(googleLoginUrl);
-  //   } else {
-  //     throw 'Could not launch $googleLoginUrl';
-  //   }
-  // }
+  Future<void> signInWithGoogle() async {
+    setState(() {
+      _isLoggingIn = true;
+    });
 
-  Future<void> fetchJwtFromCallback(String callbackUrl) async {
     try {
-      // Extract the authorization code from the callback URL
-      final Uri uri = Uri.parse(callbackUrl);
-      final String? code = uri.queryParameters['code'];
+      // Initialize Google Sign-In
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        print('User canceled the sign-in process.');
+        return;
+      }
 
-      if (code != null) {
-        // Exchange the code for a JWT
-        final Dio dio = Dio();
-        final response = await dio
-            .get("$backendBaseUrl/auth/google/callback", queryParameters: {
-          'code': code,
+      // Authenticate and get tokens
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        setState(() {
+          _isLoggingIn = false;
         });
+        return;
+      }
 
-        if (response.statusCode == 200) {
-          // Store the JWT
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString("jwt", response.data);
+      // Send ID Token to backend using Dio
+      final response = await Dio().post(
+        ApiConstants.loginGoogle, // Replace with your backend endpoint
+        data: jsonEncode({'idToken': idToken}),
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
 
-          // Navigate to the main screen
-          Navigator.pushReplacementNamed(context, '/home');
-        } else {
-          throw Exception("Failed to log in");
-        }
+      // Handle response
+      if (response.statusCode == 200) {
+        print('Login successful: ${response.data}');
+        // You can now save the token or navigate to the next screen
       } else {
-        throw Exception("No authorization code found in callback URL");
+        print('Failed to authenticate with backend: ${response.data}');
       }
     } catch (e) {
-      print("Error during Google Login: $e");
+      if (e is DioError) {
+        print('DioError: ${e.response?.data}');
+      } else {
+        print('Error during Google Sign-In: $e');
+      }
+    } finally {
+      setState(() {
+        _isLoggingIn = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Google Login")),
+      appBar: AppBar(title: Text('Sign Up with Google')),
       body: Center(
-        child: ElevatedButton(
-          onPressed: initiateGoogleLogin,
-          child: Text("Login with Google"),
-        ),
+        child: _isLoggingIn
+            ? CircularProgressIndicator()
+            : ElevatedButton(
+                onPressed: signInWithGoogle,
+                child: Text('Sign Up with Google'),
+              ),
       ),
     );
   }

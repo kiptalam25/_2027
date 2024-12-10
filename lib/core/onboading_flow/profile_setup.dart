@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/api_constants/api_constants.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_bloc.dart';
@@ -67,14 +68,9 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       isUploadingImage = true;
     });
-    const cloudName = "dqjv3o9zi";
-    // const apiKey = "672828653332493";
-    // const apiSecret = "lTbaGnstK6FWbVl92Q_ckPXPYKI";
-    const uploadPreset = "l9sim6rm";
+    const uploadPreset = ApiConstants.profileUploadPreset;
 
     final dio = Dio();
-    List<String> uploadedUrls = [];
-
     try {
       // for (var image in _imageFiles!) {
       final formData = FormData.fromMap({
@@ -83,7 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
       });
 
       final response = await dio.post(
-        "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+        ApiConstants.imageUploadUrl,
         data: formData,
       );
 
@@ -99,11 +95,15 @@ class _ProfilePageState extends State<ProfilePage> {
         });
         return true;
       }
-      return false;
+      setState(() {
+        uploadedUrl = "";
+      });
+      print("Error: Failed to upload profile image!");
+      return true;
       print("Uploaded URLs: $uploadedUrl");
     } catch (e) {
       print("Error uploading profile picture: $e");
-      return false;
+      return true;
     }
   }
 
@@ -131,8 +131,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   List<Map<String, String>> countryCodes = [
     {'id': '372', 'name': '+372'},
-    // {'id': '1', 'name': '+1'},
-    // {'id': '44', 'name': '+44'},
   ];
 
   String? _selectedCountryCode;
@@ -750,32 +748,17 @@ class _ProfilePageState extends State<ProfilePage> {
       onPressed: state is RegistrationLoading
           ? null
           : () async {
-              if (uploadedUrl != null && uploadedUrl != "") {
-                bool isImageUploaded = await _uploadImage();
-                if (isImageUploaded) {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    final _fullPhoneNumber =
-                        '$_selectedCountryCode${_phoneController.text}';
-                    BlocProvider.of<RegistrationBloc>(context).add(
-                      RegisterUser(
-                        profilePicUrls: uploadedUrl != null ? uploadedUrl : "",
-                        fullName: _fullNameController.text,
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                        name: _usernameController.text,
-                        phoneNumber: _fullPhoneNumber,
-                        bio: _bioController.text,
-                      ),
-                    );
-                  }
-                }
-              } else {
+              // if (uploadedUrl != null && uploadedUrl != "") {
+              bool isImageUploaded = await _uploadImage();
+              if (isImageUploaded) {
+                print(
+                    ".................................. ........... $uploadedUrl ");
                 if (_formKey.currentState?.validate() ?? false) {
                   final _fullPhoneNumber =
                       '$_selectedCountryCode${_phoneController.text}';
                   BlocProvider.of<RegistrationBloc>(context).add(
                     RegisterUser(
-                      profilePicUrls: uploadedUrl != null ? uploadedUrl : "",
+                      profilePicUrl: uploadedUrl != null ? uploadedUrl : "",
                       fullName: _fullNameController.text,
                       email: _emailController.text,
                       password: _passwordController.text,
@@ -786,6 +769,24 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 }
               }
+              // }
+              // else {
+              //   if (_formKey.currentState?.validate() ?? false) {
+              //     final _fullPhoneNumber =
+              //         '$_selectedCountryCode${_phoneController.text}';
+              //     BlocProvider.of<RegistrationBloc>(context).add(
+              //       RegisterUser(
+              //         profilePicUrls: uploadedUrl != null ? uploadedUrl : "",
+              //         fullName: _fullNameController.text,
+              //         email: _emailController.text,
+              //         password: _passwordController.text,
+              //         name: _usernameController.text,
+              //         phoneNumber: _fullPhoneNumber,
+              //         bio: _bioController.text,
+              //       ),
+              //     );
+              //   }
+              // }
             },
       content: state is RegistrationLoading || isUploadingImage
           ? SizedBox(

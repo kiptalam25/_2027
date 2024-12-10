@@ -1,5 +1,4 @@
 // auth_state.dart
-import 'package:swapifymobile/core/onboading_flow/registration/registration_state.dart';
 
 abstract class AuthState {}
 

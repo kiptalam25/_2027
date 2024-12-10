@@ -51,14 +51,14 @@ class AuthService {
   }
 
   Future<ResponseModel> register(String email, String password, String name,
-      phone, fullName, profilePicUrls, bio) async {
+      phone, fullName, profilePicUrl, bio) async {
     final response = await apiClient.post(ApiConstants.register, data: {
       'email': email,
       'password': password,
       'username': name,
       'phoneNumber': phone,
       'fullName': fullName,
-      'profilePicUrls': profilePicUrls,
+      'profilePicUrl': profilePicUrl,
       'bio': bio
     });
     return ResponseModel.fromJson(response.data);

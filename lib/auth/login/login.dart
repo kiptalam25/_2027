@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/login_with_google/google_login_page.dart';
+import 'package:swapifymobile/auth/reset_password/reset_password.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
@@ -15,6 +17,7 @@ import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
+import '../login_with_facebook/facebook_login_page.dart';
 import 'login_bloc.dart';
 import 'login_event.dart';
 import 'login_state.dart';
@@ -125,7 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
-                                      // Add your action here
+                                      AppNavigator.push(
+                                          context, ResetPassword());
                                     },
                                     child: Text(
                                       "Forgot Password",
@@ -181,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                GoogleLoginPage()));
+                                                FacebookLoginPage()));
                                     // ScaffoldMessenger.of(context).showSnackBar(
                                     //   SnackBar(content: Text(social)),
                                     // );

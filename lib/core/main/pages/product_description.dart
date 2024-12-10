@@ -162,6 +162,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                     padding: const EdgeInsets.all(4.0),
                                     child: ImagesDisplay(
                                       images: _images,
+                                      showRemoveButton: false,
                                     ),
                                     // _imagesDisplay(),
                                   ),

@@ -1,0 +1,7 @@
+<resources>
+    <!-- Replace with your actual Facebook App ID -->
+    <string name="facebook_app_id">1300081191265197</string>
+
+    <!-- Required for deep linking -->
+    <string name="fb_login_protocol_scheme">fbYOUR_FACEBOOK_APP_ID</string>
+</resources>

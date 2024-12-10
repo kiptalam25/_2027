@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 
-import '../../chat/pages/chatpage.dart';
+import '../../chat/pages/conversations_page.dart';
 import 'animated_dropdown.dart';
 
 class MakeSwapOfferBottomsheet extends StatefulWidget {
@@ -114,7 +114,7 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ConversationListPage()))
+                                builder: (context) => ConversationsPage()))
                       }),
               SizedBox(
                 height: 16,

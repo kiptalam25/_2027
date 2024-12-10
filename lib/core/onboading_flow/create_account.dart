@@ -1,10 +1,16 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
 import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
+import '../../api_constants/api_constants.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../common/app_colors.dart';
@@ -186,10 +192,20 @@ class _RegistrationState extends State<Registration> {
                   SizedBox(
                     height: 40,
                   ),
-                  SocialLinks(
-                    page: 'signup',
-                    onSocialClicked: (p0) {},
-                  ),
+                  !_isLoggingIn
+                      ? SocialLinks(
+                          page: 'signup',
+                          onSocialClicked: (social) {
+                            if (social == "google") {
+                              print(social);
+
+                              signInWithGoogle();
+                            }
+                          },
+                        )
+                      : Center(
+                          child: CircularProgressIndicator(),
+                        ),
                   SizedBox(
                     height: 16,
                   ),
@@ -203,6 +219,74 @@ class _RegistrationState extends State<Registration> {
   bool _isValidEmail(String email) {
     const emailRegex = r'^[^@\s]+@[^@\s]+\.[^@\s]+$';
     return RegExp(emailRegex).hasMatch(email);
+  }
+
+  bool _isLoggingIn = false;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId:
+        '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com',
+    scopes: ['email'],
+  );
+
+  Future<void> signInWithGoogle() async {
+    setState(() {
+      _isLoggingIn = true;
+    });
+
+    try {
+      // Initialize Google Sign-In
+      final GoogleSignInAccount? googleUser =
+          await await _googleSignIn.signIn();
+      if (googleUser == null) {
+        print('User canceled the sign-in process.');
+        return;
+      }
+      // '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com ',
+      print('Signed in as ${googleUser.displayName}');
+      // Authenticate and get tokens
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        setState(() {
+          _isLoggingIn = false;
+        });
+        return;
+      }
+
+      // Send ID Token to backend using Dio
+      final response = await Dio().post(
+        ApiConstants.loginGoogle, // Replace with your backend endpoint
+        data: jsonEncode({'idToken': idToken}),
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      // Handle response
+      if (response.statusCode == 200) {
+        print('Login successful: ${response.data}');
+        // You can now save the token or navigate to the next screen
+      } else {
+        print('Failed to authenticate with backend: ${response.data}');
+      }
+    } catch (e) {
+      if (e is DioError) {
+        print('DioError: ${e.response?.data}');
+      } else if (e is PlatformException) {
+        print("PlatformException Code: ${e.code}");
+        print("PlatformException Message: ${e.message}");
+        // You can also add custom handling based on error codes, if necessary
+      } else {
+        print('Error during Google Sign-In: $e');
+      }
+    } finally {
+      setState(() {
+        _isLoggingIn = false;
+      });
+    }
   }
 
   Future<void> checkAndValidateUsername() async {

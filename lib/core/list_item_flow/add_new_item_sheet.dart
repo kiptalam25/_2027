@@ -14,6 +14,7 @@ import '../usecases/item.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/date_picker.dart';
+import '../widgets/notification_popup.dart';
 import 'bloc/add_item_event.dart';
 import 'bloc/add_item_state.dart';
 import 'bloc/item_bloc.dart';
@@ -45,7 +46,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceRange = TextEditingController();
-  var estimatedDateOfPurchase;
+  var estimatedDateOfPurchase = DateTime.now();
 
   // Method to create JSON from the selected checkboxes
   String getCheckboxJson() {
@@ -352,7 +353,9 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                   height: 40,
                   child: DatePickerTextField(
                     // labelText: 'Start Date',
+
                     hintText: 'YYYY-MM-DD',
+                    initialDate: estimatedDateOfPurchase,
                     firstDate: DateTime(2010),
                     lastDate: DateTime(2025),
                     validator: (value) {
@@ -691,21 +694,27 @@ Widget _blockBuilder() {
 Widget _updateBlockBuilder() {
   return BlocListener<UpdateItemBloc, UpdateItemState>(
     listener: (context, state) {
-      if (state is UpdateItemFailure) {
-        // Show error SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(state.error),
-            backgroundColor: Colors.red,
+      if (state is UpdateItemSuccess) {
+        Navigator.pop(context, 'refresh');
+        StatusPopup.show(
+          context,
+          message: state.message,
+          isSuccess: true,
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AddItemPhoto(
+              itemId: state.itemId,
+              action: 'new',
+            ),
           ),
         );
-      } else if (state is UpdateItemSuccess) {
-        Navigator.pop(context, 'refresh');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(state.message, style: TextStyle(color: Colors.black)),
-            backgroundColor: AppColors.successColor,
-          ),
+      } else if (state is UpdateItemFailure) {
+        StatusPopup.show(
+          context,
+          message: "Update Failed!",
+          isSuccess: false,
         );
       }
     },

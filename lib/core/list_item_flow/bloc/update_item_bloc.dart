@@ -26,7 +26,7 @@ class UpdateItemBloc extends Bloc<UpdateItemEvent, UpdateItemState> {
 
       // Handle successful response
       if (responseData['success']) {
-        final message = responseData['message'] ?? 'Item created successfully!';
+        final message = responseData['message'] ?? 'Item Updated successfully!';
         final itemId = responseData['item']['_id'];
         emit(UpdateItemSuccess(message, itemId));
       } else {
@@ -34,8 +34,7 @@ class UpdateItemBloc extends Bloc<UpdateItemEvent, UpdateItemState> {
             " ${responseData['message']}"));
       }
     } catch (e) {
-      // Catch and handle errors
-      emit(UpdateItemFailure("Failed to create item: $e"));
+      emit(UpdateItemFailure("Failed to create item: "));
     }
   }
 }

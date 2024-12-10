@@ -8,6 +8,8 @@ class ImagesDisplay extends StatefulWidget {
   final double height;
   final Color activeDotColor;
   final Color inactiveDotColor;
+  final Function(int)? onRemove; // Optional callback for removing images
+  final bool showRemoveButton; // Controls visibility of the "X" button
 
   const ImagesDisplay({
     Key? key,
@@ -15,6 +17,8 @@ class ImagesDisplay extends StatefulWidget {
     this.height = 200.0,
     this.activeDotColor = Colors.blue,
     this.inactiveDotColor = Colors.grey,
+    this.onRemove,
+    this.showRemoveButton = false, // Default is false
   }) : super(key: key);
 
   @override
@@ -53,19 +57,49 @@ class _ImagesDisplayState extends State<ImagesDisplay> {
             itemCount: widget.images.length,
             itemBuilder: (context, index) {
               final image = widget.images[index];
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
-                child: image is String
-                    ? Image.network(
-                        image,
-                        fit: BoxFit.cover,
-                      )
-                    : image is XFile
-                        ? Image.file(
-                            File(image.path),
+              return Stack(
+                children: [
+                  // Display the image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: image is String
+                        ? Image.network(
+                            image,
                             fit: BoxFit.cover,
+                            width: double.infinity,
                           )
-                        : const Center(child: Text('Unsupported Image Type')),
+                        : image is XFile
+                            ? Image.file(
+                                File(image.path),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              )
+                            : const Center(
+                                child: Text('Unsupported Image Type'),
+                              ),
+                  ),
+                  // Conditionally show the "X" button
+                  if (widget.showRemoveButton && widget.onRemove != null)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () => widget.onRemove!(index),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               );
             },
           ),

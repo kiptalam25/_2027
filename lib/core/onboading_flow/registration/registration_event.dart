@@ -9,14 +9,14 @@ class RegisterUser extends RegistrationEvent {
   final String name;
   final String phoneNumber;
   final String bio;
-  final String? profilePicUrls;
+  final String? profilePicUrl;
 
   // RegisterUser(
   //     this.email, this.password, this.name, this.phoneNumber, this.bio);
 
   // Constructor with named parameters
   RegisterUser({
-    required this.profilePicUrls,
+    required this.profilePicUrl,
     required this.fullName,
     required this.email,
     required this.password,
@@ -38,7 +38,7 @@ class RegisterUser extends RegistrationEvent {
   // Create RegisterUser from JSON
   factory RegisterUser.fromJson(Map<String, dynamic> json) {
     return RegisterUser(
-      profilePicUrls: json['profilePicUrls'],
+      profilePicUrl: json['profilePicUrls'],
       fullName: json['fullName'],
       email: json['email'],
       password: json['password'],

@@ -6,6 +6,8 @@ class ApiConstants {
 
   // Auth endpoints
   static const String login = '/users/auth/login';
+  static const String loginGoogle = baseUrl + '/users/auth/google';
+
   static const String register = '/users/auth/register';
   static const String logout = '/auth/logout';
   static const String checkemail = '/users/auth/check-email';
@@ -30,4 +32,13 @@ class ApiConstants {
   static const String itemDetails = '/items/details';
   static const String addItem = '/items';
   static const String deleteItem = '/items/delete';
+
+  //Cloudinary api
+  static const cloudName = "dqjv3o9zi";
+  static const profileUploadPreset = "l9sim6rm";
+  static const itemUploadPreset = "l9sim6rm";
+  static const String imageUploadUrl =
+      'https://api.cloudinary.com/v1_1/$cloudName/image/upload';
+  static const String imageDeleteUrl =
+      'https://api.cloudinary.com/v1_1/$cloudName/image/destroy';
 }

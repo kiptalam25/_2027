@@ -17,7 +17,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
             event.name,
             event.phoneNumber,
             event.fullName,
-            event.profilePicUrls,
+            event.profilePicUrl,
             event.bio);
         emit(RegistrationSuccess(res.message));
         // emit(RegistrationSuccess("Successfully registered!"));

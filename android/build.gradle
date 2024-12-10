@@ -1,21 +1,32 @@
-allprojects {
+buildscript {
     repositories {
-        google()
-        mavenCentral()
+        google()  // This is necessary for fetching Google Services plugin
+        mavenCentral()  // For other dependencies
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.0.4'  // Replace with the version matching your setup
+       // classpath 'com.google.gms:google-services:4.4.2'  // Add this classpath for Google Services
     }
 }
 
-rootProject.buildDir = "../build"
+allprojects {
+    repositories {
+        google()  // Ensure this is here to fetch necessary Google dependencies
+        mavenCentral()  // For other libraries that your project may need
+    }
+}
+
+rootProject.buildDir = "../build"  // Keep the build directory as is
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(":app")
+    project.evaluationDependsOn(":app")  // Ensure this line is included if needed
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.buildDir  // Task to clean the build directory
 }
+
 
 //buildscript {
 //    ext.kotlin_version = '1.7.10'
@@ -27,6 +38,7 @@ tasks.register("clean", Delete) {
 //    dependencies {
 //        classpath 'com.android.tools.build:gradle:7.2.0'
 //        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//        classpath 'com.google.gms:google-services:4.3.15'
 //    }
 //}
 //

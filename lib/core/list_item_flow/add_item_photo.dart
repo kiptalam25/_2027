@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
+import 'package:swapifymobile/api_constants/api_constants.dart';
 import 'dart:io';
 
 import 'package:swapifymobile/common/widgets/app_bar.dart';
@@ -34,19 +35,19 @@ class AddItemPhoto extends StatefulWidget {
 }
 
 class _AddItemPhoto extends State<AddItemPhoto> {
-  int _currentIndex = 0;
+  // int _currentIndex = 0;
   bool isLoading = true;
   Item? item;
   final ItemsService itemsService = ItemsService(new ApiClient());
   final CategoryService categoryService = CategoryService(new ApiClient());
   final PageController _pageController = PageController();
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    _pageController.jumpToPage(index);
-  }
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _currentIndex = index;
+  //   });
+  //   _pageController.jumpToPage(index);
+  // }
 
   final ImagePicker _picker = ImagePicker();
   List<dynamic>? _imageFiles = [];
@@ -93,17 +94,36 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   List<String> _uploadedImageUrls = [];
 
   bool _uploadingImages = false;
+  final dio = Dio();
+
+  Future<void> deleteImage(String publicId) async {
+    final formData = FormData.fromMap({
+      'public_id': publicId,
+      'upload_preset': ApiConstants.itemUploadPreset, // Your Upload Preset
+    });
+    try {
+      final response = await dio.post(
+        "${ApiConstants.imageDeleteUrl}",
+        data: formData, // Pass the ID if required
+      );
+
+      if (response.statusCode == 200) {
+        print("Image deleted successfully");
+      } else {
+        print("Failed to delete image: ${response.statusMessage}");
+      }
+    } catch (e) {
+      print("Error deleting image: $e");
+    }
+  }
 
   Future<void> _uploadImages() async {
     setState(() {
       _uploadingImages = true;
     });
-    const cloudName = "dqjv3o9zi";
-    // const apiKey = "672828653332493";
-    // const apiSecret = "lTbaGnstK6FWbVl92Q_ckPXPYKI";
-    const uploadPreset = "rg0m8r7y";
 
-    final dio = Dio();
+    const uploadPreset = ApiConstants.itemUploadPreset;
+
     List<String> uploadedUrls = [];
 
     try {
@@ -114,7 +134,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
         });
 
         final response = await dio.post(
-          "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+          ApiConstants.imageUploadUrl,
           data: formData,
         );
 
@@ -166,7 +186,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   //   // return jsonEncode(widget.itemData);
   // }
 
-  File? _imageFile;
+  // File? _imageFile;
 
   Future<void> _captureImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
@@ -202,6 +222,33 @@ class _AddItemPhoto extends State<AddItemPhoto> {
     );
   }
 
+  Future<void> _removeImage(int index) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Remove This Image?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await deleteImage(item!.imageUrls[index]);
+              Navigator.pop(context);
+              setState(() {
+                item!.imageUrls.removeAt(index);
+              });
+            },
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,7 +274,10 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                               images: _imageFiles!.isNotEmpty
                                   ? _imageFiles!
                                   : item!.imageUrls,
+                              onRemove: _removeImage,
+                              showRemoveButton: true,
                             )
+
                           // child: ImageDisplay(
                           //   images: _imageFiles!,
                           // ),

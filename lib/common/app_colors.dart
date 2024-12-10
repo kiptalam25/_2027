@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const primary = Color(0xFF50644C);
+  static const success = Color(0xFF208920);
   static const textBorder = Color(0xFF181D17);
   static const smallBtnBackground = Color(0xFFDDE5DB);
   static const fadedButton = Color(0xFFa4aea2);
