@@ -85,7 +85,6 @@ class _AddItemPhoto extends State<AddItemPhoto> {
     final List<XFile>? selectedImages = await _picker.pickMultiImage();
     if (selectedImages != null && selectedImages.isNotEmpty) {
       setState(() {
-        // _showOverlay = !_showOverlay;
         _imageFiles = selectedImages;
       });
     }
