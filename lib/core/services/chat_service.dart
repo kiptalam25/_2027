@@ -4,12 +4,12 @@ import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
 
-class MessagingService {
+class ChatService {
   final ApiClient apiClient;
 
-  MessagingService(this.apiClient);
+  ChatService(this.apiClient);
 
-  Future<Response?> fetchConversations(String keyword) async {
+  Future<Response?> fetchConversations() async {
     final apiClient = ApiClient();
     try {
       final response = await apiClient.get(
@@ -45,5 +45,15 @@ class MessagingService {
       // return ResponseModel(success: , message: message)
       throw Exception("Failed to create profile: $e");
     }
+  }
+
+  fetchChat(exchangeId) async {
+    return await apiClient.get(
+      ApiConstants.conversations + "/" + exchangeId,
+    );
+  }
+
+  sendMessage(String message) async {
+    return await apiClient.post(ApiConstants.sendMessage, data: message);
   }
 }

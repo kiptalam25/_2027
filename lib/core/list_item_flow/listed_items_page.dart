@@ -1,13 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/common/app_colors.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/list_view.dart';
-import 'package:swapifymobile/core/list_item_flow/widgets/single_column_grid.dart';
+import 'package:swapifymobile/core/profile/profile_page.dart';
+import 'package:swapifymobile/core/services/auth_service.dart';
+import 'package:swapifymobile/core/usecases/SingleItem.dart';
+import 'package:swapifymobile/core/usecases/profile_response.dart';
 import '../../api_client/api_client.dart';
-import '../../common/widgets/app_navigator.dart';
-import '../profile/edit_profile_page.dart';
 import '../services/items_service.dart';
-import '../usecases/item.dart';
+import '../usecases/profile_data.dart';
 import '../widgets/initial_circle.dart';
 import '../widgets/search_input.dart';
 
@@ -23,13 +28,30 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
   // final List<String> items = ["Item 1", "Item 2", "Item 3", "Item 4"];
   final TextEditingController _searchController = TextEditingController();
   final ItemsService itemsService = ItemsService(ApiClient());
+  late ProfileData profileData = ProfileData();
 
-  late List<Item> items = [];
-  List<Item> filteredItems = [];
+  Future<void> getProfileData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? profileJson = prefs.getString('profileData');
+
+    if (profileJson != null) {
+      // Decode the JSON string back into a Map
+
+      setState(() {
+        profileData = ProfileData.fromJson(jsonDecode(profileJson));
+      });
+      // return jsonDecode(profileJson);
+    }
+    // return null;
+  }
+
+  late List<SingleItem> items = [];
+  List<SingleItem> filteredItems = [];
   bool isLoading = false;
   bool isBarter = true;
   @override
   void initState() {
+    getProfileData();
     fetchItems();
     filterItems("swap");
     super.initState();
@@ -61,7 +83,7 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
       isLoading = true;
     });
     String keyword = _searchController.text;
-    var response = await itemsService.fetchItems(keyword);
+    var response = await itemsService.fetchOwnItems(keyword);
     if (response != null) {
       setState(() {
         isLoading = false;
@@ -70,8 +92,8 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
 
       if (responseData['success'] == true) {
         setState(() {
-          items = (responseData['data']['items'] as List)
-              .map((item) => Item.fromJson(item))
+          items = (responseData['items'] as List)
+              .map((item) => SingleItem.fromJson(item))
               .toList();
           filteredItems = items;
         });
@@ -258,7 +280,7 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
         Row(
           children: [
             InitialCircle(
-              text: "Welcome", // Pass the full text here
+              text: profileData.fullName.toString(), // Pass the full text here
               color: AppColors.primary,
               size: 60.0,
               textStyle: TextStyle(fontSize: 30, color: Colors.white),
@@ -266,26 +288,73 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
             SizedBox(
               width: 16,
             ),
+            //profile
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Text("Willam Johnson"), Text("Swaps completed: 21")],
+              children: [
+                Text(profileData.fullName.toString()),
+                Text("Swaps completed: 21")
+              ],
             )
           ],
         ),
-        GestureDetector(
-          onTap: () {
-            AppNavigator.push(context, EditProfilePage());
-          },
-          child: Row(
-            children: [
-              Text("Edit profile"),
-              Icon(
-                Icons.edit,
-                size: 20,
-              )
-            ],
-          ),
+        Stack(
+          children: [
+            // Circular profile image
+            Container(
+              width: 60, // Set the desired width and height
+              height: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: NetworkImage(profileData.profilePicUrl
+                      .toString()), // Replace with your image
+                  fit: BoxFit.cover,
+                ),
+                color: Colors
+                    .grey.shade200, // Fallback color if no image is provided
+              ),
+            ),
+            // Edit icon (pen) positioned at the bottom-right
+            Positioned(
+              bottom: 5,
+              right: 5,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.blue, // Background color of the edit icon
+                  shape: BoxShape.circle,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    AppNavigator.pushReplacement(context, ProfileEditPage());
+                  },
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+          ],
         )
+
+        // GestureDetector(
+        //   onTap: () {
+        //     AppNavigator.push(context, EditProfilePage());
+        //   },
+        //   child: Row(
+        //     children: [
+        //       Text("Edit profile"),
+        //       Icon(
+        //         Icons.edit,
+        //         size: 10,
+        //       )
+        //     ],
+        //   ),
+        // )
       ],
     );
   }

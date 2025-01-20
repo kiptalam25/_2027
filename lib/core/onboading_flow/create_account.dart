@@ -6,11 +6,17 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
+import 'package:swapifymobile/auth/login_with_facebook/facebook_login_page.dart';
+import 'package:swapifymobile/auth/twitter/login_with_twitter.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
+import 'package:swapifymobile/core/main/pages/home_page.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
+import 'package:swapifymobile/core/services/auth_service.dart';
 import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
 import '../../api_constants/api_constants.dart';
+import '../../auth/login_with_google/google_auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../common/app_colors.dart';
@@ -37,6 +43,36 @@ class _RegistrationState extends State<Registration> {
   String username = '';
   String password = '';
 
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
+  bool _isSigningUp = false;
+
+  Future<void> _signUpWithGoogle() async {
+    setState(() {
+      _isSigningUp = true;
+    });
+
+    await _googleAuthService.handleGoogleSignIn(
+      isSignIn: false,
+      onSuccess: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      },
+      onError: (errorMessage) {
+        print(errorMessage);
+        // Show error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      },
+    );
+
+    setState(() {
+      _isSigningUp = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,172 +84,182 @@ class _RegistrationState extends State<Registration> {
         ),
         //   title: Text('Registration'),
         // ),
-        body: LayoutBuilder(builder: (context, constraints) {
-          return SingleChildScrollView(
-              child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-              ),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white,
-                    Colors.white,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text("Create Your Account",
-                            style: TextStyle(
-                              fontSize: 24,
-                              // color: Colors.black,
-                            )),
-                      ),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      const Center(
-                        child: Text(
-                          'Join our community to start swapping \ntoday',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            // alignment:Alignment.bottomCenter
-                            // color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 24,
-                      ),
-                      Center(
-                        child: Text(
-                          'Join with email',
-                          style: TextStyle(
-                            fontSize: 16,
-                            // color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
+        body: !_isSigningUp
+            ? LayoutBuilder(builder: (context, constraints) {
+                return SingleChildScrollView(
+                    child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
                   ),
-                  Column(
-                    children: [
-                      Form(
-                        key: _formKey,
-                        child: SizedBox(
-                          // height: 40,
-                          child: TextFormField(
-                            controller: _emailController,
-                            onChanged: (value) {
-                              setState(() {
-                                username = value;
-                              });
-                            },
-                            // keyboardType: TextInputType.emailAddress,
-                            validator: FormValidators.validateEmail,
-                            style: TextStyle(),
-                            focusNode: _emailFocusNode,
-                            decoration: InputDecoration(
-                                errorText: _errorText,
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                      color: AppColors.textFieldBorder,
-                                      width: 2.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                  borderSide: BorderSide(
-                                      color: AppColors.textFieldBorder,
-                                      width: 1.0),
-                                ),
-                                hintText: 'Enter email',
-                                hintStyle:
-                                    const TextStyle(color: AppColors.hintColor),
-                                contentPadding: const EdgeInsets.all(10)),
-                          ),
-                        ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                    ),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white,
+                          Colors.white,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
-                      SizedBox(height: 16),
-                      BasicAppButton(
-                        textColor: AppColors.background,
-                        backgroundColor: AppColors.primary,
-                        title: "Sign Up",
-                        radius: 24,
-                        onPressed: isLoading
-                            ? null
-                            : checkAndValidateUsername, // Disable button during loading
-                        content: isLoading
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Create Your Account",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    // color: Colors.black,
+                                  )),
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            const Center(
+                              child: Text(
+                                'Join our community to start swapping \ntoday',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  // alignment:Alignment.bottomCenter
+                                  // color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 24,
+                            ),
+                            Center(
+                              child: Text(
+                                'Join with email',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  // color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Form(
+                              key: _formKey,
+                              child: SizedBox(
+                                // height: 40,
+                                child: TextFormField(
+                                  controller: _emailController,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      username = value;
+                                    });
+                                  },
+                                  // keyboardType: TextInputType.emailAddress,
+                                  validator: FormValidators.validateEmail,
+                                  style: TextStyle(),
+                                  focusNode: _emailFocusNode,
+                                  decoration: InputDecoration(
+                                      errorText: _errorText,
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(24),
+                                        borderSide: BorderSide(
+                                            color: AppColors.textFieldBorder,
+                                            width: 2.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(24),
+                                        borderSide: BorderSide(
+                                            color: AppColors.textFieldBorder,
+                                            width: 1.0),
+                                      ),
+                                      hintText: 'Enter email',
+                                      hintStyle: const TextStyle(
+                                          color: AppColors.hintColor),
+                                      contentPadding: const EdgeInsets.all(10)),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            BasicAppButton(
+                              textColor: AppColors.background,
+                              backgroundColor: AppColors.primary,
+                              title: "Sign Up",
+                              radius: 24,
+                              onPressed: isLoading
+                                  ? null
+                                  : checkAndValidateUsername, // Disable button during loading
+                              content: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : null,
+
+                              // checkAndValidateUsername,
+                              // if (_formKey.currentState?.validate() ?? false) {
+                              //   if (await emailExists(_emailController.text)) {
+                              //     Navigator.push(
+                              //         context,
+                              //         MaterialPageRoute(
+                              //           builder: (context) => ProfilePage(
+                              //             currentPage: 1,
+                              //             email: _emailController.text,
+                              //           ),
+                              //         ));
+                              //   }
+                              // }
+                              // },
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 40),
+                        Center(
+                          child: Text("Or"),
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        !_isLoggingIn
+                            ? SocialLinks(
+                                page: 'signup',
+                                onSocialClicked: (social) {
+                                  if (social == "google") {
+                                    print(social);
+
+                                    signInWithGoogle();
+                                  } else if (social == "facebook") {
+                                    // signInWithFacebook();
+                                    // AppNavigator.pushReplacement(
+                                    //     context, FacebookLoginPage());
+                                  } else if (social == "x") {
+                                    // signInWithFacebook();
+                                    // AppNavigator.pushReplacement(
+                                    //     context, TwitterLoginPage());
+                                  }
+                                },
                               )
-                            : null,
-
-                        // checkAndValidateUsername,
-                        // if (_formKey.currentState?.validate() ?? false) {
-                        //   if (await emailExists(_emailController.text)) {
-                        //     Navigator.push(
-                        //         context,
-                        //         MaterialPageRoute(
-                        //           builder: (context) => ProfilePage(
-                        //             currentPage: 1,
-                        //             email: _emailController.text,
-                        //           ),
-                        //         ));
-                        //   }
-                        // }
-                        // },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 40),
-                  Center(
-                    child: Text("Or"),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  !_isLoggingIn
-                      ? SocialLinks(
-                          page: 'signup',
-                          onSocialClicked: (social) {
-                            if (social == "google") {
-                              print(social);
-
-                              signInWithGoogle();
-                            }
-                          },
-                        )
-                      : Center(
-                          child: CircularProgressIndicator(),
+                            : Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                        SizedBox(
+                          height: 16,
                         ),
-                  SizedBox(
-                    height: 16,
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ));
-        }));
+                ));
+              })
+            : CircularProgressIndicator());
   }
 
   bool _isValidEmail(String email) {
@@ -224,8 +270,7 @@ class _RegistrationState extends State<Registration> {
   bool _isLoggingIn = false;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId:
-        '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com',
+    serverClientId: ApiConstants.googleServerClientId,
     scopes: ['email'],
   );
 
@@ -257,20 +302,29 @@ class _RegistrationState extends State<Registration> {
       }
 
       // Send ID Token to backend using Dio
-      final response = await Dio().post(
-        ApiConstants.loginGoogle, // Replace with your backend endpoint
-        data: jsonEncode({'idToken': idToken}),
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
+      AuthService authService = AuthService(ApiClient());
+
+      print("Token.................." + idToken);
+      final response = await authService.loginWithGoogle(idToken);
+
+      // Dio().post(
+      //   ApiConstants.loginGoogle, // Replace with your backend endpoint
+      //   data: jsonEncode({'idToken': idToken}),
+      //   options: Options(
+      //     headers: {'Content-Type': 'application/json'},
+      //   ),
+      // );
 
       // Handle response
-      if (response.statusCode == 200) {
-        print('Login successful: ${response.data}');
+      if (response.success) {
+        AppNavigator.pushAndRemove(context, HomePage());
+        // final response =
+        //     await Dio().get(ApiConstants.loginGoogle, data: {
+        //   'idToken': googleAuth.accessToken,
+        // });
         // You can now save the token or navigate to the next screen
       } else {
-        print('Failed to authenticate with backend: ${response.data}');
+        print('Failed to authenticate with backend: ${response.message}');
       }
     } catch (e) {
       if (e is DioError) {

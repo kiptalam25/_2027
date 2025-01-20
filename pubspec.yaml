@@ -42,8 +42,13 @@ dependencies:
   flutter_launcher_icons: ^0.14.1
   google_sign_in: ^6.2.2
   url_launcher: ^6.3.1
-  flutter_facebook_auth: ^7.1.1
-#  flutter_web_auth: ^0.6.0
+#  flutter_facebook_auth: ^7.1.1
+  intl: ^0.20.1
+  json_annotation: ^4.9.0
+#  twitter_login: ^4.4.2
+  flutter_secure_storage: ^9.2.4
+  build_runner: ^2.4.0
+#  flutter_web_auth: ^0.6.0as
 
 
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,20 +19,52 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   void _onLoginSubmitted(LoginSubmitted event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
-      final LoginResponseModel response =
+      print("............................runs here");
+      final Object response =
           await authService.login(event.email, event.password);
-      if (response.success) {
-        await sharedPreferences.setString('token', response.token!);
-        await sharedPreferences.setString('username', response.username!);
-        await sharedPreferences.setString('userId', response.userId!);
-        emit(LoginSuccess(response.token!));
-      } else {
+
+      if (response is LoginResponse) {
+        if (response.success) {
+          await sharedPreferences.setString('token', response.token!);
+          await sharedPreferences.setString('username', response.username!);
+          await sharedPreferences.setString('userId', response.userId!);
+          print("...........................Saving profile.....");
+          if (response.profileData != null) {
+            final profileDataJson = jsonEncode(response.profileData!.toJson());
+            await sharedPreferences.setString('profileData', profileDataJson);
+          }
+
+          emit(LoginSuccess(response.token!));
+        } else {
+          // Handle failed login with a message
+          emit(LoginFailure("Login Failed!"));
+        }
+      } else if (response is LoginResponseModel) {
+        // Handle unexpected response type
         emit(LoginFailure(response.message));
       }
+
+      // if (response.success) {
+      //   LoginResponse loginResponse = LoginResponse.fromJson(response.data);
+      //   await sharedPreferences.setString('token', response.token!);
+      //   await sharedPreferences.setString('username', response.username!);
+      //   await sharedPreferences.setString('userId', response.userId!);
+      //   await sharedPreferences.setString('profileData', response.profileData!);
+      //   emit(LoginSuccess(response.token!));
+      // } else {
+      //   emit(LoginFailure(response.message));
+      // }
     } catch (e) {
       emit(LoginFailure(e.toString()));
     }
   }
+
+  // Future<void> saveProfileData(Map<String, dynamic> profileData) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   // Convert profileData to a JSON string
+  //   String profileJson = jsonEncode(profileData);
+  //   await prefs.setString('profileData', profileJson);
+  // }
 
   void _onCheckToken(CheckToken event, Emitter<LoginState> emit) async {
     final token = sharedPreferences.getString('token');

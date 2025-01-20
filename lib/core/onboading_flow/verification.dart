@@ -214,15 +214,16 @@ class _VerifyPageState extends State<VerifyPage> {
       // Call login method and store token in SharedPreferences
       final response = await authService.login(email!, password!);
 
-      String token = response.token ?? '';
-      final prefs = await SharedPreferences.getInstance();
+      if (response is LoginResponse) {
+        String token = response.token ?? '';
+        final prefs = await SharedPreferences.getInstance();
 
-      await prefs.setString('token', token); // Store token
-      ApiClient().setAuthToken(token);
+        await prefs.setString('token', token); // Store token
+        ApiClient().setAuthToken(token);
 
-      // Optionally, store any other user data like name, userId, etc.
-      await prefs.setString('userId', response.userId.toString());
-
+        // Optionally, store any other user data like name, userId, etc.
+        await prefs.setString('userId', response.userId.toString());
+      }
       return true;
     } catch (e) {
       // Handle login failure

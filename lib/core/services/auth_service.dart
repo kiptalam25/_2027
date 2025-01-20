@@ -1,20 +1,26 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/profile/profile_event.dart';
+import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/user_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../usecases/SingleItem.dart';
+import '../usecases/profile_data.dart';
+
 class AuthService {
   final ApiClient apiClient;
 
   AuthService(this.apiClient);
 
-  Future<LoginResponseModel> login(String username, String password) async {
+  Future<Object> login(String username, String password) async {
     try {
       final response = await apiClient.post(ApiConstants.login, data: {
         'email': username,
@@ -22,6 +28,37 @@ class AuthService {
       });
 
       if (response.data['success']) {
+        // return loginResponse;
+        return LoginResponse.fromJson(response.data);
+        // return LoginResponse(
+        //   success: true,
+        //   message: response.data['message'],
+        //   username: response.data['username'],
+        //   userId: response.data['userId'],
+        //   token: response.data['token'],
+        // );
+      } else {
+        return LoginResponseModel(
+            success: false, message: response.data['message']);
+      }
+    } catch (e) {
+      return LoginResponseModel(success: false, message: e.toString());
+    }
+  }
+
+  Future<LoginResponseModel> loginWithGoogle(String idToken) async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      final response = await apiClient.post(ApiConstants.loginGoogle, data: {
+        'idToken': idToken,
+      });
+
+      if (response.data['success']) {
+        await sharedPreferences.setString('token', response.data['token']);
+        await sharedPreferences.setString(
+            'username', response.data['username']);
+        await sharedPreferences.setString('userId', response.data['userId']);
         return LoginResponseModel(
           success: true,
           message: response.data['message'],
@@ -30,10 +67,13 @@ class AuthService {
           token: response.data['token'],
         );
       } else {
+        print("Error Message:..........." + response.data['error']);
+
         return LoginResponseModel(
-            success: false, message: response.data['message']);
+            success: false, message: response.data['error']);
       }
     } catch (e) {
+      print("Exception Message:..........." + e.toString());
       return LoginResponseModel(success: false, message: e.toString());
     }
   }
@@ -45,9 +85,12 @@ class AuthService {
   //   return UserModel.fromJson(response.data);
   // }
 
-  Future<ResponseModel> logout(String email) async {
-    final response = await apiClient.post(ApiConstants.logout);
-    return ResponseModel.fromJson(response.data);
+  Future<bool> logout() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.clear();
+    return true;
+    // final response = await apiClient.post(ApiConstants.logout);
+    // return ResponseModel.fromJson(response.data);
   }
 
   Future<ResponseModel> register(String email, String password, String name,
@@ -153,6 +196,8 @@ class AuthService {
     }
   }
 
+  registerWithGoogle(String idToken) {}
+
 //   Future<ResponseModel> completeVerification(String email, String code) async {
 //     try {
 //       final response = await apiClient.put(ApiConstants.completeVerification,
@@ -172,6 +217,124 @@ class AuthService {
 //     }
 //   }
 }
+
+class LoginResponse {
+  final bool success;
+  final String? message;
+  final String? username;
+  final String? userId;
+  final String? email;
+  final String? fullName;
+  final ProfileData? profileData;
+  final String? token;
+
+  LoginResponse({
+    required this.success,
+    this.message,
+    this.username,
+    this.userId,
+    this.email,
+    this.fullName,
+    this.profileData,
+    this.token,
+  });
+
+  factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    return LoginResponse(
+      success: json['success'] ?? false,
+      message: json['message'],
+      username: json['username'],
+      userId: json['userId'],
+      email: json['email'],
+      fullName: json['fullName'],
+      profileData: json['profileData'] != null
+          ? ProfileData.fromJson(json['profileData'])
+          : null,
+      token: json['token'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'message': message,
+      'username': username,
+      'userId': userId,
+      'email': email,
+      'fullName': fullName,
+      'profileData': profileData?.toJson(),
+      'token': token,
+    };
+  }
+}
+
+// class Location {
+//   final String? country;
+//   final String? city;
+//
+//   Location({this.country, this.city});
+//
+//   factory Location.fromJson(Map<String, dynamic> json) {
+//     return Location(
+//       country: json['country'],
+//       city: json['city'],
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'country': country,
+//       'city': city,
+//     };
+//   }
+// }
+
+class Interests {
+  final List<String>? categoryId;
+  final List<String>? city;
+
+  Interests({this.categoryId, this.city});
+
+  factory Interests.fromJson(Map<String, dynamic> json) {
+    return Interests(
+      categoryId: json['categoryId'] != null
+          ? List<String>.from(json['categoryId'])
+          : [],
+      city: json['city'] != null ? List<String>.from(json['city']) : [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'categoryId': categoryId,
+      'city': city,
+    };
+  }
+}
+
+// class Location {
+//   final String? country;
+//   final String? city;
+//
+//   Location({
+//     required this.country,
+//     required this.city,
+//   });
+//
+//   factory Location.fromJson(Map<String, dynamic> json) {
+//     return Location(
+//       country: json['country'],
+//       city: json['city'],
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'country': country,
+//       'city': city,
+//     };
+//   }
+// }
 
 class LoginResponseModel {
   final bool success;

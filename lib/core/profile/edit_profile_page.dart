@@ -52,13 +52,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       String bio = profile1?.profile.bio ?? '';
       String profilePicUrl = profile1?.profile.profilePicUrl ?? '';
 
-      String? countryName = profile1?.profile.location.country;
+      String? countryName = profile1?.profile.location?.country;
       _selectedCountry = countries.firstWhere(
         (item) => item['id'] == countryName,
         orElse: () => countries.first, // Fallback to the first city
       )['id'];
 
-      String? cityName = profile1?.profile.location.city;
+      String? cityName = profile1?.profile.location?.city;
       _selectedCity = cities.firstWhere(
         (item) => item['id'] == cityName,
         orElse: () => cities.first, // Fallback to the first city
@@ -412,7 +412,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             fit: BoxFit.cover,
                           )
                         : DecorationImage(
-                            image: NetworkImage(profile!.profile.profilePicUrl),
+                            image: NetworkImage(
+                                profile!.profile.profilePicUrl.toString()),
                             fit: BoxFit.cover,
                           ),
                   ),
@@ -474,7 +475,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(profile!.profile.fullName, style: TextStyle(fontSize: 24)),
+              Text(profile!.profile.fullName.toString(),
+                  style: TextStyle(fontSize: 20)),
               Text("SwapLord", style: TextStyle(fontSize: 16)),
               Text("Rating 0", style: TextStyle(fontSize: 10)),
             ],

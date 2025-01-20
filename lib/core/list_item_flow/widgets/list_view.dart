@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../../../common/app_colors.dart';
+import '../../usecases/SingleItem.dart';
 import '../../usecases/item.dart';
 
 class ReusableListView extends StatelessWidget {
-  final List<Item> items;
+  final List<SingleItem> items;
   final void Function(String detailsUrl)? onDetailsTap;
 
   const ReusableListView({
@@ -27,9 +28,9 @@ class ReusableListView extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: item.imageUrls.isNotEmpty
+                  child: item.imageUrls!.isNotEmpty
                       ? Image.network(
-                          item.imageUrls[0],
+                          item.imageUrls![0],
                           fit: BoxFit.cover,
                           width: 130, // Set fixed width
                           height: 120, // Set fixed height

@@ -6,7 +6,7 @@ class ApiConstants {
 
   // Auth endpoints
   static const String login = '/users/auth/login';
-  static const String loginGoogle = baseUrl + '/users/auth/google';
+  static const String loginGoogle = '/users/auth/mobile/google';
 
   static const String register = '/users/auth/register';
   static const String logout = '/auth/logout';
@@ -15,6 +15,8 @@ class ApiConstants {
   static const String completeVerification = '/users/auth/verification'; //put
   static const String checkEmail = '/users/availability/email';
   static const String checkUsername = '/users/availability/username';
+  static const String editPassword = '/users/auth/password-change';
+  static const String deleteProfile = '/users/profile';
 
   static const String updateSwapInterests = '/users/profile/categories';
   static const String categories = baseUrl + '/categories';
@@ -26,6 +28,13 @@ class ApiConstants {
   static const String updateUser = '/users/update';
   static const String deleteUser = '/users/delete';
 
+  //Swaps
+  static const String swaps = '/swaps';
+
+  //chats
+  static const String conversations = '/messages';
+  static const String sendMessage = conversations + '/send';
+
   // Item endpoints (example for another feature)
   static const String items = '/items';
   static const String searchItems = '/items/search';
@@ -34,6 +43,8 @@ class ApiConstants {
   static const String deleteItem = '/items/delete';
 
   //Cloudinary api
+  static const cloudinaryApiKey = '281153428746455';
+  static const cloudinarySecret = 'Dp-e090DBNr0i1jhqe0L-k-JRSA';
   static const cloudName = "dqjv3o9zi";
   static const profileUploadPreset = "l9sim6rm";
   static const itemUploadPreset = "l9sim6rm";
@@ -41,4 +52,9 @@ class ApiConstants {
       'https://api.cloudinary.com/v1_1/$cloudName/image/upload';
   static const String imageDeleteUrl =
       'https://api.cloudinary.com/v1_1/$cloudName/image/destroy';
+
+  //Google Auth
+  static const String loginWithGoogle = baseUrl + 'users/auth/mobile/google';
+  static const String googleServerClientId =
+      '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com';
 }

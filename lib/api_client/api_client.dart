@@ -85,22 +85,22 @@ class ApiClient {
     if (error.response != null) {
       switch (error.response?.statusCode) {
         case 400:
-          message = 'Bad request: ${error.response?.data}';
+          message = '${error.response?.data}';
           break;
         case 401:
-          message = 'Unauthorized: ${error.response?.data}';
+          message = '${error.response?.data}';
           break;
         case 403:
-          message = 'Forbidden: ${error.response?.data}';
+          message = '${error.response?.data}';
           break;
         case 500:
-          message = 'Internal server error: ${error.response?.data}';
+          message = '${error.response?.data}';
           break;
         default:
-          message = 'Unknown error: ${error.response?.data}';
+          message = '${error.response?.data}';
       }
     } else {
-      message = 'Network error: ${error.message}';
+      message = '${error.message}';
     }
 
     // Throw the ApiException with the specific error message

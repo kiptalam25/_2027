@@ -3,6 +3,7 @@ import 'package:dio/src/response.dart';
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
+import '../usecases/SingleItem.dart';
 import '../usecases/item.dart';
 
 class ItemsService {
@@ -29,6 +30,30 @@ class ItemsService {
     try {
       final response = await apiClient.get(
         ApiConstants.searchItems,
+        queryParameters: {
+          'keyword': keyword,
+          'category': '',
+          'condition': '',
+          'sort': 'createdAt',
+          'page': 1,
+          'limit': 50,
+          'order': 'desc', // or 'desc'
+        },
+      );
+
+      print('Response data: ${response.data}');
+      return response;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
+
+  Future<Response?> fetchOwnItems(String keyword) async {
+    final apiClient = ApiClient();
+    try {
+      final response = await apiClient.get(
+        ApiConstants.items,
         queryParameters: {
           'keyword': keyword,
           'category': '',
@@ -81,14 +106,14 @@ class ItemsService {
     }
   }
 
-  Future<Item> fetchItem(String itemId) async {
+  Future<SingleItem> fetchItem(String itemId) async {
     try {
       final response = await apiClient.get(ApiConstants.items + "/$itemId");
 
       if (response.statusCode == 200) {
         final data = response.data;
         if (data != null && data['item'] != null) {
-          return Item.fromJson(data['item']);
+          return SingleItem.fromJson(data['item']);
         } else {
           throw Exception('Invalid item structure');
         }

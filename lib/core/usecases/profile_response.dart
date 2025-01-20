@@ -1,3 +1,5 @@
+import 'package:swapifymobile/core/usecases/profile_data.dart';
+
 import 'location.dart';
 
 class UserProfileResponse {
@@ -38,7 +40,6 @@ class Profile {
   final String bio;
   final String createdAt;
   final int v;
-
   Profile({
     required this.location,
     required this.interests,

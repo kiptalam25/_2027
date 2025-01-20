@@ -1,15 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:swapifymobile/common/widgets/app_bar.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/main/widgets/make_swap_offer_bottomsheet.dart';
+import 'package:swapifymobile/core/profile/view_other_user_profile.dart';
+import 'package:swapifymobile/core/services/profile_service.dart';
+import 'package:swapifymobile/core/usecases/other_user_profile.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../../../api_client/api_client.dart';
 import '../../../common/app_colors.dart';
 import '../../services/items_service.dart';
-import '../../usecases/item.dart';
-import '../../widgets/custom_dropdown.dart';
+import '../../usecases/SingleItem.dart';
+import '../../widgets/initial_circle.dart';
 import '../widgets/images_display.dart';
 
 class ProductDescription extends StatefulWidget {
@@ -22,9 +25,11 @@ class ProductDescription extends StatefulWidget {
 
 class _ProductDescriptionState extends State<ProductDescription> {
   final PageController _pageController = PageController();
+  final ProfileService profileService = ProfileService(new ApiClient());
   final ItemsService itemsService = ItemsService(new ApiClient());
+  OtherUserProfile? otherUserProfile;
 
-  Item? item;
+  SingleItem? item;
   bool isLoading = true;
 
   List<Map<String, String>> preferredItems = [
@@ -48,20 +53,35 @@ class _ProductDescriptionState extends State<ProductDescription> {
     super.initState();
   }
 
+  Future<void> _fetchPostersProfile(String createdBy) async {
+    OtherUserProfile? otherUserProfile1 =
+        await profileService.fetchOtherUserProfile(createdBy);
+    setState(() {
+      otherUserProfile = otherUserProfile1;
+    });
+
+    // if (otherUserProfile != null) {
+    //   print(".................................." +
+    //       otherUserProfile!.fullName.toString());
+    // }
+  }
+
   Future<void> _fetchItem(String itemId) async {
     try {
-      Item item1 = await itemsService.fetchItem(itemId);
+      SingleItem item1 = await itemsService.fetchItem(itemId);
       setState(() {
         item = item1;
         isLoading = false;
-        _images = item!.imageUrls;
+        _images = item!.imageUrls!;
       });
-      // print('Item Title: ${item?.title}');
+      _fetchPostersProfile(item1.createdBy);
       // print('Item ID: ${item?.id}');
       // print('Tags: ${item?.tags}');
       // print('Images: ${item?.imageUrls}');
     } catch (e) {
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
       print('Error fetching item: $e');
     }
   }
@@ -80,244 +100,250 @@ class _ProductDescriptionState extends State<ProductDescription> {
     return Scaffold(
         appBar: BasicAppbar(),
         body: Scaffold(
-            body: SingleChildScrollView(
-          child: isLoading
-              ? Center(
-                  child: SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              : item == null
-                  ? Center(
-                      child: Text("No item to show"),
-                    )
-                  : Container(
-                      width: double.infinity,
-                      child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item!.title.toTitleCase,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text("Item listed for:"),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 5.0,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              width: 1,
-                                              color: AppColors.primary),
-                                          color: AppColors.smallBtnBackground,
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                        ),
-                                        child: Text(
-                                          item!.exchangeMethod == 'both'
-                                              ? 'Barter & Donation'
-                                              : item!
-                                                  .exchangeMethod.toTitleCase,
-                                          style: TextStyle(
-                                            color: AppColors.primary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.pin_drop_outlined,
-                                        color: AppColors.primary,
-                                      ),
-                                      Text(
-                                        "3km",
-                                        style: TextStyle(
-                                            color: AppColors.primary,
-                                            fontSize: 16),
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: Container(
-                                      color: AppColors.dashColor,
-                                      height: 1,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(4.0),
-                                    child: ImagesDisplay(
-                                      images: _images,
-                                      showRemoveButton: false,
-                                    ),
-                                    // _imagesDisplay(),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    "Product description",
-                                    style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(height: screenHeight * 0.001),
-                                  Text(
-                                    item!.description.toCapitalized,
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    "Product condition",
-                                    style: TextStyle(
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    item!.condition.toTitleCase,
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  SizedBox(height: screenHeight * 0.009),
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    children: [
-                                      // Expanded(
-                                      SizedBox(
-                                          child:
-                                              Image.asset("images/sticky.png")),
-                                      SizedBox(height: screenHeight * 0.02),
-                                      GestureDetector(
-                                        onTap: () {
-                                          // Handle click event here
-                                          print('Firetruck clicked!');
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10.0, vertical: 4.0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          child: const Text(
-                                            "Baby things",
-                                            style: TextStyle(
-                                              color: Colors
-                                                  .white, // Change text color as needed
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 3,
-                                      ),
-                                      // Expanded(
-                                      //     flex: 1,
-                                      GestureDetector(
-                                        onTap: () {
-                                          // Handle click event here
-                                          print('Firetruck clicked!');
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.0, vertical: 4.0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          child: const Text(
-                                            "Kids toys",
-                                            style: TextStyle(
-                                              color: Colors
-                                                  .white, // Change text color as needed
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 3,
-                                      ),
-                                      // Expanded(
-                                      //     flex: 1,
-                                      GestureDetector(
-                                        onTap: () {
-                                          // Handle click event here
-                                          print('Firetruck clicked!');
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.0, vertical: 4.0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey,
-                                            borderRadius:
-                                                BorderRadius.circular(12.0),
-                                          ),
-                                          child: const Text(
-                                            "Firetruck",
-                                            style: TextStyle(
-                                              color: Colors
-                                                  .white, // Change text color as needed
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  SizedBox(height: screenHeight * 0.02),
-                                  SizedBox(height: screenHeight * 0.02),
-                                  Column(
+            body: isLoading
+                ? Center(
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : item == null
+                    ? Center(
+                        child: Text("No item to show"),
+                      )
+                    : SingleChildScrollView(
+                        child: Container(
+                          width: double.infinity,
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Preferred item to swap",
+                                        item!.title.toTitleCase,
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text("Item listed for:"),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 5.0,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  width: 1,
+                                                  color: AppColors.primary),
+                                              color:
+                                                  AppColors.smallBtnBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                            ),
+                                            child: Text(
+                                              item!.exchangeMethod == 'both'
+                                                  ? 'Barter & Donation'
+                                                  : item!.exchangeMethod
+                                                      .toTitleCase,
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.pin_drop_outlined,
+                                            color: AppColors.primary,
+                                          ),
+                                          Text(
+                                            "3km",
+                                            style: TextStyle(
+                                                color: AppColors.primary,
+                                                fontSize: 16),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          color: AppColors.dashColor,
+                                          height: 1,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: ImagesDisplay(
+                                          images: _images,
+                                          showRemoveButton: false,
+                                        ),
+                                        // _imagesDisplay(),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        "Product description",
                                         style: TextStyle(
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      getInterestsWidgets(),
-                                      SizedBox(height: screenHeight * 0.02),
+                                      SizedBox(height: screenHeight * 0.001),
                                       Text(
-                                        "Price range",
-                                        style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "100Eur - 250 Eur",
+                                        item!.description.toCapitalized,
                                         style: TextStyle(fontSize: 16),
                                       ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        "Product condition",
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        item!.condition.toTitleCase,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      SizedBox(height: screenHeight * 0.009),
+                                      Row(
+                                        // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        children: [
+                                          // Expanded(
+                                          SizedBox(
+                                              child: Image.asset(
+                                                  "images/sticky.png")),
+                                          SizedBox(height: screenHeight * 0.02),
+                                          GestureDetector(
+                                            onTap: () {
+                                              // Handle click event here
+                                              print('Firetruck clicked!');
+                                            },
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10.0,
+                                                      vertical: 4.0),
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: const Text(
+                                                "Baby things",
+                                                style: TextStyle(
+                                                  color: Colors
+                                                      .white, // Change text color as needed
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 3,
+                                          ),
+                                          // Expanded(
+                                          //     flex: 1,
+                                          GestureDetector(
+                                            onTap: () {
+                                              // Handle click event here
+                                              print('Firetruck clicked!');
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10.0,
+                                                  vertical: 4.0),
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: const Text(
+                                                "Kids toys",
+                                                style: TextStyle(
+                                                  color: Colors
+                                                      .white, // Change text color as needed
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 3,
+                                          ),
+                                          // Expanded(
+                                          //     flex: 1,
+                                          GestureDetector(
+                                            onTap: () {
+                                              // Handle click event here
+                                              print('Firetruck clicked!');
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10.0,
+                                                  vertical: 4.0),
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey,
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: const Text(
+                                                "Firetruck",
+                                                style: TextStyle(
+                                                  color: Colors
+                                                      .white, // Change text color as needed
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                       SizedBox(height: screenHeight * 0.02),
+                                      SizedBox(height: screenHeight * 0.02),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Preferred item to swap",
+                                            style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          getInterestsWidgets(),
+                                          SizedBox(height: screenHeight * 0.02),
+                                          Text(
+                                            "Price range",
+                                            style: TextStyle(
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            "100Eur - 250 Eur",
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          SizedBox(height: screenHeight * 0.02),
 
-                                      SizedBox(height: screenHeight * 0.02),
-                                      // SizedBox(height: screenHeight * 0.02),
-                                      _addToWishlistBtn(),
-                                      _postersInformation("posterId")
+                                          SizedBox(height: screenHeight * 0.02),
+                                          // SizedBox(height: screenHeight * 0.02),
+                                          _addToWishlistBtn(),
+                                          _postersInformation("posterId")
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ]),
-                    ),
-        )));
+                                ),
+                              ]),
+                        ),
+                      )));
   }
 
   Widget getInterestsWidgets() {
@@ -328,11 +354,14 @@ class _ProductDescriptionState extends State<ProductDescription> {
     }
 
     List<Widget> list = [];
-    for (var i = 0; i < strings.length; i++) {
-      list.add(Text(strings[i].toTitleCase));
+    for (var i = 0; i < strings!.length; i++) {
+      list.add(Text(
+        strings[i].toTitleCase,
+        // softWrap: true,
+      ));
     }
 
-    return Row(
+    return Column(
       children: list,
       mainAxisAlignment: MainAxisAlignment.start,
     );
@@ -351,8 +380,10 @@ class _ProductDescriptionState extends State<ProductDescription> {
                   padding: const EdgeInsets.only(
                       // bottom: MediaQuery.of(context).viewInsets.bottom,
                       ),
-                  child:
-                      SingleChildScrollView(child: MakeSwapOfferBottomsheet()),
+                  child: SingleChildScrollView(
+                      child: MakeSwapOfferBottomsheet(
+                    recipientItem: item!,
+                  )),
                 );
               },
               shape: const RoundedRectangleBorder(
@@ -472,47 +503,67 @@ class _ProductDescriptionState extends State<ProductDescription> {
         Row(
           children: [
             Padding(
-              padding: EdgeInsets.all(2.0),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primary,
-                child: Text(
-                  'W',
-                  style: TextStyle(
-                    color: Colors.white, // Text color
-                    fontSize: 20, // Font size
-                    // fontWeight: FontWeight.bold, // Text weight
-                  ),
+                padding: EdgeInsets.all(2.0),
+                // child:
+                // CircleAvatar(
+                // radius: 20,
+                // backgroundColor: AppColors.primary,
+                child: otherUserProfile != null
+                    ? InitialCircle(
+                        text: otherUserProfile!.fullName
+                            .toString(), // Pass the full text here
+                        color: AppColors.primary,
+                        size: 50.0,
+                        textStyle: TextStyle(fontSize: 30, color: Colors.white),
+                      )
+                    : Text("Profile not found")
+                // Text(
+                //               'W',
+                //               style: TextStyle(
+                //                 color: Colors.white, // Text color
+                //                 fontSize: 20, // Font size
+                //                 // fontWeight: FontWeight.bold, // Text weight
+                //               ),
+                //             ),
+                // ),
                 ),
-              ),
-            ),
             SizedBox(
               width: 8,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Willium Johnson",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "View profile",
-                      style: TextStyle(fontSize: 14, color: AppColors.primary),
+                if (otherUserProfile != null) ...[
+                  Text(
+                    otherUserProfile!.fullName.toString(),
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+                if (otherUserProfile != null) ...[
+                  GestureDetector(
+                    onTap: () {
+                      viewOtherUserProfile();
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          "View profile",
+                          style:
+                              TextStyle(fontSize: 14, color: AppColors.primary),
+                        ),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: AppColors.primary,
+                          size: 14,
+                          weight: 700,
+                        )
+                      ],
                     ),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: AppColors.primary,
-                      size: 14,
-                      weight: 700,
-                    )
-                  ],
-                ),
+                  ),
+                ]
               ],
             ),
           ],
@@ -522,5 +573,10 @@ class _ProductDescriptionState extends State<ProductDescription> {
         ),
       ],
     );
+  }
+
+  void viewOtherUserProfile() {
+    AppNavigator.pushReplacement(
+        context, ViewOtherUserProfile(otherUserProfile: otherUserProfile!));
   }
 }

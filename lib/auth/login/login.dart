@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:swapifymobile/auth/login_with_google/google_login_page.dart';
+import 'package:swapifymobile/auth/login_with_google/google_auth_service.dart';
 import 'package:swapifymobile/auth/reset_password/reset_password.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
@@ -12,12 +15,12 @@ import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../../api_client/api_client.dart';
+import '../../api_constants/api_constants.dart';
 import '../../core/services/auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
-import '../login_with_facebook/facebook_login_page.dart';
 import 'login_bloc.dart';
 import 'login_event.dart';
 import 'login_state.dart';
@@ -66,6 +69,111 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _passwordController = TextEditingController();
+
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
+
+  bool _isLoggingIn = false;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: ApiConstants.googleServerClientId,
+    scopes: ['email'],
+  );
+
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoggingIn = true;
+    });
+
+    Future<void> signInWithGoogle() async {
+      setState(() {
+        _isLoggingIn = true;
+      });
+
+      try {
+        // Initialize Google Sign-In
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          print('User canceled the sign-in process.');
+          return;
+        }
+        // '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com ',
+        print('Signed in as ${googleUser.displayName}');
+        // Authenticate and get tokens
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+
+        final idToken = googleAuth.idToken;
+        if (idToken == null) {
+          setState(() {
+            _isLoggingIn = false;
+          });
+          return;
+        }
+
+        // Send ID Token to backend using Dio
+        AuthService authService = AuthService(ApiClient());
+
+        print("Token.................." + idToken);
+        final response = await authService.loginWithGoogle(idToken);
+
+        // Dio().post(
+        //   ApiConstants.loginGoogle, // Replace with your backend endpoint
+        //   data: jsonEncode({'idToken': idToken}),
+        //   options: Options(
+        //     headers: {'Content-Type': 'application/json'},
+        //   ),
+        // );
+
+        // Handle response
+        if (response.success) {
+          AppNavigator.pushAndRemove(context, HomePage());
+          // final response =
+          //     await Dio().get(ApiConstants.loginGoogle, data: {
+          //   'idToken': googleAuth.accessToken,
+          // });
+          // You can now save the token or navigate to the next screen
+        } else {
+          print('Failed to authenticate with backend: ${response.message}');
+        }
+      } catch (e) {
+        if (e is DioError) {
+          print('DioError: ${e.response?.data}');
+        } else if (e is PlatformException) {
+        } else if (e is PlatformException) {
+          print("PlatformException Code: ${e.code}");
+          print("PlatformException Message: ${e.message}");
+          // You can also add custom handling based on error codes, if necessary
+        } else {
+          print('Error during Google Sign-In: $e');
+        }
+      } finally {
+        setState(() {
+          _isLoggingIn = false;
+        });
+      }
+    }
+
+    await _googleAuthService.handleGoogleSignIn(
+      isSignIn: true,
+      onSuccess: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      },
+      onError: (errorMessage) {
+        print(errorMessage);
+        // Show error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      },
+    );
+
+    setState(() {
+      _isLoggingIn = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                               _buildInputPassword("Password",
                                   "Enter your password", _passwordController),
                               SizedBox(height: 27),
+                              //Login button here
                               _blockConsumer(),
                               SizedBox(height: 16),
                               Row(
@@ -177,36 +286,40 @@ class _LoginPageState extends State<LoginPage> {
                               SizedBox(
                                 height: 16,
                               ),
-                              SocialLinks(
-                                page: "login",
-                                onSocialClicked: (social) {
-                                  if (social == "facebook") {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                FacebookLoginPage()));
-                                    // ScaffoldMessenger.of(context).showSnackBar(
-                                    //   SnackBar(content: Text(social)),
-                                    // );
-                                  }
-                                  if (social == "google") {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(social)),
-                                    );
-                                  }
-                                  if (social == "x") {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(social)),
-                                    );
-                                  }
+                              !_isLoggingIn
+                                  ? SocialLinks(
+                                      page: "login",
+                                      onSocialClicked: (social) {
+                                        if (social == "facebook") {
+                                          // Navigator.pushReplacement(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (context) =>
+                                          //             FacebookLoginPage()));
+                                          // ScaffoldMessenger.of(context).showSnackBar(
+                                          //   SnackBar(content: Text(social)),
+                                          // );
+                                        }
+                                        if (social == "google") {
+                                          _signInWithGoogle();
+                                          // ScaffoldMessenger.of(context).showSnackBar(
+                                          //   SnackBar(content: Text(social)),
+                                          // );
+                                        }
+                                        if (social == "x") {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(content: Text(social)),
+                                          );
+                                        }
 
-                                  // setState(() {
-                                  //   // selectedItemIds =
-                                  //   //     selectedIds; // Update selected IDs
-                                  // });
-                                },
-                              ),
+                                        // setState(() {
+                                        //   // selectedItemIds =
+                                        //   //     selectedIds; // Update selected IDs
+                                        // });
+                                      },
+                                    )
+                                  : CircularProgressIndicator(),
                               SizedBox(
                                 height: 10,
                               ),
@@ -285,7 +398,7 @@ class _LoginPageState extends State<LoginPage> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Request Timeout")),
+              SnackBar(content: Text(response)),
             );
           }
         }

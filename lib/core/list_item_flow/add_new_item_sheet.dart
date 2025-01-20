@@ -13,13 +13,13 @@ import '../onboading_flow/choose_categories.dart';
 import '../usecases/item.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_textfield.dart';
-import '../widgets/date_picker.dart';
 import '../widgets/notification_popup.dart';
 import 'bloc/add_item_event.dart';
 import 'bloc/add_item_state.dart';
 import 'bloc/item_bloc.dart';
 import 'bloc/update_item_bloc.dart';
 import 'bloc/update_item_event.dart';
+import 'package:intl/intl.dart';
 
 class AddNewItemSheet extends StatefulWidget {
   final bool isNew;
@@ -33,6 +33,7 @@ class AddNewItemSheet extends StatefulWidget {
 
 class _AddNewItemSheetState extends State<AddNewItemSheet> {
   // pageController = this.pageController;
+  late final DateTime initialDate;
   bool isBarterChecked = false;
   bool isDonationChecked = false;
   final _formKey = GlobalKey<FormState>();
@@ -127,6 +128,10 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
     super.initState();
     _fetchCategories();
     prepareUpdate();
+    // _selectedDate = widget.initialDate;
+    _dateController = TextEditingController(
+      text: DateFormat('yyyy-MM-dd').format(_selectedDate),
+    );
   }
 
   prepareUpdate() {
@@ -209,6 +214,35 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
 
   List<String> selectedCategoryIds = [];
   bool showList = true;
+
+  late DateTime _selectedDate =
+      DateTime.now(); // For managing the selected date
+  late TextEditingController _dateController; // For displaying the date
+
+  @override
+  void dispose() {
+    _dateController.dispose(); // Dispose of the controller
+    super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000), // Earliest selectable date
+      lastDate: DateTime(2100), // Latest selectable date
+    );
+
+    if (pickedDate != null && pickedDate != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedDate;
+        _dateController.text = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      });
+
+      // Handle the update logic here (e.g., send the updated date to the backend)
+      print("Updated date: ${_selectedDate.toIso8601String()}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -351,24 +385,33 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 ),
                 SizedBox(
                   height: 40,
-                  child: DatePickerTextField(
-                    // labelText: 'Start Date',
-
-                    hintText: 'YYYY-MM-DD',
-                    initialDate: estimatedDateOfPurchase,
-                    firstDate: DateTime(2010),
-                    lastDate: DateTime(2025),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a date.';
-                      }
-                      return null;
-                    },
-                    onDateSelected: (selectedDate) {
-                      estimatedDateOfPurchase = selectedDate;
-                      // print("Selected Start Date: $selectedDate");
-                    },
+                  child: TextField(
+                    controller: _dateController,
+                    readOnly: true, // Make the text field read-only
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    onTap: () => _selectDate(context), // Open the date picker
                   ),
+                  // DatePickerTextField(
+                  //   // labelText: 'Start Date',
+                  //
+                  //   hintText: 'YYYY-MM-DD',
+                  //   initialDate: estimatedDateOfPurchase,
+                  //   firstDate: DateTime(2010),
+                  //   lastDate: DateTime(2025),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please select a date.';
+                  //     }
+                  //     return null;
+                  //   },
+                  //   onDateSelected: (selectedDate) {
+                  //     estimatedDateOfPurchase = selectedDate;
+                  //     // print("Selected Start Date: $selectedDate");
+                  //   },
+                  // ),
                 ),
                 // if (isBarterChecked) ...[
                 //   InputSection(
@@ -535,6 +578,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
 
                           var finalItemData = combineJson(
                               itemListedFor, jsonAdditional, jsonInterests);
+                          print("Item......................................." +
+                              finalItemData.toString());
 
                           if (widget.isNew) {
                             if (context.read<AddItemBloc>().state
@@ -631,12 +676,28 @@ Widget _blockBuilder() {
     listener: (context, state) {
       if (state is AddItemFailure) {
         // Show error SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+        showDialog(
+          context: context,
+          barrierDismissible: true, // Prevent dismissing the dialog manually
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
             content: Text(state.error),
-            backgroundColor: Colors.red,
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
           ),
         );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text("...................." + state.error),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       } else if (state is AddItemSuccess) {
         // Show success dialog
         showDialog(

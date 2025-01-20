@@ -6,6 +6,7 @@ import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import '../../common/app_colors.dart';
 import '../../common/constants/app_constants.dart';
 import '../../common/widgets/app_bar.dart';
+import '../../core/widgets/notification_popup.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({Key? key}) : super(key: key);
@@ -120,6 +121,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                       if (isOTPSent && !isOTPVerified)
                         ElevatedButton(
                             onPressed: () {
+                              StatusPopup.show(
+                                context,
+                                message: "OTP Verified Successfully",
+                                isSuccess: true,
+                              );
                               setState(() {
                                 isOTPVerified = true;
                               });

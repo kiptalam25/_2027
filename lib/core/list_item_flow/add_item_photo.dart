@@ -5,23 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/api_constants/api_constants.dart';
-import 'dart:io';
-
 import 'package:swapifymobile/common/widgets/app_bar.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
-import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/confirm_item_delete.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/image_upload_options.dart';
-import 'package:swapifymobile/core/main/item_card.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
 import 'package:swapifymobile/core/usecases/item.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
 import '../main/widgets/images_display.dart';
+import '../usecases/SingleItem.dart';
 import 'add_new_item_sheet.dart';
+import 'package:crypto/crypto.dart';
 
 class AddItemPhoto extends StatefulWidget {
   final String itemId;
@@ -71,7 +69,27 @@ class _AddItemPhoto extends State<AddItemPhoto> {
 
   Future<void> _fetchItem(String itemId) async {
     try {
-      item = await itemsService.fetchItem(itemId);
+      SingleItem? singleItem = await itemsService.fetchItem(itemId);
+
+      item = Item(
+        id: singleItem!.id,
+        userId: singleItem.userId ?? "Unknown User",
+        categoryId: singleItem.category!.name,
+        subCategoryId: singleItem.subCategory!.name,
+        title: singleItem.title ?? "No Title",
+        description: singleItem.description ?? "No Description",
+        condition: singleItem.condition ?? "Unknown Condition",
+        imageUrls: singleItem.imageUrls ?? [],
+        tags: singleItem.tags ?? [],
+        status: singleItem.status ?? "Unknown",
+        exchangeMethod: singleItem.exchangeMethod ?? "Unknown",
+        swapInterests: singleItem.swapInterests ?? [],
+        additionalInformation: singleItem.additionalInformation ?? "",
+        warrantStatus: singleItem.warrantStatus ?? true,
+        createdAt: singleItem.createdAt ?? DateTime.now(),
+        createdBy: singleItem.createdBy ?? "Unknown",
+      );
+
       setState(() {
         isLoading = false;
         _uploadedImageUrls = item!.imageUrls;
@@ -95,19 +113,55 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   bool _uploadingImages = false;
   final dio = Dio();
 
-  Future<void> deleteImage(String publicId) async {
+  String extractPublicId(String imageUrl) {
+    final uri = Uri.parse(imageUrl);
+    final pathSegments = uri.pathSegments;
+
+    // Remove "image/upload/" from the path segments
+    final indexOfUpload = pathSegments.indexOf('upload');
+    if (indexOfUpload != -1 && indexOfUpload + 1 < pathSegments.length) {
+      return pathSegments.sublist(indexOfUpload + 1).join('/').split('.')[0];
+    }
+
+    throw ArgumentError('Invalid Cloudinary URL: $imageUrl');
+  }
+
+  Future<void> deleteImage(String url) async {
+    var publicId = extractPublicId(url);
+    print("....................................." + publicId);
+    final apiKey = ApiConstants.cloudinaryApiKey;
+    final apiSecret = ApiConstants.cloudinarySecret;
+
+    final timestamp =
+        DateTime.now().millisecondsSinceEpoch ~/ 1000; // Current UNIX timestamp
+
+    // Generate the signature for the request
+    final signature = sha1.convert(utf8.encode(
+      'public_id=$publicId&timestamp=$timestamp$apiSecret',
+    ));
+
+    // FormData with required parameters
     final formData = FormData.fromMap({
       'public_id': publicId,
-      'upload_preset': ApiConstants.itemUploadPreset, // Your Upload Preset
+      'api_key': apiKey,
+      'timestamp': timestamp,
+      'signature': signature.toString(),
     });
+
     try {
-      final response = await dio.post(
-        "${ApiConstants.imageDeleteUrl}",
-        data: formData, // Pass the ID if required
+      // Send the POST request to Cloudinary's destroy endpoint
+      final response = await Dio().post(
+        ApiConstants.imageDeleteUrl,
+        data: formData,
       );
 
       if (response.statusCode == 200) {
-        print("Image deleted successfully");
+        print(response.data);
+        if (response.data['result'] == 'ok') {
+          print("Image deleted successfully");
+        } else {
+          print("Failed to delete image: ${response.data['result']}");
+        }
       } else {
         print("Failed to delete image: ${response.statusMessage}");
       }
@@ -200,6 +254,11 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   String _selectedGesture = 'None';
 
   void _openBottomSheet() {
+    if (!isNewItem) {
+      setState(() {
+        isNewItem = true;
+      });
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -416,6 +475,11 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                         Text("${item?.categoryId}"),
                         SizedBox(
                           height: 20,
+                        ),
+                        Text(
+                          "Item sub-category",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(item!.subCategoryId),
                         // FutureBuilder<List<Map<String, String>>>(

@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:swapifymobile/core/usecases/other_user_profile.dart';
+
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
@@ -21,6 +23,23 @@ class ProfileService {
       UserProfileResponse userProfileResponse =
           UserProfileResponse.fromJson(response.data);
       return userProfileResponse;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
+
+  Future<OtherUserProfile?> fetchOtherUserProfile(String otherUserId) async {
+    final apiClient = ApiClient();
+    try {
+      final response =
+          await apiClient.get(ApiConstants.userProfile + "/${otherUserId}");
+
+      // final decodedJson = jsonDecode(response.data);
+
+      OtherUserProfile otherUserProfile =
+          OtherUserProfile.fromJson(response.data['profile']);
+      return otherUserProfile;
     } catch (e) {
       print('Error: $e');
       return null;

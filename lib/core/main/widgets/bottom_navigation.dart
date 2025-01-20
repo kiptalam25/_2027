@@ -91,8 +91,12 @@ class _BasePageState extends State<BasePage> {
             context, MaterialPageRoute(builder: (context) => CategoriesPage()));
         break;
       case 2:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ConversationsPage()));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ConversationsPage(
+                      conversationId: "none",
+                    )));
         break;
       case 3:
         Navigator.pushReplacement(context,
