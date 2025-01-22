@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class UserProfile {
   final String fullName;
   final List<String> profilePicUrls;

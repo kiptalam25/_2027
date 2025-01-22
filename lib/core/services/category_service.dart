@@ -1,6 +1,5 @@
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
-import '../../auth/models/response_model.dart';
 
 class CategoryService {
   final ApiClient apiClient;

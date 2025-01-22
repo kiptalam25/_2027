@@ -1,6 +1,3 @@
-import '../services/auth_service.dart';
-import 'SingleItem.dart';
-
 class OtherUserProfile {
   final int listedItemCount;
   final int completedSwapCount;

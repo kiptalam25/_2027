@@ -40,7 +40,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   // final int _maxCharacters = 500;
 
   bool isFirstStep = true;
-  bool _isLoading = true;
   bool _isFetchingSubCategories = false;
   late Map<String, dynamic> itemData;
 
@@ -89,7 +88,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       'priceRange': priceRange.text,
       'categoryId': selectedCategory!,
       'subCategoryId': itemSubCategory!,
-      'estimatedDateOfPurchase': estimatedDateOfPurchase!.toString(),
+      'estimatedDateOfPurchase': estimatedDateOfPurchase.toString(),
       'tags': "....",
       'additionalInformation': "....",
       'warrantStatus': false,
@@ -178,7 +177,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       //   {'id': '1', 'name': 'Bicycles'},
       //   {'id': '2', 'name': 'Toys'},
       // ];
-      _isLoading = false;
 
       if (_categories.isNotEmpty && !widget.isNew) {
         // selectedCondition = _conditions.first['id']!;

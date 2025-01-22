@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
 import 'package:swapifymobile/core/profile/edit_profile_page.dart';

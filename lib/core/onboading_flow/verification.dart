@@ -15,6 +15,7 @@ import '../../api_client/api_client.dart';
 import '../services/auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
+import '../services/sharedpreference_service.dart';
 
 class CountdownTimer extends StatefulWidget {
   @override
@@ -217,6 +218,9 @@ class _VerifyPageState extends State<VerifyPage> {
       if (response is LoginResponse) {
         String token = response.token ?? '';
         final prefs = await SharedPreferences.getInstance();
+        if (response.profileData != null) {
+          SharedPreferencesService.setProfileData(response.profileData!);
+        }
 
         await prefs.setString('token', token); // Store token
         ApiClient().setAuthToken(token);
@@ -228,9 +232,6 @@ class _VerifyPageState extends State<VerifyPage> {
     } catch (e) {
       // Handle login failure
       return false;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $e')),
-      );
     }
   }
 

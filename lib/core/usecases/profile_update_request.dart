@@ -1,5 +1,4 @@
 import 'location.dart';
-import 'new_item.dart';
 
 class ProfileUpdateRequest {
   final String fullName;

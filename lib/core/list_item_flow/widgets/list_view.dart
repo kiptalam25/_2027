@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../../../common/app_colors.dart';
 import '../../usecases/SingleItem.dart';
-import '../../usecases/item.dart';
 
 class ReusableListView extends StatelessWidget {
   final List<SingleItem> items;

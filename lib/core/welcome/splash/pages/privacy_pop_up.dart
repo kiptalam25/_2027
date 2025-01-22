@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/policy_service.dart';
-import 'package:swapifymobile/core/welcome/splash/pages/privacy_policy_page.dart';
 
 class PrivacyPolicyPopup extends StatefulWidget {
   final VoidCallback onCancel;
@@ -46,8 +42,8 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
           setState(() {
             pp = data["data"];
             privacyPolicy =
-                pp!['privacyPolicy']['sections'] as Map<String, dynamic>;
-            termsOfUse = pp!['termsOfUse']['sections'] as Map<String, dynamic>;
+                pp['privacyPolicy']['sections'] as Map<String, dynamic>;
+            termsOfUse = pp['termsOfUse']['sections'] as Map<String, dynamic>;
           });
         }
       }

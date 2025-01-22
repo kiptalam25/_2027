@@ -1,13 +1,6 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
-import 'package:swapifymobile/auth/login_with_facebook/facebook_login_page.dart';
-import 'package:swapifymobile/auth/twitter/login_with_twitter.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/main/pages/home_page.dart';
 import 'package:swapifymobile/core/onboading_flow/profile_setup.dart';
@@ -15,8 +8,7 @@ import 'package:swapifymobile/core/services/auth_service.dart';
 import 'package:swapifymobile/core/services/registration_service.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/social_links.dart';
-import '../../api_constants/api_constants.dart';
-import '../../auth/login_with_google/google_auth_service.dart';
+import '../../auth/login_with_google/google_sign_in_helper.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../common/app_colors.dart';
@@ -43,35 +35,61 @@ class _RegistrationState extends State<Registration> {
   String username = '';
   String password = '';
 
-  final GoogleAuthService _googleAuthService = GoogleAuthService();
   bool _isSigningUp = false;
 
-  Future<void> _signUpWithGoogle() async {
+  void handleGoogleSignIn() async {
+    // Show loading indicator
     setState(() {
-      _isSigningUp = true;
+      _isLoggingIn = true;
     });
 
-    await _googleAuthService.handleGoogleSignIn(
-      isSignIn: false,
-      onSuccess: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      },
-      onError: (errorMessage) {
-        print(errorMessage);
-        // Show error message to the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
-      },
-    );
+    // Create an instance of GoogleSignInHelper
+    final googleSignInHelper = GoogleSignInHelper(AuthService(ApiClient()));
 
+    // Call the signInWithGoogle function
+    final result = await googleSignInHelper.signInWithGoogle();
+
+    // Hide loading indicator
     setState(() {
-      _isSigningUp = false;
+      _isLoggingIn = false;
     });
+
+    // Handle the result
+    if (result.success) {
+      print('Login successful');
+      AppNavigator.pushAndRemove(context, HomePage());
+    } else {
+      print('Login failed: ${result.message}');
+      // Show an error message to the user
+    }
   }
+
+  // Future<void> _signUpWithGoogle() async {
+  //   setState(() {
+  //     _isSigningUp = true;
+  //   });
+  //
+  //   await _googleAuthService.handleGoogleSignIn(
+  //     isSignIn: false,
+  //     onSuccess: () {
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => HomePage()),
+  //       );
+  //     },
+  //     onError: (errorMessage) {
+  //       print(errorMessage);
+  //       // Show error message to the user
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text(errorMessage)),
+  //       );
+  //     },
+  //   );
+  //
+  //   setState(() {
+  //     _isSigningUp = false;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -234,17 +252,8 @@ class _RegistrationState extends State<Registration> {
                                 page: 'signup',
                                 onSocialClicked: (social) {
                                   if (social == "google") {
-                                    print(social);
-
-                                    signInWithGoogle();
-                                  } else if (social == "facebook") {
-                                    // signInWithFacebook();
-                                    // AppNavigator.pushReplacement(
-                                    //     context, FacebookLoginPage());
-                                  } else if (social == "x") {
-                                    // signInWithFacebook();
-                                    // AppNavigator.pushReplacement(
-                                    //     context, TwitterLoginPage());
+                                    // signInWithGoogle();
+                                    handleGoogleSignIn();
                                   }
                                 },
                               )
@@ -269,79 +278,78 @@ class _RegistrationState extends State<Registration> {
 
   bool _isLoggingIn = false;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: ApiConstants.googleServerClientId,
-    scopes: ['email'],
-  );
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(
+  //   serverClientId: ApiConstants.googleServerClientId,
+  //   scopes: ['email'],
+  // );
 
-  Future<void> signInWithGoogle() async {
-    setState(() {
-      _isLoggingIn = true;
-    });
-
-    try {
-      // Initialize Google Sign-In
-      final GoogleSignInAccount? googleUser =
-          await await _googleSignIn.signIn();
-      if (googleUser == null) {
-        print('User canceled the sign-in process.');
-        return;
-      }
-      // '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com ',
-      print('Signed in as ${googleUser.displayName}');
-      // Authenticate and get tokens
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final idToken = googleAuth.idToken;
-      if (idToken == null) {
-        setState(() {
-          _isLoggingIn = false;
-        });
-        return;
-      }
-
-      // Send ID Token to backend using Dio
-      AuthService authService = AuthService(ApiClient());
-
-      print("Token.................." + idToken);
-      final response = await authService.loginWithGoogle(idToken);
-
-      // Dio().post(
-      //   ApiConstants.loginGoogle, // Replace with your backend endpoint
-      //   data: jsonEncode({'idToken': idToken}),
-      //   options: Options(
-      //     headers: {'Content-Type': 'application/json'},
-      //   ),
-      // );
-
-      // Handle response
-      if (response.success) {
-        AppNavigator.pushAndRemove(context, HomePage());
-        // final response =
-        //     await Dio().get(ApiConstants.loginGoogle, data: {
-        //   'idToken': googleAuth.accessToken,
-        // });
-        // You can now save the token or navigate to the next screen
-      } else {
-        print('Failed to authenticate with backend: ${response.message}');
-      }
-    } catch (e) {
-      if (e is DioError) {
-        print('DioError: ${e.response?.data}');
-      } else if (e is PlatformException) {
-        print("PlatformException Code: ${e.code}");
-        print("PlatformException Message: ${e.message}");
-        // You can also add custom handling based on error codes, if necessary
-      } else {
-        print('Error during Google Sign-In: $e');
-      }
-    } finally {
-      setState(() {
-        _isLoggingIn = false;
-      });
-    }
-  }
+  // Future<void> signInWithGoogle() async {
+  //   setState(() {
+  //     _isLoggingIn = true;
+  //   });
+  //
+  //   try {
+  //     // Initialize Google Sign-In
+  //     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  //     if (googleUser == null) {
+  //       print('User canceled the sign-in process.');
+  //       return;
+  //     }
+  //     // '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com ',
+  //     print('Signed in as ${googleUser.displayName}');
+  //     // Authenticate and get tokens
+  //     final GoogleSignInAuthentication googleAuth =
+  //         await googleUser.authentication;
+  //
+  //     final idToken = googleAuth.idToken;
+  //     if (idToken == null) {
+  //       setState(() {
+  //         _isLoggingIn = false;
+  //       });
+  //       return;
+  //     }
+  //
+  //     // Send ID Token to backend using Dio
+  //     AuthService authService = AuthService(ApiClient());
+  //
+  //     print("Token.................." + idToken);
+  //     final response = await authService.loginWithGoogle(idToken);
+  //
+  //     // Dio().post(
+  //     //   ApiConstants.loginGoogle, // Replace with your backend endpoint
+  //     //   data: jsonEncode({'idToken': idToken}),
+  //     //   options: Options(
+  //     //     headers: {'Content-Type': 'application/json'},
+  //     //   ),
+  //     // );
+  //
+  //     // Handle response
+  //     if (response.success) {
+  //       AppNavigator.pushAndRemove(context, HomePage());
+  //       // final response =
+  //       //     await Dio().get(ApiConstants.loginGoogle, data: {
+  //       //   'idToken': googleAuth.accessToken,
+  //       // });
+  //       // You can now save the token or navigate to the next screen
+  //     } else {
+  //       print('Failed to authenticate with backend: ${response.message}');
+  //     }
+  //   } catch (e) {
+  //     if (e is DioError) {
+  //       print('DioError: ${e.response?.data}');
+  //     } else if (e is PlatformException) {
+  //       print("PlatformException Code: ${e.code}");
+  //       print("PlatformException Message: ${e.message}");
+  //       // You can also add custom handling based on error codes, if necessary
+  //     } else {
+  //       print('Error during Google Sign-In: $e');
+  //     }
+  //   } finally {
+  //     setState(() {
+  //       _isLoggingIn = false;
+  //     });
+  //   }
+  // }
 
   Future<void> checkAndValidateUsername() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();

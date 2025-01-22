@@ -1,11 +1,7 @@
 import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
-import 'package:swapifymobile/common/widgets/app_navigator.dart';
-import 'package:swapifymobile/core/profile/profile_event.dart';
-import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
+import 'package:swapifymobile/core/services/sharedpreference_service.dart';
 
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
@@ -29,6 +25,7 @@ class AuthService {
 
       if (response.data['success']) {
         // return loginResponse;
+
         return LoginResponse.fromJson(response.data);
         // return LoginResponse(
         //   success: true,
@@ -59,6 +56,22 @@ class AuthService {
         await sharedPreferences.setString(
             'username', response.data['username']);
         await sharedPreferences.setString('userId', response.data['userId']);
+        // print(response.data.toString());
+        SharedPreferencesService.setProfileData(ProfileData(
+            fullName: response.data['username'],
+            bio: "",
+            createdAt: "",
+            id: "",
+            profilePicUrl: "",
+            userId: response.data['userId'],
+            interests: Interests(),
+            version: 1,
+            location: Location()));
+
+        // if (response.profileData != null) {
+        //   final profileDataJson = jsonEncode(response.profileData!.toJson());
+        //   await sharedPreferences.setString('profileData', profileDataJson);
+        // }
         return LoginResponseModel(
           success: true,
           message: response.data['message'],

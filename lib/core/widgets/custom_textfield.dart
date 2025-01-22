@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../common/app_colors.dart';
-
 class InputSection extends StatelessWidget {
   final String label;
   final String hintText;

@@ -4,6 +4,7 @@ class ApiConstants {
   // Base URL
   static const String baseUrl = 'https://swapify-api-c2ey.onrender.com/api/v1';
 
+  static const String policy = '/legal/policies';
   // Auth endpoints
   static const String login = '/users/auth/login';
   static const String loginGoogle = '/users/auth/mobile/google';

@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
-import 'package:swapifymobile/auth/login/login_state.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
-import 'package:swapifymobile/common/widgets/app_bar.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/services/auth_service.dart';
 import 'package:swapifymobile/core/services/settings_service.dart';
@@ -11,7 +8,6 @@ import 'package:swapifymobile/core/settings/change_password_tab.dart';
 import 'package:swapifymobile/core/settings/show_account_deletion_dialog.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
-import '../widgets/alert_dialog.dart';
 import '../widgets/notification_popup.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -92,34 +88,5 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       },
     );
-  }
-
-  _confirmDelete() async {
-    // showYesNoAlertDialog(
-    //   context,
-    //   title: "Delete Profile",
-    //   message: "Are you sure you want to delete your profile?",
-    //   onYesPressed: () async {
-    ResponseModel response = await settingsService.deleteAccount();
-    if (response.success) {
-      StatusPopup.show(
-        context,
-        message: response.message,
-        isSuccess: true,
-      );
-    } else {
-      StatusPopup.show(
-        context,
-        message: "Failed to delete profile",
-        isSuccess: true,
-      );
-    }
-    print("Profile deleted");
-    //   },
-    //   onNoPressed: () {
-    //     // Handle the "No" action (e.g., cancel deletion)
-    //     print("Deletion cancelled");
-    //   },
-    // );
   }
 }

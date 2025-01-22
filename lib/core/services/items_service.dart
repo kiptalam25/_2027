@@ -4,7 +4,6 @@ import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
 import '../usecases/SingleItem.dart';
-import '../usecases/item.dart';
 
 class ItemsService {
   final ApiClient apiClient;
@@ -138,7 +137,6 @@ class ItemsService {
         final data = response.data;
         if (data != null) {
           return ResponseModel.fromJson(response.data);
-          ;
         } else {
           return ResponseModel(
               success: false,
@@ -151,8 +149,6 @@ class ItemsService {
         return ResponseModel(
             success: false,
             message: "${response.statusCode}: Failed to delete");
-        throw Exception(
-            'Failed to delete item. Status code: ${response.statusCode}');
       }
     } catch (e) {
       return ResponseModel(

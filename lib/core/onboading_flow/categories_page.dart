@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../common/widgets/app_navigator.dart';
 import '../../common/app_colors.dart';
 import '../main/widgets/bottom_navigation.dart';
 import '../main/widgets/drawer.dart';
-import '../welcome/splash/pages/welcome.dart';
 import '../widgets/search_input.dart';
 
 class CategoriesPage extends StatefulWidget {

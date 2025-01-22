@@ -1,6 +1,4 @@
-import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/common/widgets/app_bar.dart';
@@ -9,7 +7,7 @@ import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/main/pages/home_page.dart';
 import '../../../../auth/login/login.dart';
 import '../../../onboading_flow/onboarding_flow.dart';
-import '../../widgets/privacy_pop_up.dart';
+import 'privacy_pop_up.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({Key? key}) : super(key: key);

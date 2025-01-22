@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'package:dio/src/response.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
 
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
-import 'auth_service.dart';
 
 class RegistrationService {
   final ApiClient apiClient;
@@ -53,8 +51,6 @@ class RegistrationService {
       }
       return EmailCheckResponse(
           success: false, available: false, message: e.toString());
-      print('Error checking username: $e');
-      rethrow;
     }
   }
 

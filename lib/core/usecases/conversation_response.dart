@@ -1,5 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 class ConversationResponseModel {
   final bool? success;
   final List<Message>? messages;

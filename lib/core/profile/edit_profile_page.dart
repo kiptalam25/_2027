@@ -5,12 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/api_constants/api_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
 import 'package:swapifymobile/core/services/profile_service.dart';
 
 import '../../api_client/api_client.dart';
-import '../services/auth_service.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../usecases/location.dart';
 import '../usecases/profile_response.dart';
@@ -103,23 +103,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() {
       isUploadingImage = true;
     });
-    const cloudName = "dqjv3o9zi";
-    // const apiKey = "672828653332493";
-    // const apiSecret = "lTbaGnstK6FWbVl92Q_ckPXPYKI";
-    const uploadPreset = "l9sim6rm";
 
     final dio = Dio();
-    List<String> uploadedUrls = [];
 
     try {
       // for (var image in _imageFiles!) {
       final formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(_image!.path),
-        "upload_preset": uploadPreset,
+        "upload_preset": ApiConstants.profileUploadPreset,
       });
 
       final response = await dio.post(
-        "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+        "https://api.cloudinary.com/v1_1/" +
+            ApiConstants.cloudName +
+            "/image/upload",
         data: formData,
       );
 
@@ -136,7 +133,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         return true;
       }
       return false;
-      print("Uploaded URLs: $uploadedUrl");
     } catch (e) {
       print("Error uploading profile picture: $e");
       return false;
@@ -154,7 +150,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       final profileUpdateData = ProfileUpdateRequest(
           fullName: _fullNameController.text,
-          profilePicUrl: uploadedUrl != null ? uploadedUrl : "",
+          profilePicUrl: uploadedUrl,
           bio: _bioController.text,
           location: Location(country: _selectedCountry!, city: _selectedCity!));
 
@@ -186,7 +182,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String? _selectedCountry;
   String? _selectedCity;
-  final AuthService _authService = AuthService(ApiClient());
 
   var textLength = 0;
   // Default country code
@@ -486,67 +481,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  bool _isObscured = true;
-
-  Widget _buildInputPassword(
-      String label, String hintText, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 16),
-        Text(label),
-        SizedBox(height: 20),
-        SizedBox(
-          // height: 40,
-          child: TextFormField(
-            obscureText: _isObscured,
-            controller: controller,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              final passwordRegEx =
-                  r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$';
-
-              if (!RegExp(passwordRegEx).hasMatch(value)) {
-                return 'Password must be at least 8 characters long,\n '
-                    'include an uppercase letter, lowercase letter, \n'
-                    'a number, and a special character.';
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              isDense: true,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _isObscured ? Icons.visibility_off : Icons.visibility,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _isObscured = !_isObscured; // Toggle password visibility
-                  });
-                },
-              ),
-              hintText: hintText,
-              hintStyle: TextStyle(color: AppColors.hintColor),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildInputSection(String label, String hintText,
       TextEditingController controller, validator, keyboardType) {
     return Column(
@@ -587,48 +521,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               // }
               return null;
             },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _textareaBio(
-      String label, String hintText, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 16),
-        Text(label),
-        SizedBox(
-          height: 12,
-        ),
-        SizedBox(
-          height: 83,
-          child: TextFormField(
-            controller: _bioController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your full name';
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              hintText: hintText,
-              isDense: true,
-              hintStyle: TextStyle(color: AppColors.hintColor),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-              ),
-            ),
-            maxLines: null, // Allows unlimited lines
-            keyboardType: TextInputType.multiline, // Allows multi-line input
           ),
         ),
       ],

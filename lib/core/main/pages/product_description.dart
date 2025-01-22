@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/app_bar.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
-import 'package:swapifymobile/core/main/widgets/make_swap_offer_bottomsheet.dart';
+import 'package:swapifymobile/core/main/pages/make_swap_offer_bottomsheet.dart';
 import 'package:swapifymobile/core/profile/view_other_user_profile.dart';
 import 'package:swapifymobile/core/services/profile_service.dart';
 import 'package:swapifymobile/core/usecases/other_user_profile.dart';
@@ -31,11 +30,76 @@ class _ProductDescriptionState extends State<ProductDescription> {
 
   SingleItem? item;
   bool isLoading = true;
+  bool isSwap = false;
+  String exchangeMethod = "none";
+  bool isDonation = false;
 
   List<Map<String, String>> preferredItems = [
     {'id': 'estonia', 'name': 'Estonia'},
     {'id': 'finland', 'name': 'Finland'},
   ];
+  void showPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Choose an Option"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the popup
+                  isSwap = true;
+                  setState(() {
+                    exchangeMethod = "swap";
+                  });
+                  // if (exchangeMethod == "swap" || exchangeMethod == "donation") {
+                  showBottomSheet();
+                  // } else {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: Text('No Exchange Method Selected'),
+                  //     ),
+                  //   );
+                  // }
+                },
+                child: Text("Swap"),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the popup
+                  isDonation = true;
+                  setState(() {
+                    exchangeMethod = "donation";
+                  });
+                  print("Donation selected");
+                  showBottomSheet();
+                },
+                child: Text("Donation"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // setExchangeMethod() {
+  //   if (item?.exchangeMethod == "both") {
+  //     showPopup(context);
+  //   }
+  //   if (isDonation) {
+  //     exchangeMethod = "donation";
+  //     return true;
+  //   }
+  //   if (isSwap) {
+  //     exchangeMethod = "swap";
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   int _currentPage = 0;
   late List<String> _images = [
@@ -69,6 +133,16 @@ class _ProductDescriptionState extends State<ProductDescription> {
   Future<void> _fetchItem(String itemId) async {
     try {
       SingleItem item1 = await itemsService.fetchItem(itemId);
+      if (item1.exchangeMethod == "swap") {
+        isSwap = true;
+      }
+      if (item1.exchangeMethod == "donation") {
+        isDonation = true;
+      }
+      if (item1.exchangeMethod == "both") {
+        isDonation = true;
+        isSwap = true;
+      }
       setState(() {
         item = item1;
         isLoading = false;
@@ -79,10 +153,16 @@ class _ProductDescriptionState extends State<ProductDescription> {
       // print('Tags: ${item?.tags}');
       // print('Images: ${item?.imageUrls}');
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching item: $e'),
+        ),
+      );
+      print('Error fetching item: $e');
+    } finally {
       setState(() {
         isLoading = false;
       });
-      print('Error fetching item: $e');
     }
   }
 
@@ -95,7 +175,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
         appBar: BasicAppbar(),
@@ -367,34 +446,43 @@ class _ProductDescriptionState extends State<ProductDescription> {
     );
   }
 
+  showBottomSheet() {
+    return showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.only(
+              // bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+          child: SingleChildScrollView(
+              child: MakeSwapOfferBottomsheet(
+                  recipientItem: item!, exchangeMethod: exchangeMethod)),
+        );
+      },
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      // borderRadius: BorderRadius.zero),
+      isScrollControlled: true,
+    );
+  }
+
   Widget _addToWishlistBtn() {
     return Column(
       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         BasicAppButton(
           onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (BuildContext context) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                      // bottom: MediaQuery.of(context).viewInsets.bottom,
-                      ),
-                  child: SingleChildScrollView(
-                      child: MakeSwapOfferBottomsheet(
-                    recipientItem: item!,
-                  )),
-                );
-              },
-              shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(20))),
-              // borderRadius: BorderRadius.zero),
-              isScrollControlled: true,
-            );
+            if (item!.exchangeMethod == "both") {
+              showPopup(context);
+            } else {
+              exchangeMethod = item!.exchangeMethod;
+              showBottomSheet();
+            }
+
+            // }
           },
           backgroundColor: AppColors.primary,
-          title: "Make Swap Offer",
+          title: isSwap ? "Make Swap Offer" : "Make Donation Request",
           radius: 24,
           textColor: AppColors.background,
         ),
@@ -426,65 +514,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
         //     style: TextStyle(fontSize: 18, color: Colors.white),
         //   ),
         // )
-      ],
-    );
-  }
-
-  Widget _continueButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-          // padding: EdgeInsets.symmetric(vertical: 16), backgroundColor: Color(0xFF50644C),
-          side: BorderSide(
-            color: Color(0xFF50644C), // Custom border color
-            width: 1, // Border width
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.white),
-      child: Text(
-        'Add to Wishlist',
-        style: TextStyle(fontSize: 18, color: AppColors.primary),
-      ),
-    );
-  }
-
-  Widget _imagesDisplay() {
-    double screenHeight = MediaQuery.of(context).size.height;
-    return Column(
-      children: [
-        Container(
-          height: screenHeight * 0.25,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: _images.length,
-            itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
-                child: Image.network(
-                  _images[index],
-                  fit: BoxFit.cover,
-                ),
-              );
-            },
-          ),
-        ),
-        // Dots Indicator
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_images.length, (index) {
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 4),
-              width: _currentPage == index ? 8 : 6,
-              height: _currentPage == index ? 8 : 6,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _currentPage == index ? AppColors.primary : Colors.grey,
-              ),
-            );
-          }),
-        ),
       ],
     );
   }

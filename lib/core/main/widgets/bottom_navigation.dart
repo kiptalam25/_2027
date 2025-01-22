@@ -4,7 +4,6 @@ import 'package:swapifymobile/core/profile/profile_page.dart';
 import '../../../common/app_colors.dart';
 import '../../chat/pages/conversations_page.dart';
 import '../../onboading_flow/categories_page.dart';
-import '../../onboading_flow/profile_setup.dart';
 
 // Bottom Navigation widget
 class BottomNavigation extends StatelessWidget {

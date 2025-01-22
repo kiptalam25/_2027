@@ -38,7 +38,6 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   Item? item;
   final ItemsService itemsService = ItemsService(new ApiClient());
   final CategoryService categoryService = CategoryService(new ApiClient());
-  final PageController _pageController = PageController();
 
   // void _onItemTapped(int index) {
   //   setState(() {
@@ -72,22 +71,22 @@ class _AddItemPhoto extends State<AddItemPhoto> {
       SingleItem? singleItem = await itemsService.fetchItem(itemId);
 
       item = Item(
-        id: singleItem!.id,
-        userId: singleItem.userId ?? "Unknown User",
-        categoryId: singleItem.category!.name,
-        subCategoryId: singleItem.subCategory!.name,
-        title: singleItem.title ?? "No Title",
-        description: singleItem.description ?? "No Description",
-        condition: singleItem.condition ?? "Unknown Condition",
+        id: singleItem.id,
+        userId: singleItem.userId,
+        categoryId: singleItem.category.name,
+        subCategoryId: singleItem.subCategory.name,
+        title: singleItem.title,
+        description: singleItem.description,
+        condition: singleItem.condition,
         imageUrls: singleItem.imageUrls ?? [],
         tags: singleItem.tags ?? [],
-        status: singleItem.status ?? "Unknown",
-        exchangeMethod: singleItem.exchangeMethod ?? "Unknown",
+        status: singleItem.status,
+        exchangeMethod: singleItem.exchangeMethod,
         swapInterests: singleItem.swapInterests ?? [],
         additionalInformation: singleItem.additionalInformation ?? "",
         warrantStatus: singleItem.warrantStatus ?? true,
-        createdAt: singleItem.createdAt ?? DateTime.now(),
-        createdBy: singleItem.createdBy ?? "Unknown",
+        createdAt: singleItem.createdAt,
+        createdBy: singleItem.createdBy,
       );
 
       setState(() {

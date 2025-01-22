@@ -1,13 +1,8 @@
-import 'dart:io';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:swapifymobile/auth/login_with_google/google_auth_service.dart';
 import 'package:swapifymobile/auth/reset_password/reset_password.dart';
+import 'package:swapifymobile/auth/widgets/password_field.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
@@ -15,12 +10,12 @@ import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../../api_client/api_client.dart';
-import '../../api_constants/api_constants.dart';
 import '../../core/services/auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
+import '../login_with_google/google_sign_in_helper.dart';
 import 'login_bloc.dart';
 import 'login_event.dart';
 import 'login_state.dart';
@@ -39,7 +34,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late SharedPreferences sharedPreferences;
   bool? isAuthenticated;
-
   @override
   void initState() {
     super.initState();
@@ -70,109 +64,38 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _passwordController = TextEditingController();
 
-  final GoogleAuthService _googleAuthService = GoogleAuthService();
-
   bool _isLoggingIn = false;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    serverClientId: ApiConstants.googleServerClientId,
-    scopes: ['email'],
-  );
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(
+  //   serverClientId: ApiConstants.googleServerClientId,
+  //   scopes: ['email'],
+  // );
 
-  Future<void> _signInWithGoogle() async {
+  void handleGoogleSignIn() async {
+    // Show loading indicator
     setState(() {
       _isLoggingIn = true;
     });
 
-    Future<void> signInWithGoogle() async {
-      setState(() {
-        _isLoggingIn = true;
-      });
+    // Create an instance of GoogleSignInHelper
+    final googleSignInHelper = GoogleSignInHelper(AuthService(ApiClient()));
 
-      try {
-        // Initialize Google Sign-In
-        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-        if (googleUser == null) {
-          print('User canceled the sign-in process.');
-          return;
-        }
-        // '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com ',
-        print('Signed in as ${googleUser.displayName}');
-        // Authenticate and get tokens
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+    // Call the signInWithGoogle function
+    final result = await googleSignInHelper.signInWithGoogle();
 
-        final idToken = googleAuth.idToken;
-        if (idToken == null) {
-          setState(() {
-            _isLoggingIn = false;
-          });
-          return;
-        }
-
-        // Send ID Token to backend using Dio
-        AuthService authService = AuthService(ApiClient());
-
-        print("Token.................." + idToken);
-        final response = await authService.loginWithGoogle(idToken);
-
-        // Dio().post(
-        //   ApiConstants.loginGoogle, // Replace with your backend endpoint
-        //   data: jsonEncode({'idToken': idToken}),
-        //   options: Options(
-        //     headers: {'Content-Type': 'application/json'},
-        //   ),
-        // );
-
-        // Handle response
-        if (response.success) {
-          AppNavigator.pushAndRemove(context, HomePage());
-          // final response =
-          //     await Dio().get(ApiConstants.loginGoogle, data: {
-          //   'idToken': googleAuth.accessToken,
-          // });
-          // You can now save the token or navigate to the next screen
-        } else {
-          print('Failed to authenticate with backend: ${response.message}');
-        }
-      } catch (e) {
-        if (e is DioError) {
-          print('DioError: ${e.response?.data}');
-        } else if (e is PlatformException) {
-        } else if (e is PlatformException) {
-          print("PlatformException Code: ${e.code}");
-          print("PlatformException Message: ${e.message}");
-          // You can also add custom handling based on error codes, if necessary
-        } else {
-          print('Error during Google Sign-In: $e');
-        }
-      } finally {
-        setState(() {
-          _isLoggingIn = false;
-        });
-      }
-    }
-
-    await _googleAuthService.handleGoogleSignIn(
-      isSignIn: true,
-      onSuccess: () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      },
-      onError: (errorMessage) {
-        print(errorMessage);
-        // Show error message to the user
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
-      },
-    );
-
+    // Hide loading indicator
     setState(() {
       _isLoggingIn = false;
     });
+
+    // Handle the result
+    if (result.success) {
+      print('Login successful');
+      AppNavigator.pushAndRemove(context, HomePage());
+    } else {
+      print('Login failed: ${result.message}');
+      // Show an error message to the user
+    }
   }
 
   @override
@@ -250,8 +173,13 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ],
                               ),
-                              _buildInputPassword("Password",
-                                  "Enter your password", _passwordController),
+                              //password
+                              PasswordField(
+                                  controller: _passwordController,
+                                  label: "Password",
+                                  hintText: "Enter Password"),
+                              // _buildInputPassword("Password",
+                              //     "Enter your password", _passwordController),
                               SizedBox(height: 27),
                               //Login button here
                               _blockConsumer(),
@@ -290,33 +218,9 @@ class _LoginPageState extends State<LoginPage> {
                                   ? SocialLinks(
                                       page: "login",
                                       onSocialClicked: (social) {
-                                        if (social == "facebook") {
-                                          // Navigator.pushReplacement(
-                                          //     context,
-                                          //     MaterialPageRoute(
-                                          //         builder: (context) =>
-                                          //             FacebookLoginPage()));
-                                          // ScaffoldMessenger.of(context).showSnackBar(
-                                          //   SnackBar(content: Text(social)),
-                                          // );
-                                        }
                                         if (social == "google") {
-                                          _signInWithGoogle();
-                                          // ScaffoldMessenger.of(context).showSnackBar(
-                                          //   SnackBar(content: Text(social)),
-                                          // );
+                                          handleGoogleSignIn();
                                         }
-                                        if (social == "x") {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(content: Text(social)),
-                                          );
-                                        }
-
-                                        // setState(() {
-                                        //   // selectedItemIds =
-                                        //   //     selectedIds; // Update selected IDs
-                                        // });
                                       },
                                     )
                                   : CircularProgressIndicator(),
@@ -409,34 +313,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildInputPassword(
-      String label, String hintText, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // SizedBox(height: 16),
-        // SizedBox(height: 20),
-        SizedBox(
-          // height: 40,
-          child: TextFormField(
-              obscureText: true,
-              controller: controller,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a password';
-                }
-                if (!AppConstants.passwordRegex.hasMatch(value)) {
-                  return 'Password must be at least 8 characters, include\n'
-                      'a capital letter, a number, and a special character.';
-                }
-                return null;
-              },
-              decoration: _decoration(hintText)),
-        ),
-      ],
-    );
-  }
-
 //
   Widget _buildInputSection(String label, String hintText,
       TextEditingController controller, validator, keyboardType) {
@@ -505,58 +381,3 @@ class _LoginPageState extends State<LoginPage> {
         contentPadding: const EdgeInsets.all(10));
   }
 }
-
-//   void _onSubmit(BuildContext context) {
-//     AppNavigator.push(
-//         context,
-//         VerifyPage(
-//           currentPage: 2,
-//         ));
-//     // Collect data from fields
-//     // final username = _usernameController.text;
-//     // final phone = _phoneController.text;
-//     // final email = _emailController.text;
-//     // final password = _passwordController.text;
-//     // final bio = _bioController.text;
-//     //
-//     // // Create a JSON object
-//     // final Map<String, dynamic> userProfile = {
-//     //   'username': username,
-//     //   'phone': '$_selectedCountryCode$phone',
-//     //   'email': email,
-//     //   'password': password,
-//     //   'bio': bio,
-//     // };
-//     //
-//     // final jsonString = jsonEncode(userProfile);
-//     //
-//     // print(jsonString);
-//   }
-//
-//   bool _isValidPhoneNumber(String phoneNumber) {
-//     return phoneNumber.length >= 7; // Basic length validation
-//   }
-//
-// // BlocListener<dynamic, dynamic> login() {
-// //   return BlocListener<LoginBloc, LoginState>(
-// //     listener: (context, state) {
-// //       if (state is LoginSuccess) {
-// //         Navigator.pushReplacementNamed(context, '/home');
-// //       } else if (state is LoginFailure) {
-// //         ScaffoldMessenger.of(context).showSnackBar(
-// //           SnackBar(content: Text(state.error)),
-// //         );
-// //       }
-// //     },
-// //     child: BlocBuilder<LoginBloc, LoginState>(
-// //       builder: (context, state) {
-// //         if (state is LoginLoading) {
-// //           return CircularProgressIndicator();
-// //         }
-// //         // return LoginForm();
-// //       },
-// //     ),
-// //   );
-// // }
-// // }
-// }

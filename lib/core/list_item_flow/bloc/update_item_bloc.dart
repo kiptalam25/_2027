@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/api_constants/api_constants.dart';
-import 'package:swapifymobile/core/list_item_flow/bloc/add_item_state.dart';
 import 'package:swapifymobile/core/list_item_flow/bloc/update_item_event.dart';
 import 'package:swapifymobile/core/list_item_flow/bloc/update_item_state.dart';
 
 import '../../../api_client/api_client.dart';
-import 'add_item_event.dart';
 
 class UpdateItemBloc extends Bloc<UpdateItemEvent, UpdateItemState> {
   final ApiClient apiClient;

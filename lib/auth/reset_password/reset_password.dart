@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/auth/login/login.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
@@ -25,8 +24,6 @@ class _ResetPasswordState extends State<ResetPassword> {
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _passwordController = TextEditingController();
-
-  _sendOTP() {}
 
   @override
   void initState() {

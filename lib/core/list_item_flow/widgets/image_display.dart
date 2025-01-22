@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -57,7 +56,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
               return ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
                   child: Image.file(
-                    File(widget.images![index].path),
+                    File(widget.images[index].path),
                     fit: BoxFit.cover,
                   )
 

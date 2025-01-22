@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:swapifymobile/core/services/sharedpreference_service.dart';
 
 import '../../core/services/auth_service.dart';
 import 'login_event.dart';
@@ -30,8 +29,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await sharedPreferences.setString('userId', response.userId!);
           print("...........................Saving profile.....");
           if (response.profileData != null) {
-            final profileDataJson = jsonEncode(response.profileData!.toJson());
-            await sharedPreferences.setString('profileData', profileDataJson);
+            SharedPreferencesService.setProfileData(response.profileData!);
           }
 
           emit(LoginSuccess(response.token!));

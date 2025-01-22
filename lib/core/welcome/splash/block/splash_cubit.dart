@@ -27,9 +27,4 @@ class SplashCubit extends Cubit<SplashState> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
-
-  Future<String?> _loadEmail() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('email');
-  }
 }

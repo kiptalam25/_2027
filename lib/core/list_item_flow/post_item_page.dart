@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/app_bar.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
@@ -81,13 +80,6 @@ class _PostItemPageState extends State<PostItemPage> {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    var imageUrls = [
-      'https://via.placeholder.com/300x200.png?text=Image+1',
-      'https://via.placeholder.com/300x200.png?text=Image+2',
-      'https://via.placeholder.com/300x200.png?text=Image+3',
-    ];
     return Scaffold(
         appBar: BasicAppbar(
           hideBack: true,

@@ -1,8 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/common/app_colors.dart';
@@ -13,13 +11,14 @@ import 'package:swapifymobile/core/usecases/SingleItem.dart';
 import 'package:swapifymobile/core/widgets/notification_popup.dart';
 
 import '../../chat/pages/conversations_page.dart';
-import '../../usecases/item.dart';
-import 'animated_dropdown.dart';
+import '../widgets/animated_dropdown.dart';
 
 class MakeSwapOfferBottomsheet extends StatefulWidget {
   final SingleItem recipientItem;
+  final String exchangeMethod;
 
-  const MakeSwapOfferBottomsheet({Key? key, required this.recipientItem})
+  const MakeSwapOfferBottomsheet(
+      {Key? key, required this.recipientItem, required this.exchangeMethod})
       : super(key: key);
   @override
   State<MakeSwapOfferBottomsheet> createState() =>
@@ -27,11 +26,9 @@ class MakeSwapOfferBottomsheet extends StatefulWidget {
 }
 
 class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
-  final List<String> _items = ["Shoes", "Handbag", "Clothing"];
   List<SingleItem> items = [];
   SingleItem? _selectedItem;
   bool _isChecked = false;
-  bool _isLoading = false;
   String conversationId = "none";
   ItemsService itemsService = ItemsService(new ApiClient());
   bool fetchingOwnItems = false;
@@ -42,9 +39,6 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
     });
 
     try {
-      // Simulate an API call delay
-      await Future.delayed(Duration(seconds: 2));
-
       final response = await itemsService.fetchOwnItems("");
 
       if (response != null && response.data != null) {
@@ -59,8 +53,12 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
           setState(() {
             items = fetchedItems; // Assuming `items` is a List<Item>
           });
-          print("Items--------------" + items.toString());
         } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to fetch items or no items available.'),
+            ),
+          );
           print("Failed to fetch items or no items available.");
         }
       }
@@ -93,10 +91,8 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
     fetchOwnItems();
   }
 
-  bool _isExpanded = false;
   @override
   Widget build(BuildContext context) {
-    bool created;
     ResponseModel response;
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -109,80 +105,84 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
               SizedBox(
                 height: 16,
               ),
-              Text(
-                "This user wants",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Container(
-                padding: EdgeInsets.all(4.0), // Text padding
-                decoration: BoxDecoration(
-                  color: AppColors.hintColor, // Background color
-                  border: Border.all(
-                    // Border
-                    color: AppColors.primary,
-                    width: 1.0,
-                  ),
-                  borderRadius:
-                      BorderRadius.circular(8.0), // Rounded corners (optional)
-                ),
-                child: Text(
-                  "Any article of clothing, a new pair of shoes or a hand bag",
-                  style: TextStyle(
-                    fontSize: 14.0, // Adjust text size
-                    color: AppColors.primary, // Text color
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Text(
-                "What are you offering",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              fetchingOwnItems
-                  ? Center(
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  : AnimatedDropdown<SingleItem>(
-                      items: items,
-                      selectedItem: _selectedItem,
-                      itemLabel: (item) => item.title, // Display item directly
-                      onItemSelected: (item) {
-                        // Handle selection
-                        _selectedItem = item;
-                        print("Selected: $item");
-                      },
-                      placeholder: "Select an item",
-                    ),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
+              Column(
                 children: [
-                  Checkbox(
+                  Text(
+                    "This user wants",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(4.0), // Text padding
+                    decoration: BoxDecoration(
+                      color: AppColors.hintColor, // Background color
+                      border: Border.all(
+                        // Border
+                        color: AppColors.primary,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(
+                          8.0), // Rounded corners (optional)
+                    ),
+                    child: Text(
+                      "Any article of clothing, a new pair of shoes or a hand bag",
+                      style: TextStyle(
+                        fontSize: 14.0, // Adjust text size
+                        color: AppColors.primary, // Text color
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Text(
+                    "What are you offering",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  fetchingOwnItems
+                      ? Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      : AnimatedDropdown<SingleItem>(
+                          items: items,
+                          selectedItem: _selectedItem,
+                          itemLabel: (item) =>
+                              item.title, // Display item directly
+                          onItemSelected: (item) {
+                            // Handle selection
+                            setState(() {
+                              _selectedItem = item;
+                            });
+                            print("Selected: $item" + item!.title);
+                          },
+                          placeholder: "Select an item",
+                        ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  CheckboxListTile(
                     value: _isChecked,
+                    // checkColor: AppColors.primary,
                     onChanged: (value) {
                       setState(() {
-                        _isChecked = value ?? false;
+                        _isChecked = value!;
                       });
                     },
-                  ),
-                  Expanded(
-                    child: Text(
-                      "I confirm that my item is in the user’s desired category",
-                      style: TextStyle(fontSize: 16.0),
-                    ),
+                    title: Text(
+                        'I confirm that my item is in the user’s desired category'),
+                    activeColor: AppColors.primary,
+                    checkColor: Colors.white,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
                   ),
                 ],
               ),

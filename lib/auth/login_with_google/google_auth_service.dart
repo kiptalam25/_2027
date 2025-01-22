@@ -33,7 +33,7 @@ class GoogleAuthService {
       // Call the provided callback with the ID token
       await onAuthenticated(idToken);
     } catch (e) {
-      if (e is DioError) {
+      if (e is DioException) {
         print('DioError: ${e.response?.data}');
       } else {
         print('Error during backend authentication: $e');
@@ -58,7 +58,7 @@ class GoogleAuthService {
 
       if (isSignIn) {
         // Sign-In
-        final response = await authService.loginWithGoogle(idToken!);
+        final response = await authService.loginWithGoogle(idToken);
         if (response.success) {
           onSuccess();
         } else {
@@ -66,7 +66,7 @@ class GoogleAuthService {
         }
       } else {
         // Sign-Up
-        final response = await authService.loginWithGoogle(idToken!);
+        final response = await authService.loginWithGoogle(idToken);
         if (response.success) {
           onSuccess();
         } else {

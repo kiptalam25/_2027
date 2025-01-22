@@ -13,4 +13,11 @@ class SharedPreferencesService {
     }
     return null;
   }
+
+  static Future<void> setProfileData(ProfileData profileData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final profileDataJson = jsonEncode(profileData.toJson());
+    await prefs.setString('profileData', profileDataJson);
+  }
 }

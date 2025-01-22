@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/app_bar.dart';
 import 'package:swapifymobile/core/usecases/other_user_profile.dart';

@@ -1,5 +1,3 @@
-// logout_bloc.dart
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'logout_event.dart';
@@ -9,7 +7,6 @@ class LogoutBloc extends Bloc<LogoutEvent, LogoutState> {
   final SharedPreferences sharedPreferences;
   LogoutBloc(this.sharedPreferences) : super(LogoutInitial());
 
-  @override
   Stream<LogoutState> mapEventToState(LogoutEvent event) async* {
     if (event is PerformLogout) {
       yield LogoutInProgress(); // Indicate logout is in progress

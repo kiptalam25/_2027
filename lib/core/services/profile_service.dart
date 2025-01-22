@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:swapifymobile/core/usecases/other_user_profile.dart';
 
 import '../../api_client/api_client.dart';

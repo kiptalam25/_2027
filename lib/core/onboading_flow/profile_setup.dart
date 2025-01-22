@@ -16,7 +16,7 @@ import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/onboading_flow/widgets/page_indicator.dart';
 
 import '../../api_client/api_client.dart';
-import '../../common/widgets/app_navigator.dart';
+import '../../auth/widgets/password_field.dart';
 import '../services/auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
@@ -100,7 +100,6 @@ class _ProfilePageState extends State<ProfilePage> {
       });
       print("Error: Failed to upload profile image!");
       return true;
-      print("Uploaded URLs: $uploadedUrl");
     } catch (e) {
       print("Error uploading profile picture: $e");
       return true;
@@ -134,30 +133,6 @@ class _ProfilePageState extends State<ProfilePage> {
   ];
 
   String? _selectedCountryCode;
-  final AuthService _authService = AuthService(ApiClient());
-
-  // Future<void> _register() async {
-  //   if (_formKey.currentState?.validate() ?? false) {
-  //     try {
-  //       UserModel user = await _authService.register(
-  //         _emailController.text,
-  //         _passwordController.text,
-  //         _usernameController.text,
-  //         _phoneController.text,
-  //         _bioController.text,
-  //       );
-  //       // Handle success, e.g., navigate to the home page
-  //       print('User registered: ${response.message}');
-  //       const snackBar = SnackBar(
-  //         content: Text('User registered:'),
-  //       );
-  //       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  //     } catch (e) {
-  //       // Handle error, e.g., show error message
-  //       print('Registration error: $e');
-  //     }
-  //   }
-  // }
   var textLength = 0;
   // Default country code
   @override
@@ -321,20 +296,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               .add(ResendVerificationEmail(
                             _emailController.text,
                           ));
-                          final _fullPhoneNumber =
-                              '$_selectedCountryCode${_phoneController.text}';
-                          // saveUserData(
-                          //   RegisterUser(
-                          //     profilePicUrls:
-                          //         uploadedUrl != null ? uploadedUrl : "",
-                          //     fullName: _fullNameController.text,
-                          //     email: _emailController.text,
-                          //     password: "",
-                          //     name: _usernameController.text,
-                          //     phoneNumber: _fullPhoneNumber,
-                          //     bio: _bioController.text,
-                          //   ),
-                          // );
 
                           saveCredentials(
                               _emailController.text, _passwordController.text);
@@ -392,6 +353,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
     await prefs.setString('email', email);
     await prefs.setString('password', password);
     print("Credentials Saved................................................");
@@ -487,63 +449,63 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  bool _isObscured = true;
-
   Widget _buildInputPassword(
       String label, String hintText, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 16),
-        Text(label),
         SizedBox(height: 20),
+        // Text(label),
+        // SizedBox(height: 20),
         SizedBox(
           // height: 40,
-          child: TextFormField(
-            obscureText: _isObscured,
-            controller: controller,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your password';
-              }
-              final passwordRegEx =
-                  r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$';
-
-              if (!RegExp(passwordRegEx).hasMatch(value)) {
-                return 'Password must be at least 8 characters long,\n '
-                    'include an uppercase letter, lowercase letter, \n'
-                    'a number, and a special character.';
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              isDense: true,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _isObscured ? Icons.visibility_off : Icons.visibility,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _isObscured = !_isObscured; // Toggle password visibility
-                  });
-                },
-              ),
-              hintText: hintText,
-              hintStyle: TextStyle(color: AppColors.hintColor),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-              // contentPadding: EdgeInsets.symmetric(horizontal: 10),
-            ),
-          ),
+          child: PasswordField(
+              controller: _passwordController,
+              label: "Password",
+              hintText: "Enter Password"),
+          // child: TextFormField(
+          //   obscureText: _isObscured,
+          //   controller: controller,
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your password';
+          //     }
+          //
+          //     if (!AppConstants.passwordRegex.hasMatch(value)) {
+          //       return 'Password must be at least 8 characters long,\n '
+          //           'include an uppercase letter, lowercase letter, \n'
+          //           'a number, and a special character.';
+          //     }
+          //     return null;
+          //   },
+          //   decoration: InputDecoration(
+          //     isDense: true,
+          //     suffixIcon: IconButton(
+          //       icon: Icon(
+          //         _isObscured ? Icons.visibility_off : Icons.visibility,
+          //       ),
+          //       onPressed: () {
+          //         setState(() {
+          //           _isObscured = !_isObscured; // Toggle password visibility
+          //         });
+          //       },
+          //     ),
+          //     hintText: hintText,
+          //     hintStyle: TextStyle(color: AppColors.hintColor),
+          //     focusedBorder: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(10),
+          //       borderSide:
+          //           BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+          //     ),
+          //     enabledBorder: OutlineInputBorder(
+          //       borderSide:
+          //           BorderSide(color: AppColors.textFieldBorder, width: 1.0),
+          //     ),
+          //     contentPadding:
+          //         const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+          //     // contentPadding: EdgeInsets.symmetric(horizontal: 10),
+          //   ),
+          // ),
         ),
       ],
     );
@@ -630,47 +592,47 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _textareaBio(
-      String label, String hintText, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 16),
-        Text(label),
-        SizedBox(
-          height: 12,
-        ),
-        SizedBox(
-          height: 83,
-          child: TextFormField(
-            controller: _bioController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your full name';
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-              hintText: hintText,
-              isDense: true,
-              hintStyle: TextStyle(color: AppColors.hintColor),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 2.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: AppColors.textFieldBorder, width: 1.0),
-              ),
-            ),
-            maxLines: null, // Allows unlimited lines
-            keyboardType: TextInputType.multiline, // Allows multi-line input
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _textareaBio(
+  //     String label, String hintText, TextEditingController controller) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       SizedBox(height: 16),
+  //       Text(label),
+  //       SizedBox(
+  //         height: 12,
+  //       ),
+  //       SizedBox(
+  //         height: 83,
+  //         child: TextFormField(
+  //           controller: _bioController,
+  //           validator: (value) {
+  //             if (value == null || value.isEmpty) {
+  //               return 'Please enter your full name';
+  //             }
+  //             return null;
+  //           },
+  //           decoration: InputDecoration(
+  //             hintText: hintText,
+  //             isDense: true,
+  //             hintStyle: TextStyle(color: AppColors.hintColor),
+  //             focusedBorder: OutlineInputBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //               borderSide:
+  //                   BorderSide(color: AppColors.textFieldBorder, width: 2.0),
+  //             ),
+  //             enabledBorder: OutlineInputBorder(
+  //               borderSide:
+  //                   BorderSide(color: AppColors.textFieldBorder, width: 1.0),
+  //             ),
+  //           ),
+  //           maxLines: null, // Allows unlimited lines
+  //           keyboardType: TextInputType.multiline, // Allows multi-line input
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildPhoneInputSection() {
     return Column(
@@ -801,35 +763,35 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _onSubmit(BuildContext context) {
-    AppNavigator.pushAndRemove(
-        context,
-        VerifyPage(
-          currentPage: 2,
-        ));
-    // Collect data from fields
-    // final username = _usernameController.text;
-    // final phone = _phoneController.text;
-    // final email = _emailController.text;
-    // final password = _passwordController.text;
-    // final bio = _bioController.text;
-    //
-    // // Create a JSON object
-    // final Map<String, dynamic> userProfile = {
-    //   'username': username,
-    //   'phone': '$_selectedCountryCode$phone',
-    //   'email': email,
-    //   'password': password,
-    //   'bio': bio,
-    // };
-    //
-    // final jsonString = jsonEncode(userProfile);
-    //
-    // print(jsonString);
-  }
+  // void _onSubmit(BuildContext context) {
+  //   AppNavigator.pushAndRemove(
+  //       context,
+  //       VerifyPage(
+  //         currentPage: 2,
+  //       ));
+  //   // Collect data from fields
+  //   // final username = _usernameController.text;
+  //   // final phone = _phoneController.text;
+  //   // final email = _emailController.text;
+  //   // final password = _passwordController.text;
+  //   // final bio = _bioController.text;
+  //   //
+  //   // // Create a JSON object
+  //   // final Map<String, dynamic> userProfile = {
+  //   //   'username': username,
+  //   //   'phone': '$_selectedCountryCode$phone',
+  //   //   'email': email,
+  //   //   'password': password,
+  //   //   'bio': bio,
+  //   // };
+  //   //
+  //   // final jsonString = jsonEncode(userProfile);
+  //   //
+  //   // print(jsonString);
+  // }
 
   bool _isValidPhoneNumber(String phoneNumber) {
-    return phoneNumber.length >= 4; // Basic length validation
+    return phoneNumber.length >= 10; // Basic length validation
   }
 
   Future<void> saveUserData(RegisterUser registerUser) async {

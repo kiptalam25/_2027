@@ -52,12 +52,11 @@ class SingleItem {
           ? List<String>.from(json['imageUrls'])
           : null,
       // imageUrls: List<String>.from(json['imageUrls']),
-      tags: List<String>.from(json['tags']) ?? [],
+      tags: List<String>.from(json['tags']),
       status: json['status'],
-      estimatedDateOfPurchase:
-          DateTime.parse(json['estimatedDateOfPurchase']) ?? DateTime.now(),
+      estimatedDateOfPurchase: DateTime.parse(json['estimatedDateOfPurchase']),
       exchangeMethod: json['exchangeMethod'],
-      swapInterests: List<String>.from(json['swapInterests']) ?? [],
+      swapInterests: List<String>.from(json['swapInterests']),
       additionalInformation:
           json['additionalInformation'] ?? "no additional info",
       warrantStatus: json['warrantStatus'] ?? false,

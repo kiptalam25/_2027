@@ -1,11 +1,8 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
-
 import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
-import '../widgets/notification_popup.dart';
 
 class SwapService {
   final ApiClient apiClient;

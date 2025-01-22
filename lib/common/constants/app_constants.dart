@@ -3,7 +3,10 @@ class AppConstants {
       RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 
   static RegExp passwordRegex = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+      r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&._+-])[A-Za-z\d@$!%*?&._]{8,}$');
+
+  // final passwordRegEx =
+  //     r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&._+-])[A-Za-z\d@$!%*?&._]{8,}$';
 
   // static String addItem;
 }

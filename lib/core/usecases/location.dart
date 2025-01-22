@@ -15,8 +15,8 @@ class Location {
 
   factory Location.fromJson(Map<String, dynamic> json) {
     return Location(
-      country: json['country'],
-      city: json['city'],
+      country: json['country'] ?? "no country",
+      city: json['city'] ?? "no city",
     );
   }
 }
