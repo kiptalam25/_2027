@@ -6,7 +6,7 @@ class SingleItem {
   final String title;
   final String description;
   final String condition;
-  final List<String>? imageUrls;
+  final List<String> imageUrls;
   final List<String>? tags;
   final String status;
   final DateTime? estimatedDateOfPurchase;
@@ -50,7 +50,7 @@ class SingleItem {
       condition: json['condition'],
       imageUrls: json['imageUrls'] != null
           ? List<String>.from(json['imageUrls'])
-          : null,
+          : [],
       // imageUrls: List<String>.from(json['imageUrls']),
       tags: List<String>.from(json['tags']),
       status: json['status'],

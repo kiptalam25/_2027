@@ -11,6 +11,7 @@ import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/listed_items_page.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/confirm_item_delete.dart';
 import 'package:swapifymobile/core/list_item_flow/widgets/image_upload_options.dart';
+import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
 import 'package:swapifymobile/core/usecases/item.dart';
@@ -35,7 +36,8 @@ class AddItemPhoto extends StatefulWidget {
 class _AddItemPhoto extends State<AddItemPhoto> {
   // int _currentIndex = 0;
   bool isLoading = true;
-  Item? item;
+  // Item? item;
+  SingleItem? item;
   final ItemsService itemsService = ItemsService(new ApiClient());
   final CategoryService categoryService = CategoryService(new ApiClient());
 
@@ -68,26 +70,26 @@ class _AddItemPhoto extends State<AddItemPhoto> {
 
   Future<void> _fetchItem(String itemId) async {
     try {
-      SingleItem? singleItem = await itemsService.fetchItem(itemId);
+      item = await itemsService.fetchItem(itemId);
 
-      item = Item(
-        id: singleItem.id,
-        userId: singleItem.userId,
-        categoryId: singleItem.category.name,
-        subCategoryId: singleItem.subCategory.name,
-        title: singleItem.title,
-        description: singleItem.description,
-        condition: singleItem.condition,
-        imageUrls: singleItem.imageUrls ?? [],
-        tags: singleItem.tags ?? [],
-        status: singleItem.status,
-        exchangeMethod: singleItem.exchangeMethod,
-        swapInterests: singleItem.swapInterests ?? [],
-        additionalInformation: singleItem.additionalInformation ?? "",
-        warrantStatus: singleItem.warrantStatus ?? true,
-        createdAt: singleItem.createdAt,
-        createdBy: singleItem.createdBy,
-      );
+      // item = Item(
+      //   id: singleItem.id,
+      //   userId: singleItem.userId,
+      //   categoryId: singleItem.category.name,
+      //   subCategoryId: singleItem.subCategory.name,
+      //   title: singleItem.title,
+      //   description: singleItem.description,
+      //   condition: singleItem.condition,
+      //   imageUrls: singleItem.imageUrls ?? [],
+      //   tags: singleItem.tags ?? [],
+      //   status: singleItem.status,
+      //   exchangeMethod: singleItem.exchangeMethod,
+      //   swapInterests: singleItem.swapInterests ?? [],
+      //   additionalInformation: singleItem.additionalInformation ?? "",
+      //   warrantStatus: singleItem.warrantStatus ?? true,
+      //   createdAt: singleItem.createdAt,
+      //   createdBy: singleItem.createdBy,
+      // );
 
       setState(() {
         isLoading = false;
@@ -293,11 +295,12 @@ class _AddItemPhoto extends State<AddItemPhoto> {
           ),
           TextButton(
             onPressed: () async {
-              await deleteImage(item!.imageUrls[index]);
-              Navigator.pop(context);
               setState(() {
                 item!.imageUrls.removeAt(index);
               });
+              await deleteImage(item!.imageUrls[index]);
+              Navigator.pop(context);
+
             },
             child: Text('Yes'),
           ),
@@ -471,7 +474,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text("${item?.categoryId}"),
+                        Text("${item?.category.name.toTitleCase}"),
                         SizedBox(
                           height: 20,
                         ),
@@ -480,7 +483,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text(item!.subCategoryId),
+                        Text(item!.subCategory.name.toTitleCase),
                         // FutureBuilder<List<Map<String, String>>>(
                         //   future: categoryService.fetchCategories(),
                         //   builder: (context, snapshot) {
@@ -524,10 +527,10 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        if (item!.swapInterests.isEmpty)
+                        if (item!.swapInterests!.isEmpty)
                           Text("No swap interests available"),
                         // Loop through swapInterests
-                        ...item!.swapInterests.map((interest) {
+                        ...?item!.swapInterests?.map((interest) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Text(
@@ -636,7 +639,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                                             );
                                           },
                                     content: _uploadingImages
-                                        ? CircularProgressIndicator()
+                                        ? Loading()
                                         : Text(
                                             "Edit item",
                                             style: TextStyle(

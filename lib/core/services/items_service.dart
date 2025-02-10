@@ -4,6 +4,7 @@ import '../../api_client/api_client.dart';
 import '../../api_constants/api_constants.dart';
 import '../../auth/models/response_model.dart';
 import '../usecases/SingleItem.dart';
+import '../usecases/item.dart';
 
 class ItemsService {
   final ApiClient apiClient;

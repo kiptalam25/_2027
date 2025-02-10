@@ -7,9 +7,11 @@ import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/list_item_flow/bloc/update_item_state.dart';
+import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
 
 import '../onboading_flow/choose_categories.dart';
+import '../usecases/SingleItem.dart';
 import '../usecases/item.dart';
 import '../widgets/custom_dropdown.dart';
 import '../widgets/custom_textfield.dart';
@@ -33,7 +35,7 @@ class AddNewItemSheet extends StatefulWidget {
 
 class _AddNewItemSheetState extends State<AddNewItemSheet> {
   // pageController = this.pageController;
-  late final DateTime initialDate;
+  // late final DateTime initialDate;
   bool isBarterChecked = false;
   bool isDonationChecked = false;
   final _formKey = GlobalKey<FormState>();
@@ -46,7 +48,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceRange = TextEditingController();
-  var estimatedDateOfPurchase = DateTime.now();
+  // var estimatedDateOfPurchase = DateTime.now();
 
   // Method to create JSON from the selected checkboxes
   String getCheckboxJson() {
@@ -88,7 +90,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
       'priceRange': priceRange.text,
       'categoryId': selectedCategory!,
       'subCategoryId': itemSubCategory!,
-      'estimatedDateOfPurchase': estimatedDateOfPurchase.toString(),
+      // 'estimatedDateOfPurchase': estimatedDateOfPurchase.toString(),
       'tags': "....",
       'additionalInformation': "....",
       'warrantStatus': false,
@@ -116,7 +118,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   ];
   List<Map<String, String>> _subCategories = [];
   String? selectedCategoryId;
-  late Item item;
+  late SingleItem item;
   late String? selectedCondition = _conditions.first['id'];
   late String? selectedCategory = "";
   late String? selectedCategoryOfInterest;
@@ -142,9 +144,9 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
         selectedCondition = item.condition;
 
         if (_categories.isNotEmpty) {
-          selectedCategory = item.categoryId;
+          selectedCategory = item.category.id;
         }
-        selectedCategoryIds = item.swapInterests;
+        selectedCategoryIds = item.swapInterests!;
       });
 
       switch (item.exchangeMethod) {
@@ -168,7 +170,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   final CategoryService categoryService = CategoryService(ApiClient());
 
   Future<void> _fetchCategories() async {
-    await Future.delayed(Duration(seconds: 1));
     List<Map<String, String>> categories =
         await categoryService.fetchCategories();
     setState(() {
@@ -180,11 +181,11 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
 
       if (_categories.isNotEmpty && !widget.isNew) {
         // selectedCondition = _conditions.first['id']!;
-        selectedCategory = item.categoryId; //_categories.first['id']!;
+        selectedCategory = item.category.id; //_categories.first['id']!;
         findSubCAtegories(selectedCategory!);
 
         if (_subCategories.isNotEmpty) {
-          selectedCategoryOfInterest = item.subCategoryId;
+          selectedCategoryOfInterest = item.subCategory.id;
         }
       } else if (_categories.isNotEmpty && widget.isNew) {
         // selectedCondition = _conditions.first['id']!;
@@ -377,57 +378,28 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 const SizedBox(
                   height: 16,
                 ),
-                Text("Estimated date of purchase*"),
-                SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  height: 40,
-                  child: TextField(
-                    controller: _dateController,
-                    readOnly: true, // Make the text field read-only
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                    onTap: () => _selectDate(context), // Open the date picker
-                  ),
-                  // DatePickerTextField(
-                  //   // labelText: 'Start Date',
-                  //
-                  //   hintText: 'YYYY-MM-DD',
-                  //   initialDate: estimatedDateOfPurchase,
-                  //   firstDate: DateTime(2010),
-                  //   lastDate: DateTime(2025),
-                  //   validator: (value) {
-                  //     if (value == null || value.isEmpty) {
-                  //       return 'Please select a date.';
-                  //     }
-                  //     return null;
-                  //   },
-                  //   onDateSelected: (selectedDate) {
-                  //     estimatedDateOfPurchase = selectedDate;
-                  //     // print("Selected Start Date: $selectedDate");
-                  //   },
-                  // ),
-                ),
-                // if (isBarterChecked) ...[
-                //   InputSection(
-                //     label: "Price Range",
-                //     hintText: "Enter price range of the item",
-                //     controller: priceRange,
-                //     maxCharacters: 0,
+                // Text("Estimated date of purchase*"),
+                // SizedBox(
+                //   height: 10,
+                // ),
+                // SizedBox(
+                //   height: 40,
+                //   child: TextField(
+                //     controller: _dateController,
+                //     readOnly: true, // Make the text field read-only
+                //     decoration: const InputDecoration(
+                //       border: OutlineInputBorder(),
+                //       suffixIcon: Icon(Icons.calendar_today),
+                //     ),
+                //     onTap: () => _selectDate(context), // Open the date picker
                 //   ),
-                // ],
+                // ),
                 const SizedBox(
                   height: 16,
                 ),
                 Text("Item Category*"),
                 _categories.isEmpty
-                    ? SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator())
+                    ? Loading()
                     : CustomDropdown(
                         value: selectedCategory,
                         items: _categories,

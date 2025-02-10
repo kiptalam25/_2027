@@ -23,7 +23,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
   bool fetchingPolicy = false;
 
   late Map<String, dynamic> pp;
-  late Map<String, dynamic> privacyPolicy;
+  late Map<String, dynamic> privacyPolicy={};
   late Map<String, dynamic> termsOfUse;
 
   Future<void> fetchPolicy() async {
@@ -50,6 +50,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
     } catch ($e) {
     } finally {
       setState(() {
+        privacyPolicy={};
         fetchingPolicy = false;
       });
     }
@@ -57,6 +58,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
 
   @override
   void initState() {
+    privacyPolicy={};
     fetchPolicy();
     super.initState();
   }

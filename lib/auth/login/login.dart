@@ -6,10 +6,12 @@ import 'package:swapifymobile/auth/widgets/password_field.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
+import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
 
 import '../../../api_client/api_client.dart';
+import '../../core/onboading_flow/choose_categories.dart';
 import '../../core/services/auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
@@ -35,10 +37,10 @@ class _LoginPageState extends State<LoginPage> {
   late SharedPreferences sharedPreferences;
   bool? isAuthenticated;
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    _initializeSharedPreferences();
-    checkTokenValidity();
+    // _initializeSharedPreferences();
+    // checkTokenValidity();
   }
 
   Future<void> _initializeSharedPreferences() async {
@@ -51,13 +53,13 @@ class _LoginPageState extends State<LoginPage> {
     await sharedPreferences.setString('password', password);
   }
 
-  checkTokenValidity() async {
+  // checkTokenValidity() async {
     //   isAuthenticated = sharedPreferences?.containsKey("token") ?? false;
 
     //   BlocProvider.of<LoginBloc>(context).add(
     //     CheckToken(),
     //   );
-  }
+  // }
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
@@ -90,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // Handle the result
     if (result.success) {
-      print('Login successful');
+      print('Login successful');//ChooseCategories(currentPage: 4,)
       AppNavigator.pushAndRemove(context, HomePage());
     } else {
       print('Login failed: ${result.message}');
@@ -100,32 +102,39 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<SharedPreferences>(
-        future: SharedPreferences.getInstance(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // While waiting, show a loading indicator
-            return Center(child: CircularProgressIndicator());
-          }
+    // return FutureBuilder<SharedPreferences>(
+    //     future: SharedPreferences.getInstance(),
+    //     builder: (context, snapshot) {
+    //       if (snapshot.connectionState == ConnectionState.waiting) {
+    //         // While waiting, show a loading indicator
+    //         return Center(child: CircularProgressIndicator());
+    //       }
 
-          if (snapshot.hasError) {
-            // Handle errors here if needed
-            return Center(child: Text('Error loading preferences'));
-          }
-          return BlocProvider(
-            create: (_) => LoginBloc(AuthService(ApiClient()), snapshot.data!),
-            child: Scaffold(
-              appBar: BasicAppbar(
-                // title: PageIndicator(currentPage: widget.currentPage),
-                hideBack: true,
-                // height: 40,
-              ),
-              body: LayoutBuilder(builder: (context, constraints) {
-                return SingleChildScrollView(
-                    child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
+          // if (snapshot.hasError) {
+          //   // Handle errors here if needed
+          //   return Center(child: Text('Error loading preferences'));
+          // }
+          // return BlocProvider(
+          //   create: (_) => LoginBloc(AuthService(ApiClient()), snapshot.data!),
+          //   child: Scaffold(
+          //     appBar: BasicAppbar(
+          //       // title: PageIndicator(currentPage: widget.currentPage),
+          //       hideBack: true,
+          //       // height: 40,
+          //     ),
+          //     body: LayoutBuilder(builder: (context, constraints) {
+    return Scaffold(
+          appBar: BasicAppbar(
+            // title: PageIndicator(currentPage: widget.currentPage),
+            hideBack: true,
+            // height: 40,
+          ),
+      body:
+                 SingleChildScrollView(
+                  //   child: ConstrainedBox(
+                  // constraints: BoxConstraints(
+                  //   minHeight: constraints.maxHeight,
+                  // ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Form(
@@ -237,11 +246,13 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                ));
-              }),
-            ),
-          );
-        });
+                )
+    );
+                // );
+            //   }),
+            // ),
+          // );
+        // });
   }
 
 //
@@ -265,6 +276,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+
+  //Handles custom login
   Widget _blockConsumer() {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) async {

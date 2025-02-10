@@ -20,4 +20,13 @@ class SharedPreferencesService {
     final profileDataJson = jsonEncode(profileData.toJson());
     await prefs.setString('profileData', profileDataJson);
   }
+
+  static Future<void> setHomeFilter(Map<String,dynamic> homeFilter) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final filterData = jsonEncode(homeFilter);
+    await prefs.setString('homeFilter', filterData);
+  }
+
+
 }

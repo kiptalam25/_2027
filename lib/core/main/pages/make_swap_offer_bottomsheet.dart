@@ -6,15 +6,18 @@ import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
-import 'package:swapifymobile/core/services/swap_service.dart';
+import 'package:swapifymobile/core/services/trade_service.dart';
 import 'package:swapifymobile/core/usecases/SingleItem.dart';
 import 'package:swapifymobile/core/widgets/notification_popup.dart';
 
 import '../../chat/pages/conversations_page.dart';
+import '../../usecases/item.dart';
+import '../../widgets/custom_textfield.dart';
 import '../widgets/animated_dropdown.dart';
 
 class MakeSwapOfferBottomsheet extends StatefulWidget {
-  final SingleItem recipientItem;
+  final Item recipientItem;
+  // final SingleItem recipientItem;
   final String exchangeMethod;
 
   const MakeSwapOfferBottomsheet(
@@ -32,8 +35,11 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
   String conversationId = "none";
   ItemsService itemsService = ItemsService(new ApiClient());
   bool fetchingOwnItems = false;
+  final TextEditingController justificationController = TextEditingController();
 
   Future<void> fetchOwnItems() async {
+    print("Exchange method");
+    print(widget.exchangeMethod);
     setState(() {
       fetchingOwnItems = true;
     });
@@ -62,20 +68,6 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
           print("Failed to fetch items or no items available.");
         }
       }
-      // // Parse the response
-      // final Map<String, dynamic> jsonResponse =
-      //     json.decode(res) as Map<String, dynamic>;
-      //
-      // if (jsonResponse['success'] == true) {
-      //   // Extract items and convert to Dart objects
-      //   final List<dynamic> itemsJson = jsonResponse['items'];
-      //   final List<Item> fetchedItems =
-      //       itemsJson.map((json) => Item.fromJson(json)).toList();
-      //
-      //   setState(() {
-      //     items = fetchedItems;
-      //   });
-      // }
     } catch (e) {
       print('Error fetching items: $e');
     } finally {
@@ -88,147 +80,204 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
   @override
   void initState() {
     super.initState();
-    fetchOwnItems();
+    if(widget.exchangeMethod!="donation") {
+      fetchOwnItems();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     ResponseModel response;
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 16,
-              ),
-              Column(
-                children: [
-                  Text(
-                    "This user wants",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(4.0), // Text padding
-                    decoration: BoxDecoration(
-                      color: AppColors.hintColor, // Background color
-                      border: Border.all(
-                        // Border
-                        color: AppColors.primary,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(
-                          8.0), // Rounded corners (optional)
-                    ),
-                    child: Text(
-                      "Any article of clothing, a new pair of shoes or a hand bag",
-                      style: TextStyle(
-                        fontSize: 14.0, // Adjust text size
-                        color: AppColors.primary, // Text color
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Text(
-                    "What are you offering",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  fetchingOwnItems
-                      ? Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 8.0,
+          right: 8.0,
+          top: 8.0,
+          bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust for keyboard
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 16,
+                ),
+                widget.exchangeMethod == "swap"
+                    ? Column(
+                        children: [
+                          Text(
+                            "This user wants",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w400),
                           ),
-                        )
-                      : AnimatedDropdown<SingleItem>(
-                          items: items,
-                          selectedItem: _selectedItem,
-                          itemLabel: (item) =>
-                              item.title, // Display item directly
-                          onItemSelected: (item) {
-                            // Handle selection
-                            setState(() {
-                              _selectedItem = item;
-                            });
-                            print("Selected: $item" + item!.title);
-                          },
-                          placeholder: "Select an item",
-                        ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  CheckboxListTile(
-                    value: _isChecked,
-                    // checkColor: AppColors.primary,
-                    onChanged: (value) {
-                      setState(() {
-                        _isChecked = value!;
-                      });
-                    },
-                    title: Text(
-                        'I confirm that my item is in the user’s desired category'),
-                    activeColor: AppColors.primary,
-                    checkColor: Colors.white,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              BasicAppButton(
-                  height: 38,
-                  title: "Make offer",
-                  radius: 24,
-                  onPressed: () async => {
-                        response = await makeOffer(),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(4.0), // Text padding
+                            decoration: BoxDecoration(
+                              color: AppColors.hintColor, // Background color
+                              border: Border.all(
+                                // Border
+                                color: AppColors.primary,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                  8.0), // Rounded corners (optional)
+                            ),
+                            child: Text(
+                              "Any article of clothing, a new pair of shoes or a hand bag",
+                              style: TextStyle(
+                                fontSize: 14.0, // Adjust text size
+                                color: AppColors.primary, // Text color
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 16,
+                          ),
+                          Text(
+                            "What are you offering",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w400),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          fetchingOwnItems
+                              ? Center(
+                                  child: SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              : AnimatedDropdown<SingleItem>(
+                                  items: items,
+                                  selectedItem: _selectedItem,
+                                  itemLabel: (item) =>
+                                      item.title, // Display item directly
+                                  onItemSelected: (item) {
+                                    // Handle selection
+                                    setState(() {
+                                      _selectedItem = item;
+                                    });
+                                    print("Selected: $item" + item!.title);
+                                  },
+                                  placeholder: "Select an item",
+                                ),
+                          SizedBox(
+                            height: 16,
+                          ),
+                          CheckboxListTile(
+                            value: _isChecked,
+                            // checkColor: AppColors.primary,
+                            onChanged: (value) {
+                              setState(() {
+                                _isChecked = value!;
+                              });
+                            },
+                            title: Text(
+                                'I confirm that my item is in the user’s desired category'),
+                            activeColor: AppColors.primary,
+                            checkColor: Colors.white,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          Center(child: Text("Donation Request Justification")),
+                          InputSection(
+                            label: "",
+                            hintText:
+                                "Enter reasons why this item should be donated to you",
+                            controller: justificationController,
+                            maxCharacters: 2000, // Optional
+                          ),
+                        ],
+                      ),
+                SizedBox(
+                  height: 16,
+                ),
+                BasicAppButton(
+                    height: 38,
+                    title: "Make offer",
+                    radius: 24,
+                    onPressed: items==[] ? () => null : () async => {
+                      if(widget.exchangeMethod=="swap"){
+                          response = await makeSwapOffer(),
+                          if (response.success)
+                            {
+                              StatusPopup.show(context,
+                                  message: "Offer is Sent", isSuccess: true),
+                              Navigator.pop(context),
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ConversationsPage(
+                                            conversationId: conversationId,
+                                          )))
+                            }
+                          else
+                            {
+                              StatusPopup.show(context,
+                                  message: response.message, isSuccess: false)
+                            }}
+                      else if(widget.exchangeMethod=="donation"){
+                        response = await makeDonationRequest(),
                         if (response.success)
                           {
                             StatusPopup.show(context,
-                                message: "Offer is Sent", isSuccess: true),
+                                message: "Request is Sent", isSuccess: true),
                             Navigator.pop(context),
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ConversationsPage(
-                                          conversationId: conversationId,
-                                        )))
+                                      conversationId: conversationId,
+                                    )))
                           }
                         else
                           {
-                            StatusPopup.show(context,
-                                message: response.message, isSuccess: false)
+                            if(response.message.contains("Missing required fields")){
+                              StatusPopup.show(context,
+                                  message: "Missing required fields", isSuccess: false)
+                            }else if(response.message.contains("already exists")){
+                              StatusPopup.show(context,
+                                  message: "Donation request already exists", isSuccess: false)
+                            }else
+                              {
+                                StatusPopup.show(context,
+                                    message: response.message, isSuccess: false)
+                              }
                           }
-                      }),
-              SizedBox(
-                height: 16,
-              )
-            ],
-          ),
-        ],
+                      } else{
+                        StatusPopup.show(context,
+                            message: "Failed! \n no exchange method:"+widget.exchangeMethod, isSuccess: false)
+                      }
+                        }),
+                SizedBox(
+                  height: 16,
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  SwapService swapService = SwapService(new ApiClient());
+  TradeService tradeService = TradeService(new ApiClient());
 
-  Future<ResponseModel> makeOffer() async {
+  Future<ResponseModel> makeSwapOffer() async {
     String? initiatorItem = _selectedItem?.id;
-    String recipientId = widget.recipientItem.userId;
-    String recipientItemId = widget.recipientItem.id;
+    String? recipientId = widget.recipientItem.userId?.id;
+    String recipientItemId = widget.recipientItem.id;//item belonging to the recipient of the request message
     Map<String, dynamic> jsonMap = {
       'initiatorItemId': initiatorItem,
       'recipientId': recipientId,
@@ -241,13 +290,24 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
     } else {
       String jsonString = jsonEncode(jsonMap);
       print(jsonString);
-      ResponseModel response = await swapService.createSwapOffer(jsonString);
+      ResponseModel response = await tradeService.createSwapOffer(jsonString);
       return response;
     }
-    // {
-    //   "initiatorItemId":_selectedItem!.id,
-    //   "recipientId":"6744c4144bf8097f279f1f80",
-    //   "recipientItemId":"672ccc240ce34ff92e84c1a8"
-    // }
+  }
+
+  Future<ResponseModel> makeDonationRequest() async {
+    String? itemId = widget.recipientItem.id;//item belonging to the recipient of the request message
+    String letterOfIntent = justificationController.text;
+    Map<String, dynamic> jsonMap = {
+      'itemId': itemId,
+      'letterOfIntent': letterOfIntent,
+    };
+
+
+      String jsonString = jsonEncode(jsonMap);
+      print(jsonString);
+      ResponseModel response = await tradeService.createDonationRequest(jsonString);
+      return response;
+
   }
 }

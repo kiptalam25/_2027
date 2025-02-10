@@ -29,8 +29,9 @@ class ApiConstants {
   static const String updateUser = '/users/update';
   static const String deleteUser = '/users/delete';
 
-  //Swaps
+  //Trades
   static const String swaps = '/swaps';
+  static const String donation = '/donations/requests';
 
   //chats
   static const String conversations = '/messages';

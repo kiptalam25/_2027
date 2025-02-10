@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/app_colors.dart';
+import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
+import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
 class CustomDropdown extends StatelessWidget {
   final String? value;
@@ -34,7 +36,7 @@ class CustomDropdown extends StatelessWidget {
         items: items.map((category) {
           return DropdownMenuItem<String>(
             value: category['id'],
-            child: Text(category['name']!),
+            child: Text(category['name']!.toTitleCase),
           );
         }).toList(),
         onChanged: onChanged,

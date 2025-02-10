@@ -1,8 +1,10 @@
+import 'package:swapifymobile/core/usecases/SingleItem.dart';
+
 class Item {
   final String id;
-  final String userId;
-  final String categoryId;
-  final String subCategoryId;
+  final UserId? userId;
+  final Category categoryId;
+  final SubCategory subCategoryId;
   final String title;
   final String description;
   final String condition;
@@ -15,6 +17,7 @@ class Item {
   final bool warrantStatus;
   final DateTime createdAt;
   final String createdBy;
+  final Location location;
 
   Item({
     required this.id,
@@ -33,18 +36,19 @@ class Item {
     required this.warrantStatus,
     required this.createdAt,
     required this.createdBy,
+    required this.location,
   });
 
-  factory Item.fromJson(Map<String, dynamic> json) {
+  factory Item.fromJson2(Map<String, dynamic> json) {
     return Item(
       id: json['_id'] ?? '',
-      userId: json['userId'] ?? '',
-      categoryId: json['categoryId'] ?? '',
-      subCategoryId: json['subCategoryId'] ?? '',
+      userId: UserId.fromJson(json['userId']??Map()),
+      categoryId: Category.fromJson(json['categoryId']),
+      subCategoryId:SubCategory.fromJson( json['subCategoryId']),
       title: json['title'] ?? 'Untitled',
       description: json['description'] ?? '',
       condition: json['condition'] ?? 'unknown',
-      imageUrls: List<String>.from(json['imageUrls'] ?? []),
+      imageUrls: List<String>.from(json['imageUrls'] ?? null),
       tags: List<String>.from(json['tags'] ?? []),
       status: json['status'] ?? 'unknown',
       exchangeMethod: json['exchangeMethod'] ?? 'unknown',
@@ -53,7 +57,78 @@ class Item {
       warrantStatus: json['warrantStatus'] ?? false,
       createdAt: DateTime.parse(json['createdAt']),
       createdBy: json['createdBy'] ?? '',
+      location: json['location']!=null? Location.fromJson(json['location']) : Location(),
     );
+  }
+
+  // factory Item.fromJson(Map<String, dynamic> json) {
+  //   return Item(
+  //     id: json['_id'] ?? '',
+  //     userId: json['userId'] ?? '',
+  //     categoryId: json['categoryId'] ?? '',
+  //     subCategoryId: json['subCategoryId'] ?? '',
+  //     title: json['title'] ?? 'Untitled',
+  //     description: json['description'] ?? '',
+  //     condition: json['condition'] ?? 'unknown',
+  //     imageUrls: List<String>.from(json['imageUrls'] ?? []),
+  //     tags: List<String>.from(json['tags'] ?? []),
+  //     status: json['status'] ?? 'unknown',
+  //     exchangeMethod: json['exchangeMethod'] ?? 'unknown',
+  //     swapInterests: List<String>.from(json['swapInterests'] ?? []),
+  //     additionalInformation: json['additionalInformation'],
+  //     warrantStatus: json['warrantStatus'] ?? false,
+  //     createdAt: DateTime.parse(json['createdAt']),
+  //     createdBy: json['createdBy'] ?? '',
+  //   );
+  // }
+}
+
+class UserProfile {
+  final String? id;
+  final String? userId;
+  final String? fullName;
+  final String? profilePicUrl;
+
+  UserProfile({required this.id, required this.userId, required this.fullName, required this.profilePicUrl});
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      id: json['_id']??'empty',
+      userId: json['userId']??'empty',
+      fullName: json['fullName']??'empty',
+      profilePicUrl: json['profilePicUrl']?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'userId': userId,
+      'fullName': fullName,
+      'profilePicUrl': profilePicUrl,
+    };
+  }
+}class UserId {
+  final String? id;
+  final String? username;
+  final UserProfile? profile;
+
+  UserId({required this.id, required this.username, required this.profile});
+
+  factory UserId.fromJson(Map<String, dynamic> json) {
+    return UserId(
+      id: json['_id'] ?? 'empty',
+      username: json['username']?? 'empty',
+      profile: UserProfile.fromJson(json['profile']??Map()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': username,
+      'profile': profile,
+    };
   }
 }
 

@@ -32,9 +32,9 @@ Future<void> main() async {
       BlocProvider(
         create: (context) => AddItemBloc(apiClient),
       ),
-      BlocProvider(
-        create: (context) => LogoutBloc(sharedPreferences),
-      ),
+      // BlocProvider(
+      //   create: (context) => LogoutBloc(sharedPreferences),
+      // ),
       BlocProvider(
         create: (context) => UpdateItemBloc(apiClient),
       ),
@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (context) => SplashCubit()..appStarted(),
       child: MaterialApp(
+        // showPerformanceOverlay: true,
         // initialRoute: '/',
         // routes: {
         //   '/': (context) => HomePage(),
@@ -64,8 +65,8 @@ class MyApp extends StatelessWidget {
         title: Global.appName,
         theme: ThemeData(
           textSelectionTheme: TextSelectionThemeData(
-            cursorColor: Colors.blue, // Text cursor color
-            selectionColor: Colors.blue.shade200, // Text selection color
+            cursorColor: AppColors.primary, // Text cursor color
+            selectionColor: AppColors.successColor, // Text selection color
             selectionHandleColor: AppColors.primary, // Handle color
           ),
           primaryColor: AppColors.primary, // Main color

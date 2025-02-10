@@ -10,6 +10,8 @@ import '../../usecases/conversation_response.dart';
 import '../../usecases/profile_data.dart';
 import 'dart:async';
 
+import '../chat_bubble.dart';
+
 class ChatPage extends StatefulWidget {
   final Exchange exchange;
   final bool isRecipient;
@@ -35,7 +37,7 @@ class _ChatPageState extends State<ChatPage> {
 
   List<Conversation> messages = [];
   bool fetchingMessages = false;
-  Timer? _timer;
+  // Timer? _timer;
   bool initialLoading = true;
   bool isSending = false;
 
@@ -87,16 +89,16 @@ class _ChatPageState extends State<ChatPage> {
     if (initialLoading) {
       fetchChat(widget.exchange.id);
     }
-    _timer = Timer.periodic(Duration(seconds: 2), (Timer timer) {
-      fetchChat(widget.exchange.id);
-    });
+    // _timer = Timer.periodic(Duration(seconds: 2), (Timer timer) {
+    //   fetchChat(widget.exchange.id);
+    // });
     super.initState();
   }
 
   @override
   void dispose() {
     // Cancel the timer when the widget is disposed to avoid memory leaks
-    _timer?.cancel();
+    // _timer?.cancel();
     super.dispose();
   }
 
@@ -160,32 +162,44 @@ class _ChatPageState extends State<ChatPage> {
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
                           final message = messages[messages.length - 1 - index];
-                          return Align(
-                            alignment: message.isSentByMe!
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              margin: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 10),
-                              decoration: BoxDecoration(
-                                color: message.isSentByMe!
-                                    ? Colors.blue[100]
-                                    : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                message.content!,
-                                style: TextStyle(
-                                  color: message.isSentByMe!
-                                      ? Colors.black
-                                      : Colors.black87,
-                                ),
-                              ),
-                            ),
+                          return ChatBubble(
+                            text: message.content!,
+                            isSentByMe: message.isSentByMe!,
                           );
                         },
                       ),
+
+                      // child: ListView.builder(
+                      //   reverse: true, // Show the latest message at the bottom
+                      //   itemCount: messages.length,
+                      //   itemBuilder: (context, index) {
+                      //     final message = messages[messages.length - 1 - index];
+                      //     return Align(
+                      //       alignment: message.isSentByMe!
+                      //           ? Alignment.centerRight
+                      //           : Alignment.centerLeft,
+                      //       child: Container(
+                      //         padding: const EdgeInsets.all(10),
+                      //         margin: const EdgeInsets.symmetric(
+                      //             vertical: 5, horizontal: 10),
+                      //         decoration: BoxDecoration(
+                      //           color: message.isSentByMe!
+                      //               ? Colors.green[100]
+                      //               : Colors.grey[300],
+                      //           borderRadius: BorderRadius.circular(10),
+                      //         ),
+                      //         child: Text(
+                      //           message.content!,
+                      //           style: TextStyle(
+                      //             color: message.isSentByMe!
+                      //                 ? Colors.black
+                      //                 : Colors.black87,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
                     ),
 
                     // Message Input

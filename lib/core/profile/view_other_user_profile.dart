@@ -1,16 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/common/widgets/app_bar.dart';
+import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/usecases/other_user_profile.dart';
 
+import '../../api_client/api_client.dart';
 import '../../common/app_colors.dart';
+import '../services/profile_service.dart';
 
-class ViewOtherUserProfile extends StatelessWidget {
-  final OtherUserProfile otherUserProfile;
-  const ViewOtherUserProfile({Key? key, required this.otherUserProfile})
+class ViewOtherUserProfile extends StatefulWidget {
+  final String userId;
+  const ViewOtherUserProfile({Key? key, required this.userId})
       : super(key: key);
+
+  @override
+  State<ViewOtherUserProfile> createState() => _ViewOtherUserProfileState();
+}
+
+class _ViewOtherUserProfileState extends State<ViewOtherUserProfile> {
   String truncateToFirstWord(String? fullName) {
     if (fullName == null || fullName.isEmpty) return '';
     return fullName.split(' ').first;
+  }
+   late OtherUserProfile otherUserProfile;
+
+@override
+  void initState() {
+  _fetchPostersProfile(widget.userId);
+    super.initState();
+  }
+  final ProfileService profileService = ProfileService(new ApiClient());
+
+bool isLoading=false;
+
+  Future<void> _fetchPostersProfile(String createdBy) async {
+    setState(() {
+      isLoading=true;
+    });
+    OtherUserProfile? otherUserProfile1 =
+    await profileService.fetchOtherUserProfile(createdBy);
+    setState(() {
+      isLoading=false;
+      otherUserProfile = otherUserProfile1!;
+    });
   }
 
   @override
@@ -19,7 +50,7 @@ class ViewOtherUserProfile extends StatelessWidget {
       appBar: BasicAppbar(
         hideBack: false,
       ),
-      body: SingleChildScrollView(
+      body: isLoading ? Loading():  SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

@@ -13,8 +13,8 @@ import '../usecases/profile_data.dart';
 
 class AuthService {
   final ApiClient apiClient;
+AuthService(this.apiClient);
 
-  AuthService(this.apiClient);
 
   Future<Object> login(String username, String password) async {
     try {
@@ -51,22 +51,62 @@ class AuthService {
         'idToken': idToken,
       });
 
-      if (response.data['success']) {
+      //Response
+   /*       {
+        "success": true,
+    "message": "User logged in successfully",
+    "username": "Kiptalam Joseph",
+    "userId": "679b7dfd83760e042005c2b7",
+    "email": "kiptalamjoseph@gmail.com",
+    "fullName": "Kiptalam Joseph",
+    "profilePicUrl": "https://lh3.googleusercontent.com/a/ACg8ocJeyQl7iuIJ1ZflxZOlA8BAFJO2qAiukaHl0oJd6G3APHTijAif=s96-c",
+    "profileData": {
+    "location": {
+    "country": "Estonia",
+    "city": "city1"
+  },
+    "interests": {
+    "categoryId": ["672c94821c9af885908ce3e3"],
+    "city": []
+  },
+    "_id": "679b7dfd3bf88fb58d6930e5",
+    "userId": "679b7dfd83760e042005c2b7",
+    "fullName": "Kiptalam Joseph",
+    "profilePicUrl": "https://lh3.googleusercontent.com/a/ACg8ocJeyQl7iuIJ1ZflxZOlA8BAFJO2qAiukaHl0oJd6G3APHTijAif=s96-c",
+    "listedItemCount": 0,
+    "completedSwapCount": 0,
+    "completedDonationCount": 0,
+    "createdAt": "2025-01-30T13:26:21.797Z",
+    "__v": 0,
+    "bio": "No bio available hdjdkskskhdjdjdjsnd r r. r ff f f",
+    "updatedAt": "2025-02-03T11:34:36.183Z"
+  },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzliN2RmZDgzNzYwZTA0MjAwNWMyYjciLCJlbWFpbCI6ImtpcHRhbGFtam9zZXBoQGdtYWlsLmNvbSIsImF1dGhNZXRob2QiOiJnb29nbGUiLCJpYXQiOjE3Mzg1ODMyNTQsImV4..."
+  }
+
+    */
+
+
+    if (response.data['success']) {
         await sharedPreferences.setString('token', response.data['token']);
         await sharedPreferences.setString(
             'username', response.data['username']);
         await sharedPreferences.setString('userId', response.data['userId']);
-        // print(response.data.toString());
-        SharedPreferencesService.setProfileData(ProfileData(
-            fullName: response.data['username'],
-            bio: "",
-            createdAt: "",
-            id: "",
-            profilePicUrl: "",
-            userId: response.data['userId'],
-            interests: Interests(),
-            version: 1,
-            location: Location()));
+        print(response.data.toString());
+        SharedPreferencesService.setProfileData(
+            LoginResponse.fromJson(response.data).profileData!
+
+            // ProfileData(
+            // fullName: response.data['username'],
+            // bio: "",
+            // createdAt: "",
+            // id: "",
+            // profilePicUrl: "",
+            // userId: response.data['userId'],
+            // interests: Interests(),
+            // version: 1,
+            // location: Location())
+        );
 
         // if (response.profileData != null) {
         //   final profileDataJson = jsonEncode(response.profileData!.toJson());
@@ -192,24 +232,14 @@ class AuthService {
       } else {
         return ResponseModel(success: false, message: response.data['message']);
       }
-    } on ApiException catch (e) {
-      // Extract the error message using a regular expression
-      final errorPattern = RegExp(
-          r'error:\s*([^}]+)'); // Regex to capture the text after 'error:'
-      final match = errorPattern.firstMatch(e.message);
-
-      // Extracted error message or default to the whole message if parsing fails
-      final errorMessage = match != null ? match.group(1)?.trim() : e.message;
-
-      return ResponseModel(
-          success: false, message: errorMessage ?? 'Unknown error');
-    } catch (e) {
+    }
+     catch (e) {
       return ResponseModel(
           success: false, message: 'Unexpected error: ${e.toString()}');
     }
   }
 
-  registerWithGoogle(String idToken) {}
+  // registerWithGoogle(String idToken) {}
 
 //   Future<ResponseModel> completeVerification(String email, String code) async {
 //     try {

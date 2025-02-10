@@ -5,6 +5,7 @@ import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/main/pages/make_swap_offer_bottomsheet.dart';
 import 'package:swapifymobile/core/profile/view_other_user_profile.dart';
 import 'package:swapifymobile/core/services/profile_service.dart';
+import 'package:swapifymobile/core/usecases/item.dart';
 import 'package:swapifymobile/core/usecases/other_user_profile.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../../../api_client/api_client.dart';
@@ -15,8 +16,9 @@ import '../../widgets/initial_circle.dart';
 import '../widgets/images_display.dart';
 
 class ProductDescription extends StatefulWidget {
-  final String itemId;
-  const ProductDescription({Key? key, required this.itemId}) : super(key: key);
+  // final String itemId;
+  final Item item;
+  const ProductDescription({Key? key, required this.item}) : super(key: key);
 
   @override
   State<ProductDescription> createState() => _ProductDescriptionState();
@@ -24,14 +26,13 @@ class ProductDescription extends StatefulWidget {
 
 class _ProductDescriptionState extends State<ProductDescription> {
   final PageController _pageController = PageController();
-  final ProfileService profileService = ProfileService(new ApiClient());
   final ItemsService itemsService = ItemsService(new ApiClient());
   OtherUserProfile? otherUserProfile;
 
-  SingleItem? item;
+  // SingleItem? item;
   bool isLoading = true;
   bool isSwap = false;
-  String exchangeMethod = "none";
+  String exchangeMethod="";
   bool isDonation = false;
 
   List<Map<String, String>> preferredItems = [
@@ -54,15 +55,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                   setState(() {
                     exchangeMethod = "swap";
                   });
-                  // if (exchangeMethod == "swap" || exchangeMethod == "donation") {
                   showBottomSheet();
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content: Text('No Exchange Method Selected'),
-                  //     ),
-                  //   );
-                  // }
                 },
                 child: Text("Swap"),
               ),
@@ -86,85 +79,55 @@ class _ProductDescriptionState extends State<ProductDescription> {
     );
   }
 
-  // setExchangeMethod() {
-  //   if (item?.exchangeMethod == "both") {
-  //     showPopup(context);
-  //   }
-  //   if (isDonation) {
-  //     exchangeMethod = "donation";
-  //     return true;
-  //   }
-  //   if (isSwap) {
-  //     exchangeMethod = "swap";
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
   int _currentPage = 0;
-  late List<String> _images = [
-    'https://via.placeholder.com/300x200.png?text=Image+1',
-  ];
+  // late List<String> _images = [
+  //   'https://via.placeholder.com/300x200.png?text=Image+1',
+  // ];
 
   @override
   void initState() {
+    print("------------------------------------------------------------");
+    print(widget.item.swapInterests);
+    print(widget.item.imageUrls);
     _pageController.addListener(() {
       setState(() {
         _currentPage = _pageController.page!.round();
+        // _images=widget.item.imageUrls;
       });
+
     });
-    _fetchItem(widget.itemId);
+    // _fetchItem(widget.itemId);
     super.initState();
   }
 
-  Future<void> _fetchPostersProfile(String createdBy) async {
-    OtherUserProfile? otherUserProfile1 =
-        await profileService.fetchOtherUserProfile(createdBy);
-    setState(() {
-      otherUserProfile = otherUserProfile1;
-    });
 
-    // if (otherUserProfile != null) {
-    //   print(".................................." +
-    //       otherUserProfile!.fullName.toString());
-    // }
-  }
 
-  Future<void> _fetchItem(String itemId) async {
-    try {
-      SingleItem item1 = await itemsService.fetchItem(itemId);
-      if (item1.exchangeMethod == "swap") {
-        isSwap = true;
-      }
-      if (item1.exchangeMethod == "donation") {
-        isDonation = true;
-      }
-      if (item1.exchangeMethod == "both") {
-        isDonation = true;
-        isSwap = true;
-      }
-      setState(() {
-        item = item1;
-        isLoading = false;
-        _images = item!.imageUrls!;
-      });
-      _fetchPostersProfile(item1.createdBy);
-      // print('Item ID: ${item?.id}');
-      // print('Tags: ${item?.tags}');
-      // print('Images: ${item?.imageUrls}');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching item: $e'),
-        ),
-      );
-      print('Error fetching item: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  // Future<void> _fetchItem(String itemId) async {
+  //   try {
+  //     SingleItem item1 = await itemsService.fetchItem(itemId);
+  //
+  //     setState(() {
+  //       item = item1;
+  //       isLoading = false;
+  //       _images = item!.imageUrls!;
+  //       exchangeMethod==item1.exchangeMethod;
+  //     });
+  //     _fetchPostersProfile(item1.createdBy);
+  //     // print('Item ID: ${item?.id}');
+  //     // print('Tags: ${item?.tags}');
+  //     // print('Images: ${item?.imageUrls}');
+  //   } catch (e) {
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Error fetching item: $e'),
+  //       ),
+  //     );
+  //     print('Error fetching item: $e');
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -179,19 +142,21 @@ class _ProductDescriptionState extends State<ProductDescription> {
     return Scaffold(
         appBar: BasicAppbar(),
         body: Scaffold(
-            body: isLoading
-                ? Center(
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : item == null
-                    ? Center(
-                        child: Text("No item to show"),
-                      )
-                    : SingleChildScrollView(
+            body:
+            // isLoading
+            //     ? Center(
+            //         child: SizedBox(
+            //           height: 20,
+            //           width: 20,
+            //           child: CircularProgressIndicator(),
+            //         ),
+            //       )
+            //     : widget.item == null
+            //         ? Center(
+            //             child: Text("No item to show"),
+            //           )
+            //         :
+            SingleChildScrollView(
                         child: Container(
                           width: double.infinity,
                           child: Column(
@@ -205,7 +170,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item!.title.toTitleCase,
+                                        widget.item!.title.toTitleCase,
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold),
@@ -227,9 +192,9 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                                   BorderRadius.circular(12.0),
                                             ),
                                             child: Text(
-                                              item!.exchangeMethod == 'both'
+                                              widget.item!.exchangeMethod == 'both'
                                                   ? 'Barter & Donation'
-                                                  : item!.exchangeMethod
+                                                  : widget.item!.exchangeMethod
                                                       .toTitleCase,
                                               style: TextStyle(
                                                 color: AppColors.primary,
@@ -244,8 +209,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                             Icons.pin_drop_outlined,
                                             color: AppColors.primary,
                                           ),
-                                          Text(
-                                            "3km",
+                                          Text(widget.item.location.city!.toCapitalized,
                                             style: TextStyle(
                                                 color: AppColors.primary,
                                                 fontSize: 16),
@@ -262,7 +226,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                       Padding(
                                         padding: const EdgeInsets.all(4.0),
                                         child: ImagesDisplay(
-                                          images: _images,
+                                          images: widget.item.imageUrls.isNotEmpty ? widget.item.imageUrls : ['https://via.placeholder.com/300x200.png?text=Image+1'],
                                           showRemoveButton: false,
                                         ),
                                         // _imagesDisplay(),
@@ -278,7 +242,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                       ),
                                       SizedBox(height: screenHeight * 0.001),
                                       Text(
-                                        item!.description.toCapitalized,
+                                        widget.item!.description.toCapitalized,
                                         style: TextStyle(fontSize: 16),
                                       ),
                                       SizedBox(
@@ -291,126 +255,50 @@ class _ProductDescriptionState extends State<ProductDescription> {
                                             fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        item!.condition.toTitleCase,
+                                        widget.item!.condition.toTitleCase,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      Text(
+                                        "Category",
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        widget.item!.categoryId.name,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      Text(
+                                        "Sub Category",
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        widget.item!.subCategoryId.name,
                                         style: TextStyle(fontSize: 16),
                                       ),
                                       SizedBox(height: screenHeight * 0.009),
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                        children: [
-                                          // Expanded(
-                                          SizedBox(
-                                              child: Image.asset(
-                                                  "images/sticky.png")),
-                                          SizedBox(height: screenHeight * 0.02),
-                                          GestureDetector(
-                                            onTap: () {
-                                              // Handle click event here
-                                              print('Firetruck clicked!');
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 10.0,
-                                                      vertical: 4.0),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                              ),
-                                              child: const Text(
-                                                "Baby things",
-                                                style: TextStyle(
-                                                  color: Colors
-                                                      .white, // Change text color as needed
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 3,
-                                          ),
-                                          // Expanded(
-                                          //     flex: 1,
-                                          GestureDetector(
-                                            onTap: () {
-                                              // Handle click event here
-                                              print('Firetruck clicked!');
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 4.0),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                              ),
-                                              child: const Text(
-                                                "Kids toys",
-                                                style: TextStyle(
-                                                  color: Colors
-                                                      .white, // Change text color as needed
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 3,
-                                          ),
-                                          // Expanded(
-                                          //     flex: 1,
-                                          GestureDetector(
-                                            onTap: () {
-                                              // Handle click event here
-                                              print('Firetruck clicked!');
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10.0,
-                                                  vertical: 4.0),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey,
-                                                borderRadius:
-                                                    BorderRadius.circular(12.0),
-                                              ),
-                                              child: const Text(
-                                                "Firetruck",
-                                                style: TextStyle(
-                                                  color: Colors
-                                                      .white, // Change text color as needed
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
+                                      Text(
+                                        "Preferred item to swap",
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.bold),
                                       ),
+                                     getInterestsWidgets(),
                                       SizedBox(height: screenHeight * 0.02),
                                       SizedBox(height: screenHeight * 0.02),
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "Preferred item to swap",
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          getInterestsWidgets(),
-                                          SizedBox(height: screenHeight * 0.02),
-                                          Text(
-                                            "Price range",
-                                            style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                            "100Eur - 250 Eur",
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                          SizedBox(height: screenHeight * 0.02),
-
+                                          // Text(
+                                          //   "Preferred item to swap",
+                                          //   style: TextStyle(
+                                          //       fontSize: 16.0,
+                                          //       fontWeight: FontWeight.bold),
+                                          // ),
+                                          // getInterestsWidgets(),
                                           SizedBox(height: screenHeight * 0.02),
                                           // SizedBox(height: screenHeight * 0.02),
                                           _addToWishlistBtn(),
@@ -426,21 +314,44 @@ class _ProductDescriptionState extends State<ProductDescription> {
   }
 
   Widget getInterestsWidgets() {
-    var strings = item!.swapInterests;
+    var strings = widget.item!.swapInterests;
 
-    if (item?.swapInterests == null) {
+    if (widget.item?.swapInterests == null) {
       return const SizedBox.shrink();
     }
 
     List<Widget> list = [];
     for (var i = 0; i < strings!.length; i++) {
-      list.add(Text(
-        strings[i].toTitleCase,
-        // softWrap: true,
-      ));
+      list.add(
+      //     Text(
+      //   strings[i].toTitleCase,
+      //   // softWrap: true,
+      // )
+      GestureDetector(
+        onTap: () {},
+                                                    child: Container(
+                                                      padding: EdgeInsets.symmetric(
+                                                          horizontal: 10.0,
+                                                          vertical: 4.0),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey,
+                                                        borderRadius:
+                                                            BorderRadius.circular(12.0),
+                                                      ),
+                                                      child:  Text(
+                                                          strings[i].toTitleCase,
+                                                        style: TextStyle(
+                                                          color: Colors
+                                                              .white, // Change text color as needed
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+
+      );
     }
 
-    return Column(
+    return Row(
       children: list,
       mainAxisAlignment: MainAxisAlignment.start,
     );
@@ -456,7 +367,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
               ),
           child: SingleChildScrollView(
               child: MakeSwapOfferBottomsheet(
-                  recipientItem: item!, exchangeMethod: exchangeMethod)),
+                  recipientItem: widget.item, exchangeMethod: exchangeMethod)),
         );
       },
       shape: const RoundedRectangleBorder(
@@ -472,17 +383,17 @@ class _ProductDescriptionState extends State<ProductDescription> {
       children: [
         BasicAppButton(
           onPressed: () {
-            if (item!.exchangeMethod == "both") {
+            if (widget.item!.exchangeMethod == "both") {
               showPopup(context);
             } else {
-              exchangeMethod = item!.exchangeMethod;
+              exchangeMethod = widget.item!.exchangeMethod;
               showBottomSheet();
             }
 
             // }
           },
           backgroundColor: AppColors.primary,
-          title: isSwap ? "Make Swap Offer" : "Make Donation Request",
+          title: widget.item?.exchangeMethod=="swap" ? "Make Swap Offer" : widget.item?.exchangeMethod=="both" ? "Make Request":"Make Donation Request",
           radius: 24,
           textColor: AppColors.background,
         ),
@@ -537,9 +448,9 @@ class _ProductDescriptionState extends State<ProductDescription> {
                 // CircleAvatar(
                 // radius: 20,
                 // backgroundColor: AppColors.primary,
-                child: otherUserProfile != null
+                child: widget.item.userId!.profile!.fullName != "empty"
                     ? InitialCircle(
-                        text: otherUserProfile!.fullName
+                        text: widget.item.userId!.profile!.fullName
                             .toString(), // Pass the full text here
                         color: AppColors.primary,
                         size: 50.0,
@@ -562,16 +473,16 @@ class _ProductDescriptionState extends State<ProductDescription> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (otherUserProfile != null) ...[
+                if (widget.item.userId!.profile!.fullName != "empty") ...[
                   Text(
-                    otherUserProfile!.fullName.toString(),
+                    widget.item.userId!.profile!.fullName.toString(),
                     style: TextStyle(
                         fontSize: 16,
                         color: AppColors.primary,
                         fontWeight: FontWeight.bold),
                   ),
                 ],
-                if (otherUserProfile != null) ...[
+                if (widget.item.userId!.profile!.fullName != "empty") ...[
                   GestureDetector(
                     onTap: () {
                       viewOtherUserProfile();
@@ -606,6 +517,6 @@ class _ProductDescriptionState extends State<ProductDescription> {
 
   void viewOtherUserProfile() {
     AppNavigator.pushReplacement(
-        context, ViewOtherUserProfile(otherUserProfile: otherUserProfile!));
+        context, ViewOtherUserProfile(userId: widget.item.userId!.id!));
   }
 }

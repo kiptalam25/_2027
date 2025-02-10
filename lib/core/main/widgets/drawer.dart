@@ -68,7 +68,7 @@ class CustomDrawer extends StatelessWidget {
                   ],
                 ),
                 ListTile(
-                  leading: Icon(Icons.home),
+                  leading: Icon(Icons.home_outlined),
                   title: Text('Home'),
                   onTap: () {
                     Navigator.pop(context);
@@ -77,7 +77,7 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.person),
+                  leading: Icon(Icons.person_outline),
                   title: Text('Profile'),
                   onTap: () {
                     Navigator.push(
@@ -101,21 +101,21 @@ class CustomDrawer extends StatelessWidget {
                         ));
                   },
                 ),
+                // ListTile(
+                //   leading: Icon(Icons.favorite_border),
+                //   title: Text('Saved Items'),
+                //   onTap: () {
+                //     Navigator.pop(context);
+                //     // onPageSelected(6);
+                //     Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (context) => ListedItemsPage(),
+                //         ));
+                //   },
+                // ),
                 ListTile(
-                  leading: Icon(Icons.heart_broken),
-                  title: Text('Saved Items'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    // onPageSelected(6);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ListedItemsPage(),
-                        ));
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.sticky_note_2),
+                  leading: Icon(Icons.bookmark_outline),
                   title: Text('Saved Searches'),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
@@ -128,7 +128,7 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.settings),
+                  leading: Icon(Icons.settings_outlined),
                   title: Text('Settings'),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
@@ -141,7 +141,7 @@ class CustomDrawer extends StatelessWidget {
               children: [
                 Divider(),
                 ListTile(
-                  leading: Icon(Icons.help),
+                  leading: Icon(Icons.support_agent_outlined),
                   title: Text('Help and Support'),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
@@ -149,7 +149,7 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.report),
+                  leading: Icon(Icons.report_gmailerrorred_outlined),
                   title: Text('Report a problem'),
                   onTap: () {
                     Navigator.pop(context);
