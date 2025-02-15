@@ -1,17 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/main/pages/filter_bottomsheet.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/profile/profile_page.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
-import 'package:swapifymobile/core/widgets/alert_dialog.dart';
 import '../../../common/app_colors.dart';
 import '../../list_item_flow/add_new_item_sheet.dart';
+import '../../services/sharedpreference_service.dart';
 import '../../usecases/item.dart';
+import '../../usecases/location.dart';
 import '../../usecases/profile_data.dart';
 import '../../widgets/search_input.dart';
 import '../item_grid.dart';
@@ -39,15 +39,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   late ProfileData profileData = ProfileData();
+   late Location? location=null;
   Future<void> getProfileData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? profileJson = prefs.getString('profileData');
+    ProfileData? profileData1=await SharedPreferencesService.getProfileData();
 
-    if (profileJson != null) {
+    /**
+     * Reason for location is so that user cannot upload item if he has not updated up profile
+     *
+     *
+     * **/
+    final location1 = profileData1?.location;
+    if(location1!=null){
+      location=location1;
+    }else{
+      location=null;
+      print("Location is null");
+    }
+    // final SharedPreferences prefs = await SharedPreferences.getInstance();
+    // String? profileJson = prefs.getString('profileData');
+
+    if (profileData1 != null) {
       // Decode the JSON string back into a Map
 
       setState(() {
-        profileData = ProfileData.fromJson(jsonDecode(profileJson));
+        profileData = profileData1;
       });
       // return jsonDecode(profileJson);
     }
@@ -89,13 +104,6 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     }
-    //
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('Items Fetched successfully'),
-    //     ),
-    //   );
-    // }
   }
 
   @override
@@ -112,17 +120,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  fetchItems();
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) => WelcomePage(),
-                  //     ));
-                },
-              ),
               PopupMenuButton<int>(
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) {
@@ -151,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(
                           builder: (context) => VerifyPage(currentPage: 3),
                         )),
-                    child: const Text('Option 2'),
+                    child: const Text('Verify'),
                   ),
                   PopupMenuItem(
                     value: 3,
@@ -188,135 +185,14 @@ class _HomePageState extends State<HomePage> {
                         child: CircularProgressIndicator()))
                 : const Center(child: Text('No items available')),
 
-        // Column(
-        //   children: [
-        //     Flexible(
-        //         child: GridView.builder(
-        //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        //         crossAxisCount: 2,
-        //         crossAxisSpacing: 10,
-        //         mainAxisSpacing: 10,
-        //         childAspectRatio: 0.6,
-        //       ),
-        //       padding: EdgeInsets.all(10.0),
-        //       itemCount: items?.length,
-        //       itemBuilder: (context, index) => Container(
-        //         alignment: Alignment.center,
-        //         decoration: BoxDecoration(
-        //           color: Colors.white, // Background color of the card
-        //           borderRadius: BorderRadius.circular(12.0), // Rounded corners
-        //           boxShadow: [
-        //             BoxShadow(
-        //               color: Colors.grey.withOpacity(0.5), // Shadow color
-        //               spreadRadius: 2, // How far the shadow spreads
-        //               blurRadius: 5, // How blurry the shadow is
-        //               offset: Offset(0, 3), // Offset to position the shadow
-        //             ),
-        //           ],
-        //         ),
-        //         child: Column(
-        //           crossAxisAlignment: CrossAxisAlignment.start,
-        //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        //           children: [
-        //             Padding(
-        //               padding: const EdgeInsets.all(8.0),
-        //               child: ClipRRect(
-        //                 borderRadius: BorderRadius.circular(10.0),
-        //                 child: SizedBox(
-        //                   height: 130.0, // Set a fixed height for the image
-        //                   width: double.infinity,
-        //                   child: Image.asset(
-        //                     "images/home_images/m2.png",
-        //                     fit: BoxFit
-        //                         .cover, // Adjust the image to cover the container
-        //                   ),
-        //                 ),
-        //               ),
-        //             ),
-        //             Padding(
-        //               padding: const EdgeInsets.all(8.0),
-        //               child: const Divider(
-        //                 // Line under the title
-        //                 color: AppColors.dividerColor, // Color of the line
-        //                 thickness: 2, // Thickness of the line
-        //               ),
-        //             ),
-        //             const Padding(
-        //               padding: EdgeInsets.only(left: 8.0),
-        //               child: Text(
-        //                 "Brown Brogues",
-        //                 style: TextStyle(
-        //                     fontSize: 14,
-        //                     fontWeight: FontWeight.w700,
-        //                     color: AppColors.primary),
-        //               ),
-        //             ),
-        //             // const SizedBox(
-        //             //   height: 10,
-        //             // ),
-        //             Padding(
-        //               padding: const EdgeInsets.symmetric(horizontal: 8),
-        //               child: Row(
-        //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //                 children: [
-        //                   BasicAppButton(
-        //                     title: "Barter",
-        //                     width: 52,
-        //                     height: 18,
-        //                     radius: 24,
-        //                     onPressed: () {},
-        //                   ),
-        //                   const Spacer(),
-        //                   const Icon(
-        //                     Icons.pin_drop_outlined,
-        //                     size: 16,
-        //                   ),
-        //                   Text(
-        //                     '3Km',
-        //                     style: TextStyle(
-        //                       color: Color(0xFF5e5e5e), // Text color
-        //                     ),
-        //                   ),
-        //                 ],
-        //               ),
-        //             ),
-        //             Padding(
-        //               padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-        //               child: InkWell(
-        //                 onTap: () {
-        //                   Navigator.push(
-        //                       context,
-        //                       MaterialPageRoute(
-        //                         builder: (context) => ProductDescription(),
-        //                       ));
-        //                 },
-        //                 child: Row(
-        //                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-        //                   children: const [
-        //                     Text("See details"),
-        //                     Spacer(),
-        //                     Icon(
-        //                       Icons.arrow_forward,
-        //                       size: 16,
-        //                     )
-        //                   ],
-        //                 ),
-        //               ),
-        //             )
-        //           ],
-        //         ),
-        //       ),
-        //     )),
-        //   ],
-        // ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            // AppNavigator.pushReplacement(context, MultiDropdownExample());
-            //To create an item we need users location
-            //so we need to check if user has updated location data
-            //I have checked location data on the saved profile data
-            print("==========================");
-            if(profileData.location!.country==null){
+            /* AppNavigator.pushReplacement(context, MultiDropdownExample());
+              To create an item we need users location
+              so we need to check if user has updated location data
+              I have checked location data on the saved profile data
+             */
+            if(location==null){
 
               showDialog(
                 context: context,

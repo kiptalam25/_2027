@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:swapifymobile/core/chat/pages/chat_users_page.dart';
 import 'package:swapifymobile/core/main/pages/home_page.dart';
 import 'package:swapifymobile/core/profile/profile_page.dart';
 import '../../../common/app_colors.dart';
@@ -93,9 +94,12 @@ class _BasePageState extends State<BasePage> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => ConversationsPage(
-                      conversationId: "none",
-                    )));
+                builder: (context) =>
+                    ChatUsersPage()
+                    // ConversationsPage(
+                    //   conversationId: "none",
+                    // )
+            ));
         break;
       case 3:
         Navigator.pushReplacement(context,

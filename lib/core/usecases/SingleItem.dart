@@ -1,3 +1,5 @@
+import 'location.dart';
+
 class SingleItem {
   final String id;
   final String userId;
@@ -9,7 +11,6 @@ class SingleItem {
   final List<String> imageUrls;
   final List<String>? tags;
   final String status;
-  final DateTime? estimatedDateOfPurchase;
   final String exchangeMethod;
   final List<String>? swapInterests;
   final String? additionalInformation;
@@ -29,7 +30,6 @@ class SingleItem {
     required this.imageUrls,
     required this.tags,
     required this.status,
-    this.estimatedDateOfPurchase,
     required this.exchangeMethod,
     required this.swapInterests,
     required this.additionalInformation,
@@ -54,7 +54,6 @@ class SingleItem {
       // imageUrls: List<String>.from(json['imageUrls']),
       tags: List<String>.from(json['tags']),
       status: json['status'],
-      estimatedDateOfPurchase: DateTime.parse(json['estimatedDateOfPurchase']),
       exchangeMethod: json['exchangeMethod'],
       swapInterests: List<String>.from(json['swapInterests']),
       additionalInformation:
@@ -80,7 +79,6 @@ class SingleItem {
       'imageUrls': imageUrls,
       'tags': tags,
       'status': status,
-      'estimatedDateOfPurchase': estimatedDateOfPurchase?.toIso8601String(),
       'exchangeMethod': exchangeMethod,
       'swapInterests': swapInterests,
       'additionalInformation': additionalInformation,
@@ -134,26 +132,26 @@ class SubCategory {
   }
 }
 
-class Location {
-  final String? country;
-  final String? city;
-
-  Location({this.country, this.city});
-
-  factory Location.fromJson(Map<String, dynamic> json) {
-    return Location(
-      country: json['country'],
-      city: json['city'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'country': country,
-      'city': city,
-    };
-  }
-}
+// class Location {
+//   final String? country;
+//   final String? city;
+//
+//   Location({this.country, this.city});
+//
+//   factory Location.fromJson(Map<String, dynamic> json) {
+//     return Location(
+//       country: json['country'],
+//       city: json['city'],
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'country': country,
+//       'city': city,
+//     };
+//   }
+// }
 
 // class Coordinates {
 //   final String type;

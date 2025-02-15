@@ -9,6 +9,7 @@ import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
+import 'package:swapifymobile/core/widgets/dialog.dart';
 
 import '../../../api_client/api_client.dart';
 import '../../core/onboading_flow/choose_categories.dart';
@@ -17,6 +18,8 @@ import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
+import '../../core/widgets/alert_dialog.dart';
+import '../../main.dart';
 import '../login_with_google/google_sign_in_helper.dart';
 import 'login_bloc.dart';
 import 'login_event.dart';
@@ -72,7 +75,11 @@ class _LoginPageState extends State<LoginPage> {
   //   serverClientId: ApiConstants.googleServerClientId,
   //   scopes: ['email'],
   // );
-
+@override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
   void handleGoogleSignIn() async {
     // Show loading indicator
     setState(() {
@@ -290,34 +297,58 @@ class _LoginPageState extends State<LoginPage> {
           // Navigator.pushReplacement(
           //     context, MaterialPageRoute(builder: (context) => HomePage()));
         } else if (state is LoginFailure) {
-          // String jsonString = state.message
-          String response = state.message;
-          sharedPreferences.clear();
-          _saveEmailToPreferences(
-              _emailController.text, _passwordController.text);
-          // Check if the string contains 'User not verified' Invalid password
-          if (response.contains('User not verified')) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("User not verified")),
+          String message = state.message;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(message)),
             );
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VerifyPage(currentPage: 3),
-                ));
-          } else if (response.contains('Invalid password')) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Invalid username or password")),
-            );
-          } else if (response.contains('User not found')) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("User not found")),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response)),
-            );
+          if(message.toLowerCase().contains("user not verified")){
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VerifyPage(currentPage: 3),
+                        ));
           }
+          // if (response.contains("401")) {
+          //   showAutoDismissDialog(context: context, title: "Wrong Credential", message: "Invalid username or password");
+          //     // ScaffoldMessenger.of(context).showSnackBar(
+          //     //   SnackBar(content: Text("Invalid username or password")),
+          //     // );
+          //   }
+          // if (response.contains("500")) {
+          //   showAutoDismissDialog(context: context, title: "Server Error", message: "Internal Server error");
+          //   // ScaffoldMessenger.of(context).showSnackBar(
+          //   //   SnackBar(content: Text("Invalid username or password")),
+          //   // );
+          // }
+          // sharedPreferences.clear();
+          // _saveEmailToPreferences(
+          //     _emailController.text, _passwordController.text);
+          // // Check if the string contains 'User not verified' Invalid password
+          // if (response.contains('User not verified')) {
+          //
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(content: Text("User not verified")),
+          //   );
+          //   Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => VerifyPage(currentPage: 3),
+          //       ));}
+
+          // } else if (response.contains('Invalid password')) {
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(content: Text("Invalid username or password")),
+          //   );
+          // } else if (response.contains('User not found')) {
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(content: Text("User not found")),
+          //   );
+          // } else {
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(content: Text(response)),
+          //   );
+          // }
         }
       },
       builder: (context, state) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/core/services/sharedpreference_service.dart';
@@ -16,32 +17,83 @@ class AuthService {
 AuthService(this.apiClient);
 
 
-  Future<Object> login(String username, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     try {
-      final response = await apiClient.post(ApiConstants.login, data: {
-        'email': username,
-        'password': password,
-      });
+      final response = await apiClient.post(
+        ApiConstants.login,
+        data: {
+          'email': username,
+          'password': password,
+        },
+      );
 
-      if (response.data['success']) {
-        // return loginResponse;
+      // If login is successful, return response data
+      return {
+        'success': true,
+        'data': response.data,
+        'statusCode': response.statusCode,
+      };
+    } on DioException catch (e) {
+      // Handle Dio errors (network, timeout, bad request, etc.)
+      int statusCode = e.response?.statusCode ?? 500;
+      String errorMessage = 'An unexpected error occurred';
 
-        return LoginResponse.fromJson(response.data);
-        // return LoginResponse(
-        //   success: true,
-        //   message: response.data['message'],
-        //   username: response.data['username'],
-        //   userId: response.data['userId'],
-        //   token: response.data['token'],
-        // );
-      } else {
-        return LoginResponseModel(
-            success: false, message: response.data['message']);
+      if (e.response != null && e.response!.data is Map<String, dynamic>) {
+        errorMessage = e.response!.data['message'] ?? errorMessage;
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        errorMessage = 'Connection timeout';
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        errorMessage = 'Server took too long to respond';
+      } else if (e.type == DioExceptionType.badResponse) {
+        errorMessage = 'Invalid response from server';
       }
+
+      return {
+        'success': false,
+        'message': errorMessage,
+        'statusCode': statusCode,
+      };
     } catch (e) {
-      return LoginResponseModel(success: false, message: e.toString());
+      // Catch any other unexpected errors
+      return {
+        'success': false,
+        'message': 'Something went wrong',
+        'statusCode': 500,
+      };
     }
   }
+
+
+  // Future<Object> login(String username, String password) async {
+  //   try {
+  //     final response = await apiClient.post(ApiConstants.login, data: {
+  //       'email': username,
+  //       'password': password,
+  //     });
+  //     print("Response --------------------------------------------------------");
+  //       print(response.toString());
+  //     if (response.data['success']) {
+  //       // return loginResponse;
+  //
+  //       return LoginResponse.fromJson(response.data);
+  //       // return LoginResponse(
+  //       //   success: true,
+  //       //   message: response.data['message'],
+  //       //   username: response.data['username'],
+  //       //   userId: response.data['userId'],
+  //       //   token: response.data['token'],
+  //       // );
+  //     } else if(!response.data['success']){
+  //       return LoginResponseModel(
+  //           success: false, message: response.data['message']);
+  //     }else{
+  //       return LoginResponseModel(
+  //           success: false, message: "Failed to login");
+  //     }
+  //   } catch (e) {
+  //     return LoginResponseModel(success: false, message: e.toString());
+  //   }
+  // }
 
   Future<LoginResponseModel> loginWithGoogle(String idToken) async {
     try {

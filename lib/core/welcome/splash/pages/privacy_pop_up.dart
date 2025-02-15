@@ -23,7 +23,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
   bool fetchingPolicy = false;
 
   late Map<String, dynamic> pp;
-  late Map<String, dynamic> privacyPolicy={};
+  late Map<String, dynamic> privacyPolicy;
   late Map<String, dynamic> termsOfUse;
 
   Future<void> fetchPolicy() async {
@@ -74,7 +74,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
     return Scaffold(
       body: fetchingPolicy
           ? Loading()
-          : SingleChildScrollView(
+          : privacyPolicy !=null ? SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -89,7 +89,7 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                   accept()
                 ],
               ),
-            ),
+            ):Text("Policy Loading Failed!\n Check Your Connection"),
     );
   }
 

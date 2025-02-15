@@ -2,17 +2,23 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/api_constants/api_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
+import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/onboading_flow/registration/registration_event.dart';
+import 'package:swapifymobile/core/services/location_service.dart';
 import 'package:swapifymobile/core/services/profile_service.dart';
+import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
 import '../../api_client/api_client.dart';
 import '../../common/widgets/basic_app_button.dart';
+import '../services/sharedpreference_service.dart';
 import '../usecases/location.dart';
+import '../usecases/profile_data.dart';
 import '../usecases/profile_response.dart';
 import '../usecases/profile_update_request.dart';
 import '../widgets/custom_dropdown.dart';
@@ -26,6 +32,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   ProfileService profileService = ProfileService(new ApiClient());
+  LocationService locationService = LocationService(new ApiClient());
 
   final _formKey = GlobalKey<FormState>();
 
@@ -34,12 +41,79 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _bioController = TextEditingController();
 
   UserProfileResponse? profile;
+
+  bool isUpdating=false;
+
+
+
+
+
   @override
   void initState() {
-    _fetchProfile();
-    _selectedCountry = countries.first['id'];
-    _selectedCity = cities.first['id'];
+    getProfileData();
+    fetchCities();
+    // _fetchProfile();
+
+    _selectedCountry = "EE";
+    // _selectedCity = cities.first['name'];
     super.initState();
+  }
+
+
+  Location? location=null;
+
+  /**
+   * Take User profile data from Local storage
+   *
+   *
+   * **/
+  Future<void> getProfileData() async {
+
+    ProfileData? profileData1=await SharedPreferencesService.getProfileData();
+    print(profileData1?.fullName);
+
+    final location1 = profileData1?.location;
+    if(location1!=null){
+      setState(() {
+        location=location1;
+      });
+    }else{
+      print("............................No Location..................................");
+    }
+    if (profileData1 != null) {
+      // Decode the JSON string back into a Map
+
+
+      setState(() {
+        profile=UserProfileResponse(success: true, message: 'auto', profile: profileData1);
+        // profile?.profile = profileData1;
+      });
+
+      String fullName = profileData1.fullName ?? '';
+      String bio = profileData1.bio ?? '';
+      String profilePicUrl = profileData1.profilePicUrl ?? '';
+
+
+      // Update state variables
+      setState(() { 
+        // profile = profile1;
+        _fullNameController.text = fullName.toTitleCase;
+        _bioController.text = bio.toCapitalized;
+        uploadedUrl = profilePicUrl;
+        if (location!=null) {
+          print("...................................Not null.........................");
+            String? cityName = profileData1.location?.city;
+
+          _selectedCity=cityName;
+        }
+
+      });
+      // return jsonDecode(profileJson);
+    }else{
+      print("............................Profile data is null..................................");
+
+    }
+    // return null;
   }
 
   Future<void> _fetchProfile() async {
@@ -47,30 +121,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Fetch the profile
       var profile1 = await profileService.fetchProfile();
 
+      if(profile1!=null){
+        SharedPreferencesService.setProfileData(profile1.profile);
+      }
+
       // Handle the fetched profile outside setState
       String fullName = profile1?.profile.fullName ?? '';
       String bio = profile1?.profile.bio ?? '';
       String profilePicUrl = profile1?.profile.profilePicUrl ?? '';
 
-      String? countryName = profile1?.profile.location?.country;
-      _selectedCountry = countries.firstWhere(
-        (item) => item['id'] == countryName,
-        orElse: () => countries.first, // Fallback to the first city
-      )['id'];
-
-      String? cityName = profile1?.profile.location?.city;
-      _selectedCity = cities.firstWhere(
-        (item) => item['id'] == cityName,
-        orElse: () => cities.first, // Fallback to the first city
-      )['id'];
 
       // Update state variables
       setState(() {
         profile = profile1;
-        _fullNameController.text = fullName;
-        _bioController.text = bio;
+        _fullNameController.text = fullName.toTitleCase;
+        _bioController.text = bio.toCapitalized;
         uploadedUrl = profilePicUrl;
-        // _selectedCity = city;
+        if (cities.isNotEmpty) {
+          String? cityName = profile1?.profile.location?.city;
+          _selectedCity = cities.firstWhere(
+                (city) => city['name']?.toLowerCase() == cityName?.toLowerCase(),
+            orElse: () => cities.first, // Fallback to the first city if no match
+          )['name']?.toTitleCase;
+        } else {
+          _selectedCity = null; // Handle empty list case
+        }
+
       });
 
       print("Profile fetched successfully.");
@@ -80,26 +156,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  File? _image;
+  File? _image=null;
   bool isUploadingImage = false;
 
   // Function to pick an image from gallery or camera
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-
+print("..........................................Picking Image..........................................");
     final pickedFile = await picker.pickImage(source: source);
+    print(pickedFile?.name);
 
     if (pickedFile != null) {
+      print("..........................................Picked Picture..........................................");
       setState(() {
         _image = File(pickedFile.path); // Update the image
       });
-      _uploadImage();
+      if(await _uploadImage()){
+        print("...................................Picture.......Uploaded..........................................");
+      }
     }
   }
 
   late String uploadedUrl;
 
   Future<bool> _uploadImage() async {
+    print("..........................................Uploading Image..........................................");
+
     setState(() {
       isUploadingImage = true;
     });
@@ -113,10 +195,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         "upload_preset": ApiConstants.profileUploadPreset,
       });
 
-      final response = await dio.post(
-        "https://api.cloudinary.com/v1_1/" +
-            ApiConstants.cloudName +
-            "/image/upload",
+      final response = await dio.post(ApiConstants.imageUploadUrl,
         data: formData,
       );
 
@@ -126,7 +205,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         });
         // Extract URL from the response
         String imageUrl = response.data['secure_url'];
-        uploadedUrl = imageUrl;
+        // uploadedUrl = imageUrl;
         setState(() {
           uploadedUrl = imageUrl;
         });
@@ -147,6 +226,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   _updateProfile() async {
+    setState(() {
+      isUpdating=true;
+    });
     try {
       final profileUpdateData = ProfileUpdateRequest(
           fullName: _fullNameController.text,
@@ -161,24 +243,36 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response.message)),
       );
+      setState(() {
+        isUpdating=false;
+      });
       _fetchProfile();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$e')),
       );
+    }finally{
+      setState(() {
+        isUpdating=false;
+      });
     }
   }
 
   // final sharedPreferences = await SharedPreferences.getInstance();
 
-  List<Map<String, String>> countries = [
-    {'id': 'estonia', 'name': 'Estonia'},
-    {'id': 'finland', 'name': 'Finland'},
-  ];
-  List<Map<String, String>> cities = [
-    {'id': 'city1', 'name': 'City1'},
-    {'id': 'city2', 'name': 'City2'},
-  ];
+  List<Map<String, String>> countries = [];
+  List<Map<String, String>> cities = [];
+
+  fetchCities() async {
+    var cities1 = await locationService.fetchLocations();
+    // for (var city in cities1) {
+    //   print('City: ${city['name']}, Country Code: ${city['countryCode']}');
+    // }
+    setState(() {
+      cities=cities1;
+    });
+
+  }
 
   String? _selectedCountry;
   String? _selectedCity;
@@ -227,42 +321,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           SizedBox(
                             height: 16,
                           ),
-                          Text("Country"),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            height: 40,
-                            child: CustomDropdown(
-                              value: _selectedCountry,
-                              items: countries,
-                              // hintText: 'Country*',
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedCountry = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
                           Text("City"),
                           SizedBox(
                             height: 10,
-                          ),
-                          SizedBox(
-                            height: 40,
-                            child: CustomDropdown(
-                              value: _selectedCity,
-                              items: cities,
-                              // hintText: 'City*',
-                              onChanged: (String? newValue) {
+                          ), cities.isEmpty ? Loading() : DropdownSearch<String>(
+                              items: cities.map((city) => city['name']!.toTitleCase).toList(), // Extract city names
+                            selectedItem: _selectedCity,
+                            dropdownDecoratorProps: DropDownDecoratorProps(
+                                dropdownSearchDecoration: InputDecoration(
+                                  labelText: "Select a city",
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              onChanged: (selectedCity) {
                                 setState(() {
-                                  _selectedCity = newValue!;
+                                  _selectedCity=selectedCity;
+                                  _selectedCountry="EE";
                                 });
+
+
                               },
+                              popupProps: PopupProps.menu(
+                                showSearchBox: true, // Enable search
+                              ),
                             ),
+
+                          SizedBox(
+                            height: 16,
                           ),
                           SizedBox(
                             height: 16,
@@ -401,16 +486,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   width: 100,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
-                    image: _image != null
-                        ? DecorationImage(
+                    image: _image != null ?
+                        DecorationImage(
                             image: FileImage(_image!),
                             fit: BoxFit.cover,
                           )
-                        : DecorationImage(
+                        : profile!.profile.profilePicUrl !=""? DecorationImage(
                             image: NetworkImage(
                                 profile!.profile.profilePicUrl.toString()),
                             fit: BoxFit.cover,
-                          ),
+                          ):null,
                   ),
                 ),
                 if (uploadedUrl == "") ...[
@@ -470,7 +555,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(profile!.profile.fullName.toString(),
+              Text(profile!.profile.fullName!.toTitleCase,
                   style: TextStyle(fontSize: 20)),
               Text("SwapLord", style: TextStyle(fontSize: 16)),
               Text("Rating 0", style: TextStyle(fontSize: 10)),
@@ -532,10 +617,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       height: 46,
       radius: 24,
       title: "Update",
-      onPressed: () => {
+      onPressed: isUploadingImage ? null: isUpdating ? null : () => {
         if (_formKey.currentState?.validate() ?? false) {_updateProfile()}
       },
-      content: isUploadingImage
+      content: isUpdating||isUploadingImage
           ? SizedBox(
               width: 24,
               height: 24,

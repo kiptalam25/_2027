@@ -14,12 +14,24 @@ class SharedPreferencesService {
     return null;
   }
 
+
   static Future<void> setProfileData(ProfileData profileData) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    final profileDataJson = jsonEncode(profileData.toJson());
+    // Remove existing profile data
+    await prefs.remove('profileData');
+
+    // Handle case where location.city is empty
+    if (profileData.location?.city?.isEmpty ?? true) {
+      profileData.location = null;
+    }
+
+    // Convert profile data to JSON and save it
+    final String profileDataJson = jsonEncode(profileData.toJson());
     await prefs.setString('profileData', profileDataJson);
   }
+
+
 
   static Future<void> setHomeFilter(Map<String,dynamic> homeFilter) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();

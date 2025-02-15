@@ -31,19 +31,39 @@ class _CountdownTimerState extends State<CountdownTimer> {
     super.initState();
     startTimer();
   }
-
   void startTimer() {
+
     timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-      setState(() {
-        if (secondsRemaining > 0) {
-          secondsRemaining--;
-        } else {
-          timer.cancel();
-          // Navigator.pushReplacement(context, HomePage() as Route<Object?>);
-        }
-      });
+      if (mounted) { // Avoid calling setState if the widget is disposed
+        setState(() {
+          if (secondsRemaining > 0) {
+            secondsRemaining--;
+          } else {
+            timer.cancel();
+          }
+        });
+      } else {
+        timer.cancel(); // Ensure no background execution
+      }
     });
   }
+  @override
+  void dispose() {
+    timer?.cancel(); // Cancel the timer to prevent memory leaks
+    super.dispose();
+  }
+  // void startTimer() {
+  //   timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+  //     setState(() {
+  //       if (secondsRemaining > 0) {
+  //         secondsRemaining--;
+  //       } else {
+  //         timer.cancel();
+  //         // Navigator.pushReplacement(context, HomePage() as Route<Object?>);
+  //       }
+  //     });
+  //   });
+  // }
 
   String getFormattedTime() {
     int minutes = secondsRemaining ~/ 60;
@@ -109,11 +129,13 @@ class _VerifyPageState extends State<VerifyPage> {
 
   _loadEmail() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() async {
-      email = await prefs
-          .getString('email'); // Get the email from SharedPreferences
-      password = await prefs
-          .getString('password'); // Get the pass from SharedPreferences
+   String? email1 = await prefs
+        .getString('email'); // Get the email from SharedPreferences
+   String?  password1 = await prefs
+        .getString('password');
+    setState(() {
+      email=email1;
+      password=password1;
     });
     print("Credentials Loaded................................................");
     // BlocProvider.of<RegistrationBloc>(context).add(ResendVerificationEmail(
@@ -215,19 +237,19 @@ class _VerifyPageState extends State<VerifyPage> {
       // Call login method and store token in SharedPreferences
       final response = await authService.login(email!, password!);
 
-      if (response is LoginResponse) {
-        String token = response.token ?? '';
-        final prefs = await SharedPreferences.getInstance();
-        if (response.profileData != null) {
-          SharedPreferencesService.setProfileData(response.profileData!);
-        }
-
-        await prefs.setString('token', token); // Store token
-        ApiClient().setAuthToken(token);
-
-        // Optionally, store any other user data like name, userId, etc.
-        await prefs.setString('userId', response.userId.toString());
-      }
+      // if (response is LoginResponse) {
+      //   String token = response.token ?? '';
+      //   final prefs = await SharedPreferences.getInstance();
+      //   if (response.profileData != null) {
+      //     SharedPreferencesService.setProfileData(response.profileData!);
+      //   }
+      //
+      //   await prefs.setString('token', token); // Store token
+      //   ApiClient().setAuthToken(token);
+      //
+      //   // Optionally, store any other user data like name, userId, etc.
+      //   await prefs.setString('userId', response.userId.toString());
+      // }
       return true;
     } catch (e) {
       // Handle login failure
@@ -258,7 +280,7 @@ class _VerifyPageState extends State<VerifyPage> {
           ),
         ),
         SizedBox(
-          height: 48,
+          height: 8,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -289,7 +311,7 @@ class _VerifyPageState extends State<VerifyPage> {
           }),
         ),
         const SizedBox(
-          height: 16,
+          height: 8,
         ),
         RichText(
           textAlign: TextAlign.center,

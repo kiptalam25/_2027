@@ -1,8 +1,9 @@
 import '../services/auth_service.dart';
 import 'SingleItem.dart';
+import 'location.dart';
 
 class ProfileData {
-  final Location? location;
+  late final Location? location;
   final Interests? interests;
   final String? id;
   final String? userId;
@@ -26,16 +27,16 @@ class ProfileData {
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
-      location:
-          json['location'] != null ? Location.fromJson(json['location']) : null,
+      location:Location.fromJson(json['location']).city != null
+              ? Location.fromJson(json['location']) : null,
       interests: json['interests'] != null
           ? Interests.fromJson(json['interests'])
           : null,
       id: json['_id'],
       userId: json['userId'],
       fullName: json['fullName'],
-      profilePicUrl: json['profilePicUrl'],
-      bio: json['bio'],
+      profilePicUrl: json['profilePicUrl'] ?? null,
+      bio: json['bio']??null,
       createdAt: json['createdAt'],
       version: json['__v'] != null ? json['__v'] as int : null,
     );

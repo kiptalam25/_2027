@@ -1,6 +1,6 @@
 class Location {
-  final String country;
-  final String city;
+  final String? country;
+  final String? city;
 
   Location({
     required this.country,

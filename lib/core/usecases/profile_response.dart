@@ -1,9 +1,11 @@
+import 'package:swapifymobile/core/usecases/profile_data.dart';
+
 import 'location.dart';
 
 class UserProfileResponse {
   final bool success;
   final String message;
-  final Profile profile;
+  late final ProfileData profile;
 
   UserProfileResponse({
     required this.success,
@@ -15,7 +17,7 @@ class UserProfileResponse {
     return UserProfileResponse(
       success: json['success'],
       message: json['message'],
-      profile: Profile.fromJson(json['profile']),
+      profile: ProfileData.fromJson(json['profile']),
     );
   }
 
@@ -28,77 +30,59 @@ class UserProfileResponse {
   }
 }
 
-class Profile {
-  final Location? location;
-  final Interests? interests;
-  final String id;
-  final String userId;
-  final String fullName;
-  final String profilePicUrl;
-  final String bio;
-  final String createdAt;
-  final int v;
-  Profile({
-    this.location,
-    this.interests,
-    required this.id,
-    required this.userId,
-    required this.fullName,
-    required this.profilePicUrl,
-    required this.bio,
-    required this.createdAt,
-    required this.v,
-  });
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return Profile(
-      location: json['location'] != null
-          ? Location.fromJson(json['location'])
-          : Location(country: "no country", city: "no city"),
-      interests: json['interests'] != null
-          ? Interests.fromJson(json['interests'])
-          : null,
-      id: json['_id'] ?? "no_id",
-      userId: json['userId'] ?? "no_userId",
-      fullName: json['fullName'] ?? "Anonymous",
-      profilePicUrl: json['profilePicUrl'] ?? "https://example.com/default.jpg",
-      bio: json['bio'] ?? "No bio available",
-      createdAt: json['createdAt'] ?? DateTime.now().toIso8601String(),
-      v: json['__v'] ?? 0,
-    );
-  }
+// class Profile {
+//   final Location? location;
+//   final Interests? interests;
+//   final String id;
+//   final String userId;
+//   final String fullName;
+//   final String profilePicUrl;
+//   final String bio;
+//   final String createdAt;
+//   final int v;
+//   Profile({
+//     this.location,
+//     this.interests,
+//     required this.id,
+//     required this.userId,
+//     required this.fullName,
+//     required this.profilePicUrl,
+//     required this.bio,
+//     required this.createdAt,
+//     required this.v,
+//   });
+//   factory Profile.fromJson(Map<String, dynamic> json) {
+//     return Profile(
+//       location: json['location'] != null
+//           ? Location.fromJson(json['location'])
+//           : Location(country: "no country", city: "no city"),
+//       interests: json['interests'] != null
+//           ? Interests.fromJson(json['interests'])
+//           : null,
+//       id: json['_id'] ?? "no_id",
+//       userId: json['userId'] ?? "no_userId",
+//       fullName: json['fullName'] ?? "Anonymous",
+//       profilePicUrl: json['profilePicUrl'] ?? "https://example.com/default.jpg",
+//       bio: json['bio'] ?? "No bio available",
+//       createdAt: json['createdAt'] ?? DateTime.now().toIso8601String(),
+//       v: json['__v'] ?? 0,
+//     );
+//   }
 
-  // factory Profile.fromJson(Map<String, dynamic> json) {
-  //   return Profile(
-  //     location: json['location'] != null
-  //         ? Location.fromJson(json['location'])
-  //         : Location(country: "no country", city: "no city"),
-  //     interests: json['interests'] != null
-  //         ? Interests.fromJson(json['interests'])
-  //         : null, // Handle null interests if applicable
-  //     id: json['_id'],
-  //     userId: json['userId'],
-  //     fullName: json['fullName'],
-  //     profilePicUrl: json['profilePicUrl'],
-  //     bio: json['bio'],
-  //     createdAt: json['createdAt'],
-  //     v: json['__v'],
-  //   );
-  // }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'location': location?.toJson(),
-      'interests': interests?.toJson(),
-      '_id': id,
-      'userId': userId,
-      'fullName': fullName,
-      'profilePicUrl': profilePicUrl,
-      'bio': bio,
-      'createdAt': createdAt,
-      '__v': v,
-    };
-  }
-}
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'location': location?.toJson(),
+//       'interests': interests?.toJson(),
+//       '_id': id,
+//       'userId': userId,
+//       'fullName': fullName,
+//       'profilePicUrl': profilePicUrl,
+//       'bio': bio,
+//       'createdAt': createdAt,
+//       '__v': v,
+//     };
+//   }
+// }
 
 // class Location {
 //   final String country;

@@ -1,5 +1,7 @@
 import 'package:swapifymobile/core/usecases/SingleItem.dart';
 
+import 'location.dart';
+
 class Item {
   final String id;
   final UserId? userId;
@@ -57,7 +59,7 @@ class Item {
       warrantStatus: json['warrantStatus'] ?? false,
       createdAt: DateTime.parse(json['createdAt']),
       createdBy: json['createdBy'] ?? '',
-      location: json['location']!=null? Location.fromJson(json['location']) : Location(),
+      location: json['location']!=null? Location.fromJson(json['location']) : Location(country: "none", city: "none"),
     );
   }
 

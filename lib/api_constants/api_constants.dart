@@ -35,6 +35,7 @@ class ApiConstants {
 
   //chats
   static const String conversations = '/messages';
+  static const String chatUsers = '/messages/chat-users';
   static const String sendMessage = conversations + '/send';
 
   // Item endpoints (example for another feature)
@@ -59,4 +60,6 @@ class ApiConstants {
   static const String loginWithGoogle = baseUrl + 'users/auth/mobile/google';
   static const String googleServerClientId =
       '114477559991-6m6biub2pm915e6j6fjjo5fev2jdsql8.apps.googleusercontent.com';
+
+  static const cities="/cities";
 }

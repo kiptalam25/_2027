@@ -56,4 +56,19 @@ class ChatService {
   sendMessage(String message) async {
     return await apiClient.post(ApiConstants.sendMessage, data: message);
   }
+
+  Future<Response?> fetchChatUsers() async {
+    final apiClient = ApiClient();
+    try {
+      final response = await apiClient.get(
+        ApiConstants.chatUsers,
+      );
+
+      print('Response data: ${response.data}');
+      return response;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
+  }
 }

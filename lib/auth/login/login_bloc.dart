@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swapifymobile/core/services/sharedpreference_service.dart';
+import 'package:swapifymobile/core/usecases/SingleItem.dart';
+import 'package:swapifymobile/core/usecases/profile_data.dart';
 
 import '../../core/services/auth_service.dart';
 import 'login_event.dart';
@@ -17,30 +21,65 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onLoginSubmitted(LoginSubmitted event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
+    sharedPreferences.clear();
     try {
       print("............................runs here");
-      final Object response =
+      int statusCode=500;
+
+      final result =
           await authService.login(event.email, event.password);
+      if (result['success']) {
+        var responseData = result['data'];
+        if(responseData['success']){
+           statusCode=result['statusCode'];
+           print("Success................................................");
+           await sharedPreferences.setString('token', responseData['token']);
+               await sharedPreferences.setString('username', responseData['username']);
+               await sharedPreferences.setString('userId', responseData['userId']);
+               print("...........................Saving profile.....");
+               if (responseData['profileData'] != null) {
+                 SharedPreferencesService.setProfileData(new ProfileData.fromJson(responseData['profileData']));
 
-      if (response is LoginResponse) {
-        if (response.success) {
-          await sharedPreferences.setString('token', response.token!);
-          await sharedPreferences.setString('username', response.username!);
-          await sharedPreferences.setString('userId', response.userId!);
-          print("...........................Saving profile.....");
-          if (response.profileData != null) {
-            SharedPreferencesService.setProfileData(response.profileData!);
-          }
+               }
+          emit(LoginSuccess("Successfully Login"));
+        }else{
+          // result['data']; output:  data: {success: false, error: User not found}}
 
-          emit(LoginSuccess(response.token!));
-        } else {
-          // Handle failed login with a message
-          emit(LoginFailure("Login Failed!"));
+          String errorMessage = result['data']['data']?['error'] ??
+              result['message'] ??
+              'Unknown error occurred';
+          print(errorMessage);
+
+          print("Error: $errorMessage (Code: ${result['statusCode']})");
+           statusCode=result['statusCode'];
+
+          emit(LoginFailure(statusCode,errorMessage));
         }
-      } else if (response is LoginResponseModel) {
-        // Handle unexpected response type
-        emit(LoginFailure(response.message));
+      } else {
+         statusCode=result['statusCode'];
+        emit(LoginFailure(statusCode,"Internal Server Error"));
+        // Show error message based on statusCode
       }
+
+      // if (response is LoginResponse) {
+      //   if (response.success) {
+      //     await sharedPreferences.setString('token', response.token!);
+      //     await sharedPreferences.setString('username', response.username!);
+      //     await sharedPreferences.setString('userId', response.userId!);
+      //     print("...........................Saving profile.....");
+      //     if (response.profileData != null) {
+      //       SharedPreferencesService.setProfileData(response.profileData!);
+      //     }
+      //
+      //     emit(LoginSuccess(response.token!));
+      //   } else {
+      //     // Handle failed login with a message
+      //     emit(LoginFailure("Login Failed!"));
+      //   }
+      // } else if (response is LoginResponseModel) {
+      //   // Handle unexpected response type
+      //   emit(LoginFailure(response.message));
+      // }
 
       // if (response.success) {
       //   LoginResponse loginResponse = LoginResponse.fromJson(response.data);
@@ -53,7 +92,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       //   emit(LoginFailure(response.message));
       // }
     } catch (e) {
-      emit(LoginFailure(e.toString()));
+      print("Logic Error: "+e.toString());
+      emit(LoginFailure(500,e.toString()));
     }
   }
 

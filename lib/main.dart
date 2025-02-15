@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,8 +12,78 @@ import 'core/services/auth_service.dart';
 import 'common/app_colors.dart';
 import 'core/list_item_flow/bloc/item_bloc.dart';
 import 'core/onboading_flow/registration/registration_bloc.dart';
+import 'core/services/network_service.dart';
+import 'core/services/no_internet_page.dart';
 import 'core/welcome/splash/block/splash_cubit.dart';
 import 'core/welcome/splash/pages/splash.dart';
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//
+//   final sharedPreferences = await SharedPreferences.getInstance();
+//   final apiClient = ApiClient();
+//   final authService = AuthService(apiClient);
+//
+//   runApp(
+//     MultiBlocProvider(
+//       providers: [
+//         BlocProvider(create: (context) => LoginBloc(authService, sharedPreferences)),
+//         BlocProvider(create: (context) => RegistrationBloc(authService)),
+//         BlocProvider(create: (context) => AddItemBloc(apiClient)),
+//         BlocProvider(create: (context) => UpdateItemBloc(apiClient)),
+//       ],
+//       child: MyApp(),
+//     ),
+//   );
+// }
+//
+// class MyApp extends StatefulWidget {
+//   @override
+//   State<MyApp> createState() => _MyAppState();
+// }
+//
+// class _MyAppState extends State<MyApp> {
+//   final NetworkService _networkService = NetworkService();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return StreamBuilder<bool>(
+//       stream: _networkService.connectionStream,
+//       initialData: true, // Assume connected initially
+//       builder: (context, snapshot) {
+//         bool isConnected = snapshot.data ?? true;
+//
+//         return BlocProvider(
+//           create: (context) => SplashCubit()..appStarted(),
+//           child: MaterialApp(
+//             title: Global.appName,
+//             theme: ThemeData(
+//               textSelectionTheme: TextSelectionThemeData(
+//                 cursorColor: AppColors.primary,
+//                 selectionColor: AppColors.successColor,
+//                 selectionHandleColor: AppColors.primary,
+//               ),
+//               primaryColor: AppColors.primary,
+//               colorScheme: ColorScheme.fromSwatch(
+//                 primarySwatch: createMaterialColor(AppColors.primary),
+//                 accentColor: AppColors.primary,
+//               ),
+//               scaffoldBackgroundColor: AppColors.background,
+//               inputDecorationTheme: InputDecorationTheme(
+//                 focusedBorder: OutlineInputBorder(
+//                   borderSide: BorderSide(color: AppColors.primary, width: 2.0),
+//                 ),
+//                 enabledBorder: OutlineInputBorder(
+//                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
+//                 ),
+//               ),
+//             ),
+//             home: isConnected ? SplashPage() : NoInternetPage(),
+//           ),
+//         );
+//       },
+//     );
+//   }
+// }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,24 +116,40 @@ Future<void> main() async {
   // const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  // This widget is the root of your application.
+class _MyAppState extends State<MyApp> {
+  final NetworkService _networkService = NetworkService();
+
+
+  bool _isConnected = true;
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _networkService.connectionStream.listen((isConnected) {
+      if (!isConnected && _isConnected) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NoInternetPage()),
+        );
+      } else if (isConnected && !_isConnected) {
+        Navigator.pop(context);
+      }
+      _isConnected = isConnected;
+    });
+  }
+  // const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SplashCubit()..appStarted(),
       child: MaterialApp(
-        // showPerformanceOverlay: true,
-        // initialRoute: '/',
-        // routes: {
-        //   '/': (context) => HomePage(),
-        //   '/login': (context) => LoginPage(
-        //         currentPage: 3,
-        //       ),
-        //   '/register': (context) => ProfilePage(currentPage: 2),
-        // },
+        navigatorKey: navigatorKey,
         title: Global.appName,
         theme: ThemeData(
           textSelectionTheme: TextSelectionThemeData(
@@ -98,36 +186,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-//
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({super.key, required this.title});
-//
-//   final String title;
-//
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
-//
-// class _MyHomePageState extends State<MyHomePage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Home'),
-//       ),
-//       body: Center(
-//         child: ElevatedButton(
-//           onPressed: () {
-//             // Navigate to the LoginPage when the button is pressed
-//             Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                   builder: (context) => Registration(currentPage: 0)),
-//             );
-//           },
-//           child: Text('Go to Login'),
-//         ),
-//       ),
-//     );
-//   }
-// }

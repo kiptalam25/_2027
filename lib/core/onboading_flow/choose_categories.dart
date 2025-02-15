@@ -145,76 +145,79 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
             appBar: BasicAppbar(
                 title: PageIndicator(currentPage: widget.currentPage),
                 hideBack: true),
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: isFetchingCategories
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : Column(
-                      children: [
-                        _topTitle(),
-                        SingleChildScrollView(
-                          child: items.isEmpty
-                              ? Center(child: CircularProgressIndicator())
-                              : FilteredItemSelector(
-                                  returnType: "id",
-                                  allItems: items,
-                                  onItemAdded: (selectedIds) {
-                                    setState(() {
-                                      selectedItemIds =
-                                          selectedIds; // Update selected IDs
-                                    });
-                                  },
-                                  onItemRemoved: (selectedIds) {
-                                    setState(() {
-                                      selectedItemIds =
-                                          selectedIds; // Update selected IDs
-                                    });
-                                  },
-                                ),
-                        ),
-                        Spacer(),
-                        SizedBox(
-                          width: double.infinity,
-                          child: BasicAppButton(
-                              title: "Continue",
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: isFetchingCategories
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : SizedBox(
+                  width: double.infinity,
+                      child: Column(
+                          children: [
+                            _topTitle(),
+                            items.isEmpty
+                                ? Center(child: CircularProgressIndicator())
+                                : FilteredItemSelector(
+                                    returnType: "id",
+                                    allItems: items,
+                                    onItemAdded: (selectedIds) {
+                                      setState(() {
+                                        selectedItemIds =
+                                            selectedIds; // Update selected IDs
+                                      });
+                                    },
+                                    onItemRemoved: (selectedIds) {
+                                      setState(() {
+                                        selectedItemIds =
+                                            selectedIds; // Update selected IDs
+                                      });
+                                    },
+                                  ),
+                            // Spacer(),
+                            SizedBox(
                               width: double.infinity,
-                              radius: 24,
-                              content: isUpdating
-                                  ? SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.primary,
-                                      ),
-                                    )
-                                  : Text(
-                                      "Continue",
-                                      style: TextStyle(
-                                          color: AppColors.background),
-                                    ),
-                              onPressed: isUpdating
-                                  ? null
-                                  : () async {
-                                      updateSwapInterests(context);
-                                    }),
+                              child: BasicAppButton(
+                                  title: "Continue",
+                                  width: double.infinity,
+                                  radius: 24,
+                                  content: isUpdating
+                                      ? SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.primary,
+                                          ),
+                                        )
+                                      : Text(
+                                          "Continue",
+                                          style: TextStyle(
+                                              color: AppColors.background),
+                                        ),
+                                  onPressed: isUpdating
+                                      ? null
+                                      : () async {
+                                          updateSwapInterests(context);
+                                        }),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                AppNavigator.pushReplacement(context, HomePage());
+                              },
+                              child: Text("Skip for now",
+                                  style: TextStyle(fontWeight: FontWeight.w700)),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            )
+                          ],
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            AppNavigator.pushReplacement(context, HomePage());
-                          },
-                          child: Text("Skip for now",
-                              style: TextStyle(fontWeight: FontWeight.w700)),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        )
-                      ],
                     ),
+              ),
             )),
       ),
     );
