@@ -3,15 +3,15 @@ import 'SingleItem.dart';
 import 'location.dart';
 
 class ProfileData {
-  late final Location? location;
-  final Interests? interests;
-  final String? id;
-  final String? userId;
-  final String? fullName;
-  final String? profilePicUrl;
-  final String? bio;
-  final String? createdAt;
-  final int? version;
+  late  Location? location;
+  late Interests? interests;
+  late String? id;
+  late String? userId;
+  late String? fullName;
+  late String? profilePicUrl;
+  late String? bio;
+  late String? createdAt;
+  late int? version;
 
   ProfileData({
     this.location,
@@ -27,8 +27,9 @@ class ProfileData {
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
-      location:Location.fromJson(json['location']).city != null
-              ? Location.fromJson(json['location']) : null,
+      location: json['location'] != null && json['location']['city'] != null
+          ? Location.fromJson(json['location'])
+          : null, // ✅ Ensure null safety
       interests: json['interests'] != null
           ? Interests.fromJson(json['interests'])
           : null,

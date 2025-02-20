@@ -57,7 +57,7 @@ class _RegistrationState extends State<Registration> {
     // Handle the result
     if (result.success) {
       print('Login successful');
-      AppNavigator.pushAndRemove(context, HomePage());
+      AppNavigator.pushAndRemove(context, HomePage(autoClick: false,));
     } else {
       print('Login failed: ${result.message}');
       // Show an error message to the user

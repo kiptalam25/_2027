@@ -84,14 +84,14 @@ class _BasePageState extends State<BasePage> {
     switch (index) {
       case 0:
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+            context, MaterialPageRoute(builder: (context) => HomePage(autoClick: false,)));
         break;
       case 1:
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => CategoriesPage()));
         break;
       case 2:
-        Navigator.pushReplacement(
+        Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
@@ -102,7 +102,7 @@ class _BasePageState extends State<BasePage> {
             ));
         break;
       case 3:
-        Navigator.pushReplacement(context,
+        Navigator.push(context,
             MaterialPageRoute(builder: (context) => ProfileEditPage()));
         break;
       default:

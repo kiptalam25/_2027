@@ -34,9 +34,10 @@ class ApiConstants {
   static const String donation = '/donations/requests';
 
   //chats
-  static const String conversations = '/messages';
+  static const String conversations = '/messages/conversations';
+  static const String messages = '/messages';
   static const String chatUsers = '/messages/chat-users';
-  static const String sendMessage = conversations + '/send';
+  static const String sendMessage = messages + '/send';
 
   // Item endpoints (example for another feature)
   static const String items = '/items';

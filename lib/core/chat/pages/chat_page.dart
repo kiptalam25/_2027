@@ -1,22 +1,29 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
+import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/chat_service.dart';
+import 'package:swapifymobile/core/usecases/chat_user.dart';
+import 'package:swapifymobile/core/widgets/alert_dialog.dart';
 
+import '../../../common/app_colors.dart';
 import '../../services/sharedpreference_service.dart';
 import '../../usecases/conversation_response.dart';
+import '../../usecases/exchange.dart';
 import '../../usecases/profile_data.dart';
 import 'dart:async';
 
 import '../chat_bubble.dart';
 
 class ChatPage extends StatefulWidget {
-  final Exchange exchange;
+  final String exchangeId;
   final bool isRecipient;
+  final ChatUser chatUser;
 
-  const ChatPage({Key? key, required this.exchange, required this.isRecipient})
+  const ChatPage({Key? key, required this.exchangeId, required this.isRecipient, required this.chatUser})
       : super(key: key);
 
   @override
@@ -87,7 +94,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     loadProfileData();
     if (initialLoading) {
-      fetchChat(widget.exchange.id);
+      fetchChat(widget.exchangeId);
     }
     // _timer = Timer.periodic(Duration(seconds: 2), (Timer timer) {
     //   fetchChat(widget.exchange.id);
@@ -136,12 +143,42 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-          title: widget.isRecipient
-              ? Text(widget.exchange.initiator!.recipientProfile!.fullName!)
-              : Text(widget.exchange.recipient!.recipientProfile!.fullName!)),
-      body: fetchingMessages
+          title: Text(widget.chatUser.fullName),
+
+        actions: [
+          PopupMenuButton<int>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              // Handle the selected value here
+              switch (value) {
+                case 1:
+                  print('Option 1 selected');
+                  break;
+                // case 2:
+                //   print('Option 2 selected');
+                //   break;
+                // case 3:
+                //   print('Option 3 selected');
+                //   break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 1,
+                child: Text('End Swap'),
+              ),
+            ],
+          )
+        ],
+
+      ),
+      body:
+
+
+          fetchingMessages
           ? Center(
               child: SizedBox(
                 height: 20,
@@ -155,6 +192,25 @@ class _ChatPageState extends State<ChatPage> {
                 )
               : Column(
                   children: [
+                    Column(
+                      children: [ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          side: BorderSide(color: Color(0xFF50644C), width: 2),
+                          backgroundColor: AppColors.primary,
+                        ),
+                        onPressed: () {
+                          print("End Swap Pressed");
+                        },
+                        child: Text(
+                          "End Swap",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: AppColors.background,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),],
+                    ),
                     // Messages List
                     Expanded(
                       child: ListView.builder(
@@ -168,40 +224,7 @@ class _ChatPageState extends State<ChatPage> {
                           );
                         },
                       ),
-
-                      // child: ListView.builder(
-                      //   reverse: true, // Show the latest message at the bottom
-                      //   itemCount: messages.length,
-                      //   itemBuilder: (context, index) {
-                      //     final message = messages[messages.length - 1 - index];
-                      //     return Align(
-                      //       alignment: message.isSentByMe!
-                      //           ? Alignment.centerRight
-                      //           : Alignment.centerLeft,
-                      //       child: Container(
-                      //         padding: const EdgeInsets.all(10),
-                      //         margin: const EdgeInsets.symmetric(
-                      //             vertical: 5, horizontal: 10),
-                      //         decoration: BoxDecoration(
-                      //           color: message.isSentByMe!
-                      //               ? Colors.green[100]
-                      //               : Colors.grey[300],
-                      //           borderRadius: BorderRadius.circular(10),
-                      //         ),
-                      //         child: Text(
-                      //           message.content!,
-                      //           style: TextStyle(
-                      //             color: message.isSentByMe!
-                      //                 ? Colors.black
-                      //                 : Colors.black87,
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                    ),
-
+),
                     // Message Input
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -225,17 +248,16 @@ class _ChatPageState extends State<ChatPage> {
                               ? Loading()
                               : IconButton(
                                   icon: const Icon(Icons.send,
-                                      color: Colors.blue),
+                                      color: AppColors.primary),
                                   onPressed: () {
                                     Map<String, String> message;
                                     message = {
                                       "exchangeId":
-                                          widget.exchange.id.toString(),
+                                          widget.exchangeId.toString(),
                                       "exchangeType": "swap",
                                       "content": _messageController.text
                                     };
                                     String jsonString = jsonEncode(message);
-                                    print(jsonString);
                                     if (_messageController.text.isNotEmpty) {
                                       _sendMessage(jsonString);
                                     }
@@ -245,6 +267,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ],
                 ),
+
     );
   }
 }

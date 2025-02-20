@@ -35,10 +35,6 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
       if (response?.data != null) {
         final data = response?.data;
         if (data['success'] == true) {
-          print("=========================================");
-          // print(data["data"]["privacyPolicy"]);
-          // pp = data["data"];
-          // print(pp);
           setState(() {
             pp = data["data"];
             privacyPolicy =

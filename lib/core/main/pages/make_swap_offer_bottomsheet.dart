@@ -5,9 +5,13 @@ import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
+import 'package:swapifymobile/core/chat/pages/chat_users_page.dart';
+import 'package:swapifymobile/core/main/pages/home_page.dart';
+import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
 import 'package:swapifymobile/core/services/trade_service.dart';
 import 'package:swapifymobile/core/usecases/SingleItem.dart';
+import 'package:swapifymobile/core/usecases/chat_user.dart';
 import 'package:swapifymobile/core/widgets/notification_popup.dart';
 
 import '../../chat/pages/conversations_page.dart';
@@ -36,6 +40,7 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
   ItemsService itemsService = ItemsService(new ApiClient());
   bool fetchingOwnItems = false;
   final TextEditingController justificationController = TextEditingController();
+  bool isSending=false;
 
   Future<void> fetchOwnItems() async {
     print("Exchange method");
@@ -155,6 +160,20 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                                     child: CircularProgressIndicator(),
                                   ),
                                 )
+                              : items.isEmpty ?
+                          Column(children: [
+                            Text("You Have No Items To Offer"),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HomePage(autoClick: true)),
+                                );
+                              },
+                              child: Text("Add Items"),
+                            )
+                          ],)
+
                               : AnimatedDropdown<SingleItem>(
                                   items: items,
                                   selectedItem: _selectedItem,
@@ -208,7 +227,11 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                     height: 38,
                     title: "Make offer",
                     radius: 24,
-                    onPressed: items==[] ? () => null : () async => {
+                    backgroundColor: hasItems()  ?
+                        AppColors.fadedButton
+                        : AppColors.primary,
+                    content: isSending ? Loading():null,
+                    onPressed: hasItems() ?  (){} : isSending ? null: () async => {
                       if(widget.exchangeMethod=="swap"){
                           response = await makeSwapOffer(),
                           if (response.success)
@@ -216,11 +239,10 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                               StatusPopup.show(context,
                                   message: "Offer is Sent", isSuccess: true),
                               Navigator.pop(context),
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => ConversationsPage(
-                                            conversationId: conversationId,
+                                      builder: (context) => ChatUsersPage(
                                           )))
                             }
                           else
@@ -235,12 +257,14 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                             StatusPopup.show(context,
                                 message: "Request is Sent", isSuccess: true),
                             Navigator.pop(context),
-                            Navigator.push(
+                            Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ConversationsPage(
-                                      conversationId: conversationId,
-                                    )))
+                                    builder: (context) => ChatUsersPage()
+                                    //   builder: (context) => ConversationsPage(
+                                    //   conversationId: conversationId,
+                                    // )
+                                ))
                           }
                         else
                           {
@@ -260,7 +284,9 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                         StatusPopup.show(context,
                             message: "Failed! \n no exchange method:"+widget.exchangeMethod, isSuccess: false)
                       }
-                        }),
+                        },
+                        // content: items.isEmpty && widget.exchangeMethod=="swap" ? null :Text("Send Request")
+                        ),
                 SizedBox(
                   height: 16,
                 )
@@ -275,6 +301,9 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
   TradeService tradeService = TradeService(new ApiClient());
 
   Future<ResponseModel> makeSwapOffer() async {
+    setState(() {
+      isSending=true;
+    });
     String? initiatorItem = _selectedItem?.id;
     String? recipientId = widget.recipientItem.userId?.id;
     String recipientItemId = widget.recipientItem.id;//item belonging to the recipient of the request message
@@ -285,14 +314,22 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
     };
 
 // Convert the map to a JSON string
-    if (initiatorItem == "" || recipientId == "") {
+    if (initiatorItem == "" ) {
+      return ResponseModel(message: "There is no Item", success: false);
+    }
+    if (recipientId == "" ) {
       return ResponseModel(message: "There is no Recipient", success: false);
-    } else {
+    }
       String jsonString = jsonEncode(jsonMap);
       print(jsonString);
       ResponseModel response = await tradeService.createSwapOffer(jsonString);
+      setState(() {
+        setState(() {
+          isSending=false;
+        });
+      });
       return response;
-    }
+
   }
 
   Future<ResponseModel> makeDonationRequest() async {
@@ -309,5 +346,13 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
       ResponseModel response = await tradeService.createDonationRequest(jsonString);
       return response;
 
+  }
+
+  hasItems() {
+    bool hasItems=false;
+    if(items.isEmpty && widget.exchangeMethod=="swap"){
+      return hasItems=true;
+    }
+    return hasItems;
   }
 }

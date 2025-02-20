@@ -111,7 +111,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // return jsonDecode(profileJson);
     }else{
       print("............................Profile data is null..................................");
-
+_fetchProfile();
     }
     // return null;
   }

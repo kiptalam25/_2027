@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 Future<void> showYesNoAlertDialog(
-  BuildContext context, {
-  required String title,
+  {
+    required BuildContext context,
+    required String title,
   required String message,
   required VoidCallback onYesPressed, // Action for Yes button
   required VoidCallback onNoPressed, // Action for No button

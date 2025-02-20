@@ -6,20 +6,15 @@ import 'package:swapifymobile/auth/widgets/password_field.dart';
 import 'package:swapifymobile/common/constants/app_constants.dart';
 import 'package:swapifymobile/common/app_colors.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
-import 'package:swapifymobile/core/onboading_flow/categories_page.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
 import 'package:swapifymobile/core/welcome/splash/pages/welcome.dart';
-import 'package:swapifymobile/core/widgets/dialog.dart';
 
 import '../../../api_client/api_client.dart';
-import '../../core/onboading_flow/choose_categories.dart';
 import '../../core/services/auth_service.dart';
 import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
-import '../../core/widgets/alert_dialog.dart';
-import '../../main.dart';
 import '../login_with_google/google_sign_in_helper.dart';
 import 'login_bloc.dart';
 import 'login_event.dart';
@@ -100,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
     // Handle the result
     if (result.success) {
       print('Login successful');//ChooseCategories(currentPage: 4,)
-      AppNavigator.pushAndRemove(context, HomePage());
+      AppNavigator.pushAndRemove(context, HomePage(autoClick: false,));
     } else {
       print('Login failed: ${result.message}');
       // Show an error message to the user
@@ -291,7 +286,7 @@ class _LoginPageState extends State<LoginPage> {
         if (state is LoginSuccess) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(builder: (context) => HomePage(autoClick: false,)),
             (Route<dynamic> route) => false, // Remove all previous routes
           );
           // Navigator.pushReplacement(

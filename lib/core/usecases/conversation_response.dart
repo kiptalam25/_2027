@@ -1,3 +1,5 @@
+import 'exchange.dart';
+
 class ConversationResponseModel {
   final bool? success;
   final List<Message>? messages;
@@ -26,47 +28,39 @@ class ConversationResponseModel {
 class Message {
   final String? id;
   final Exchange? exchangeId;
-  final String? exchangeType;
-  final List<Conversation>? conversation;
-  final String? status;
+  final String exchangeType;
   final DateTime? lastMessageAt;
+  final Conversation lastMessage;
+  final String? status;
   final int? unreadCount;
-  final int? version;
-  final Conversation? lastMessage;
+  final Participants participants;
 
-  Message({
+  Message( {
     this.id,
     this.exchangeId,
-    this.exchangeType,
-    this.conversation,
+    required this.exchangeType,
+    required this.lastMessage,
     this.status,
     this.lastMessageAt,
     this.unreadCount,
-    this.version,
-    this.lastMessage,
+    required this.participants,
   });
 
   factory Message.fromJson(Map<String, dynamic> json, String currentUserId) {
     return Message(
       id: json['_id'] as String?,
       exchangeId: json['exchangeId'] != null
-          ? Exchange.fromJson(json['exchangeId'] as Map<String, dynamic>)
+          ? Exchange.fromJson(json['exchangeId'])
           : null,
-      exchangeType: json['exchangeType'] as String?,
-      conversation: (json['conversation'] as List<dynamic>?)
-          ?.map((conv) => Conversation.fromJson(
-              conv as Map<String, dynamic>, currentUserId))
-          .toList(),
+      exchangeType: json['exchangeType'],
       status: json['status'] as String?,
       lastMessageAt: json['lastMessageAt'] != null
           ? DateTime.parse(json['lastMessageAt'] as String)
           : null,
       unreadCount: json['unreadCount'] as int?,
-      version: json['__v'] as int?,
-      lastMessage: json['lastMessage'] != null
-          ? Conversation.fromJson(
-              json['lastMessage'] as Map<String, dynamic>, currentUserId)
-          : null,
+      lastMessage: Conversation.fromJson(
+              json['lastMessage'] as Map<String, dynamic>, currentUserId),
+      participants: Participants.fromJson(json['participants']),
     );
   }
 
@@ -75,14 +69,37 @@ class Message {
       '_id': id,
       'exchangeId': exchangeId?.toJson(),
       'exchangeType': exchangeType,
-      'conversation': conversation?.map((conv) => conv.toJson()).toList(),
+      'lastMessage': lastMessage.toJson(),
       'status': status,
-      'lastMessageAt': lastMessageAt?.toIso8601String(),
+      'lastMessageAt': lastMessageAt,
       'unreadCount': unreadCount,
-      '__v': version,
-      'lastMessage': lastMessage?.toJson(),
+      "participants":participants
+
     };
   }
+}
+
+class Participants {
+  final String? recipient;
+  final String initiator;
+
+
+  Participants({required this.recipient, required this.initiator});
+
+  factory Participants.fromJson(Map<String, dynamic> json) {
+    return Participants(
+      recipient: json['initiator']!=null ?  json['initiator']:json['donor']!=null?json['initiator']:null,
+      initiator: json['recipient'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'initiator': initiator,
+      'recipient': recipient
+    };
+  }
+
 }
 
 class Recipient {
@@ -131,64 +148,7 @@ class RecipientProfile {
   }
 }
 
-class Exchange {
-  final String? id;
-  final Initiator? initiator;
-  final Recipient? recipient;
-  final String? initiatorItemId;
-  final String? recipientItemId;
-  final String? status;
-  final bool? isActive;
-  final DateTime? createdAt;
-  final int? version;
 
-  Exchange({
-    this.id,
-    this.initiator,
-    this.recipient,
-    this.initiatorItemId,
-    this.recipientItemId,
-    this.status,
-    this.isActive,
-    this.createdAt,
-    this.version,
-  });
-
-  factory Exchange.fromJson(Map<String, dynamic> json) {
-    return Exchange(
-      id: json['_id'] as String?,
-      // initiatorId: json['initiatorId'] as String?,
-      initiator: json['initiatorId'] != null
-          ? Initiator.fromJson(json["initiatorId"] as Map<String, dynamic>)
-          : null,
-      recipient: json['recipientId'] != null
-          ? Recipient.fromJson(json["recipientId"] as Map<String, dynamic>)
-          : null,
-      initiatorItemId: json['initiatorItemId'] as String?,
-      recipientItemId: json['recipientItemId'] as String?,
-      status: json['status'] as String?,
-      isActive: json['isActive'] as bool?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : null,
-      version: json['__v'] as int?,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'initiatorId': initiator,
-      'recipientId': recipient,
-      'initiatorItemId': initiatorItemId,
-      'recipientItemId': recipientItemId,
-      'status': status,
-      'isActive': isActive,
-      'createdAt': createdAt?.toIso8601String(),
-      '__v': version,
-    };
-  }
-}
 
 class Conversation {
   final String? senderId;

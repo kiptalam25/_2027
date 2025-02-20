@@ -36,12 +36,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
            await sharedPreferences.setString('token', responseData['token']);
                await sharedPreferences.setString('username', responseData['username']);
                await sharedPreferences.setString('userId', responseData['userId']);
-               print("...........................Saving profile.....");
+               print("......................Truing...To..Save....profile.....");
                if (responseData['profileData'] != null) {
-                 SharedPreferencesService.setProfileData(new ProfileData.fromJson(responseData['profileData']));
+                 print("...........................Saving profile.....");
+                await SharedPreferencesService.setProfileData(new ProfileData.fromJson(responseData['profileData']));
 
                }
           emit(LoginSuccess("Successfully Login"));
+          // emit(LoginFailure(201,"Error Login"));
         }else{
           // result['data']; output:  data: {success: false, error: User not found}}
 

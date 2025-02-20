@@ -40,5 +40,10 @@ class SharedPreferencesService {
     await prefs.setString('homeFilter', filterData);
   }
 
+  static Future<void> clear() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+  }
+
 
 }

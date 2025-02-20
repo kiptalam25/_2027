@@ -9,10 +9,10 @@ class ChatService {
 
   ChatService(this.apiClient);
 
-  Future<Response?> fetchConversations() async {
+  Future<Response?> fetchConversations(String payload) async {
     final apiClient = ApiClient();
     try {
-      final response = await apiClient.get(
+      final response = await apiClient.post(data: payload,
         ApiConstants.conversations,
         // queryParameters: {
         //   'keyword': keyword,
@@ -49,7 +49,7 @@ class ChatService {
 
   fetchChat(exchangeId) async {
     return await apiClient.get(
-      ApiConstants.conversations + "/" + exchangeId,
+      ApiConstants.messages + "/" + exchangeId,
     );
   }
 

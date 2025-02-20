@@ -19,7 +19,7 @@ class ChatUser {
   factory ChatUser.fromJson(Map<String, dynamic> json){
     return ChatUser(
         userId: json['userId'],
-        swapId:json['donationId'] != null? List<String>.from(json['donationId']):[],
+        swapId:json['swapId'] != null? List<String>.from(json['swapId']):[],
         donationId:json['donationId'] != null? List<String>.from(json['donationId']):[],
         username: json['username'],
         fullName: json['fullName'],

@@ -1,19 +1,30 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
+import 'package:swapifymobile/common/widgets/app_navigator.dart';
+import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/chat_service.dart';
+import 'package:swapifymobile/core/usecases/exchange.dart';
+import 'package:swapifymobile/core/widgets/dialog.dart';
+import 'package:swapifymobile/core/widgets/notification_popup.dart';
+import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
+import '../../../common/app_colors.dart';
 import '../../services/sharedpreference_service.dart';
+import '../../usecases/chat_user.dart';
 import '../../usecases/conversation_response.dart';
 import '../../usecases/profile_data.dart';
 import 'chat_page.dart';
 
 class ConversationsPage extends StatefulWidget {
   final String conversationId;
+  final ChatUser chatUser;
 
-  const ConversationsPage({super.key, required this.conversationId});
+  const ConversationsPage({super.key, required this.conversationId, required this.chatUser});
   @override
   State<ConversationsPage> createState() => _ConversationsPageState();
 }
@@ -23,6 +34,8 @@ class _ConversationsPageState extends State<ConversationsPage> {
 
   bool loadingChats = false;
   late List<Message> chats = [];
+  List<dynamic>  swapConversations= [];
+  List<dynamic>  donationConversations= [];
   final ChatService chatService = ChatService(new ApiClient());
 
   Future<void> loadProfileData() async {
@@ -34,27 +47,88 @@ class _ConversationsPageState extends State<ConversationsPage> {
     }
   }
 
+  String createPayload(){
+    Map<String, dynamic> payload;
+    ChatUser user=widget.chatUser;
+
+    payload = {
+      "swapId":
+      user.swapId,
+      "donationId": user.donationId
+    };
+    if(user.donationId.isEmpty){
+      payload.remove("donationId");
+    }
+    if(user.userId.isEmpty){
+      payload.remove("userId");
+    }
+    String jsonString = jsonEncode(payload);
+    print("Payload: "+payload.toString());
+    return jsonString;
+  }
+
   Future<void> _fetchConversations() async {
     setState(() {
       loadingChats = true;
     });
-    try {
-      final response = await chatService.fetchConversations();
-      if (response != null && response.data != null) {
-        final data = response.data;
+    String payload=createPayload();
+    final response = await chatService.fetchConversations(payload);
+    if (response != null && response.data != null) {
+      final data = response.data;
+      print("..............................Data............................");
+      print(data.toString());
 
-        if (data['success'] == true && data['messages'] != null) {
-          final List<Message> chats1 = (data['messages'] as List<dynamic>)
-              .map((chat) => Message.fromJson(chat, profileData.userId!))
-              .where((message) =>
-                  message.exchangeId?.recipient?.recipientProfile !=
-                  null) // Filter out null recipients
-              .toList();
-          setState(() {
-            chats = chats1;
-          });
-        }
+      if (data['success'] == true && data['conversations'] != null) {
+
+        // Extract conversations list
+        List<dynamic> conversations = data["conversations"];
+
+        // Filter into two lists
+        swapConversations =
+        conversations.where((c) => c["exchangeType"] == "Swap").toList();
+
+        donationConversations =
+        conversations.where((c) => c["exchangeType"] == "Donation").toList();
+
+        // Print results
+        print("Swap Conversations: ${swapConversations.length}");
+        print("Donation Conversations: ${donationConversations.length}");
+
+        final List<Message> chats1 = (data['conversations'] as List<dynamic>)
+                .map((chat) => Message.fromJson(chat, profileData.userId!))
+                .where((message) =>
+                    message.exchangeId?.recipientId !=
+                    null) // Filter out null recipients
+                .toList();
+        setState(() {
+          chats=chats1;
+          loadingChats=false;
+        });
+
       }
+      if (data['success'] == false) {
+
+        showAutoDismissDialog(context: context, title: "Error", message: "UnExpected Error Occurred");
+      }
+
+    }
+    try {
+      // final response = await chatService.fetchConversations();
+      // if (response != null && response.data != null) {
+      //   final data = response.data;
+      //
+      //   if (data['success'] == true && data['messages'] != null) {
+      //     final List<Message> chats1 = (data['messages'] as List<dynamic>)
+      //         .map((chat) => Message.fromJson(chat, profileData.userId!))
+      //         .where((message) =>
+      //             message.exchangeId?.recipient?.recipientProfile !=
+      //             null) // Filter out null recipients
+      //         .toList();
+      //     setState(() {
+      //       chats = chats1;
+      //     });
+        // }
+      // }
     } catch ($e) {
       setState(() {
         loadingChats = false;
@@ -80,161 +154,249 @@ class _ConversationsPageState extends State<ConversationsPage> {
     // TODO: implement dispose
     super.dispose();
   }
+  void showFullImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context), // Close dialog on tap
+          child: InteractiveViewer(
+            panEnabled: true, // Allow pinch to zoom and drag
+            child: Image.network(imageUrl),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String truncateText(String text, int maxLength) {
+    return text.length > maxLength ? "${text.substring(0, maxLength)}..." : text;
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Conversations")),
+        appBar: AppBar(title: Text(widget.chatUser.fullName)),
         body: BasePage(
           initialIndex: 2,
           child: loadingChats
-              ? Loading()
-              : chats.isEmpty
-                  ? Center(
-                      child: Text("no conversations"),
-                    )
-                  : ListView.builder(
-                      itemCount: chats.length,
-                      itemBuilder: (context, index) {
-                        final chat = chats[index];
-                        print(chat.exchangeId?.initiator?.id);
-                        print(profileData.userId);
-                        return ListTile(
-                          leading: chat.exchangeId?.initiator?.id ==
-                                  profileData.userId
-                              ? CircleAvatar(
-                                  backgroundImage: chat
-                                                  .exchangeId!
-                                                  .recipient!
-                                                  .recipientProfile!
-                                                  .profilePicture !=
-                                              null &&
-                                          chat
-                                              .exchangeId!
-                                              .recipient!
-                                              .recipientProfile!
-                                              .profilePicture!
-                                              .isNotEmpty
-                                      ? NetworkImage(chat.exchangeId!.recipient!
-                                          .recipientProfile!.profilePicture!)
-                                      : null,
-                                  child: chat
-                                                  .exchangeId!
-                                                  .recipient!
-                                                  .recipientProfile!
-                                                  .profilePicture ==
-                                              null ||
-                                          chat
-                                              .exchangeId!
-                                              .recipient!
-                                              .recipientProfile!
-                                              .profilePicture!
-                                              .isEmpty
-                                      ? Text(
-                                          chat.exchangeId!.recipient!
-                                              .recipientProfile!.fullName!
-                                              .substring(0, 1)
-                                              .toUpperCase(),
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      : null,
-                                )
-                              : CircleAvatar(
-                                  backgroundImage: chat
-                                                  .exchangeId!
-                                                  .initiator!
-                                                  .recipientProfile!
-                                                  .profilePicture !=
-                                              null &&
-                                          chat
-                                              .exchangeId!
-                                              .initiator!
-                                              .recipientProfile!
-                                              .profilePicture!
-                                              .isNotEmpty
-                                      ? NetworkImage(chat.exchangeId!.initiator!
-                                          .recipientProfile!.profilePicture!)
-                                      : null,
-                                  child: chat
-                                                  .exchangeId!
-                                                  .initiator!
-                                                  .recipientProfile!
-                                                  .profilePicture ==
-                                              null ||
-                                          chat
-                                              .exchangeId!
-                                              .initiator!
-                                              .recipientProfile!
-                                              .profilePicture!
-                                              .isEmpty
-                                      ? Text(
-                                          chat.exchangeId!.initiator!
-                                              .recipientProfile!.fullName!
-                                              .substring(0, 1)
-                                              .toUpperCase(),
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      : null,
-                                ),
-                          title: chat.exchangeId?.initiator?.id ==
-                                  profileData.userId
-                              ? chat.exchangeId!.recipient!.recipientProfile!
-                                          .fullName !=
-                                      null
-                                  ? Text(chat.exchangeId!.recipient!
-                                      .recipientProfile!.fullName
-                                      .toString())
-                                  : Text("No Name")
-                              : chat.exchangeId!.initiator!.recipientProfile!
-                                          .fullName !=
-                                      null
-                                  ? Text(chat.exchangeId!.initiator!
-                                      .recipientProfile!.fullName
-                                      .toString())
-                                  : Text("No Name"),
-                          subtitle: Text(
-                            chat.conversation![0].content!,
-                            maxLines: 1, // Limit text to 1 line
-                            overflow: TextOverflow
-                                .ellipsis, // Show "..." if text overflows
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                DateFormat.jm().format(DateTime.parse(
-                                    chat.lastMessage!.timestamp!.toString())),
-                                style: TextStyle(fontSize: 12),
-                              ),
+              ? Loading(): Column(
+            children: [
 
-                              SizedBox(
-                                  height:
-                                      4), // Add spacing between the time and message count
-                              Text(
-                                '${chat.conversation!.length}', // Number of messages
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
+                  swapConversations.isNotEmpty ?
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: swapConversations.length,
+                      itemBuilder: (context, index) {
+                        var swap = swapConversations[index];
+                        var initiatorItem = swap["participants"]["initiatorItem"];
+                        var recipientItem = swap["participants"]["recipientItem"];
+
+                        return GestureDetector(
                           onTap: () {
-                            // Navigate to ChatPage with selected user
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatPage(
-                                  exchange: chat.exchangeId!,
-                                  isRecipient: chat.exchangeId?.initiator?.id ==
-                                          profileData.userId
-                                      ? false
-                                      : true,
-                                ),
-                              ),
+                            AppNavigator.push(context,
+                                ChatPage(chatUser: widget.chatUser,
+                                    isRecipient: profileData.userId==swap["exchangeId"]["initiatorId"] ?
+                                    true:false,
+                                    exchangeId: swap["exchangeId"]["_id"])
                             );
                           },
+                          child: Card(
+                            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                            child: ListTile(
+                              leading: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Recipient Item (Background)
+                                  recipientItem["imageUrls"].isNotEmpty
+                                      ? GestureDetector(
+                                    onTap: () => showFullImage(context, recipientItem["imageUrls"][0]),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Opacity(
+                                        opacity: 0.6,
+                                        child: Image.network(
+                                          recipientItem["imageUrls"][0],
+                                          width: 50,
+                                          height: 50,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                      : Icon(Icons.image, size: 50),
+
+                                  // Initiator Item (Overlapping)
+                                  Positioned(
+                                    top: 15,
+                                    left: 15,
+                                    child: initiatorItem["imageUrls"].isNotEmpty
+                                        ? GestureDetector(
+                                      onTap: () => showFullImage(context, initiatorItem["imageUrls"][0]),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 2),
+                                        ),
+                                        child: ClipOval(
+                                          child: Image.network(
+                                            initiatorItem["imageUrls"][0],
+                                            width: 30,
+                                            height: 30,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                        : Icon(Icons.image, size: 30),
+                                  ),
+                                ],
+                              ),
+                              title: Text(
+                                "${initiatorItem["title"]} ↔ ${recipientItem["title"]}",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                truncateText(swap["lastMessage"]["content"] ?? "", 40),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      print("Accepted swap: ${swap["_id"]}");
+                                    },
+                                    child: Icon(Icons.check_circle, color: AppColors.primary), // Reduce icon size
+
+                                  ),
+
+                                  GestureDetector(
+                                    onTap: () {
+                                      print("Rejected swap: ${swap["_id"]}");
+                                    },
+                                    child: Icon(Icons.cancel, color: Colors.red,),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         );
                       },
                     ),
+                  )
+                :SizedBox(),
+              donationConversations.isNotEmpty ?
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,  // Ensures it takes only needed space
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: donationConversations.length,
+                  itemBuilder: (context, index) {
+                    var swap = donationConversations[index];
+                    var donationItem = swap["participants"]["donationItem"];
+                    // var recipientItem = swap["participants"]["recipientItem"];
+
+                    return Card(
+                      margin: EdgeInsets.all(10),
+                      child: ListTile(
+                        leading: donationItem["imageUrls"].isNotEmpty
+                            ? Image.network(
+                          donationItem["imageUrls"][0],
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        )
+                            : Icon(Icons.image),
+                        title: Text(
+                            "${donationItem["title"]}"),
+                        subtitle: Text(
+                          truncateText(swap["lastMessage"]["content"] ?? "", 40),
+                          overflow: TextOverflow.ellipsis, // Ensure it doesn't overflow
+                        ),
+                        trailing: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                print("Accepted swap: ${swap["_id"]}");
+                              },
+                              child: Icon(Icons.check_circle, color: Colors.green), // Reduce icon size
+
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                print("Rejected swap: ${swap["_id"]}");
+                              },
+                              child: Icon(Icons.cancel, color: Colors.red,),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ):SizedBox()
+
+            ],
+          )
         ));
   }
+
+ Widget? Leading(Message chat) {
+   ChatItem?
+   recipientItem=chat.exchangeId?.recipientItemId;
+    if(recipientItem!=null && recipientItem.imageUrls!=null){
+      if(recipientItem.imageUrls!.isEmpty){
+        return null;
+      }
+      return CircleAvatar(
+        backgroundImage: recipientItem.imageUrls !=
+            null
+            ? NetworkImage(recipientItem.imageUrls?.first)
+            : null,
+        child: recipientItem.imageUrls !=null
+            ? Text(
+          widget.chatUser.fullName.substring(0, 1)
+              .toUpperCase(),
+          style: TextStyle(color: Colors.white),
+        )
+            : null,
+      );
+    }
+
+    return null;
+
+
+ }
+ Widget? Trailing(Message chat) {
+   ChatItem?
+   initiatorItem=chat.exchangeId?.initiatorItemId;
+   if(initiatorItem!=null) {
+     if (initiatorItem.imageUrls != null) {
+       if (initiatorItem.imageUrls!.isEmpty) {
+         return null;
+       }
+     }
+     return CircleAvatar(
+       backgroundImage: initiatorItem != null &&
+           initiatorItem.imageUrls?.first !=
+               null
+           ? NetworkImage(initiatorItem.imageUrls?.first)
+           : null,
+       child: initiatorItem!.imageUrls?.first.isEmpty
+           ? Text(
+         widget.chatUser.fullName.substring(0, 1)
+             .toUpperCase(),
+         style: TextStyle(color: Colors.white),
+       )
+           : null,
+     );
+   }
+ }
+
 }

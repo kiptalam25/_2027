@@ -31,7 +31,7 @@ class _WelcomePageState extends State<WelcomePage> {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(),
+            builder: (context) => HomePage(autoClick: false,),
           ));
     }
   }

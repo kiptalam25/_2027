@@ -50,7 +50,7 @@ void showCustomModalBottomSheet(BuildContext context) {
                 Navigator.of(context).pop(); // Close the modal
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
+                  MaterialPageRoute(builder: (context) => HomePage(autoClick: false,)),
                   (Route<dynamic> route) => false, // Remove all previous routes
                 );
                 // Navigator.pushReplacement(context,

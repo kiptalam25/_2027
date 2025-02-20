@@ -41,7 +41,9 @@ class ItemsService {
         },
       );
 
-      print('Response data: ${response.data}');
+
+
+      print('Response data: ${response.toString()}');
       return response;
     } catch (e) {
       print('Error: $e');

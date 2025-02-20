@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
+import 'package:swapifymobile/auth/login/login.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/core/main/pages/filter_bottomsheet.dart';
 import 'package:swapifymobile/core/onboading_flow/verification.dart';
@@ -19,7 +20,8 @@ import '../widgets/bottom_navigation.dart';
 import '../widgets/drawer.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final bool autoClick;
+  const HomePage({Key? key, required this.autoClick}) : super(key: key,);
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -33,6 +35,11 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
+    if (widget.autoClick) {
+      Future.delayed(Duration(milliseconds: 500), () {
+        _addItem();
+      });
+    }
     fetchItems();
     getProfileData();
     super.initState();
@@ -49,6 +56,7 @@ class _HomePageState extends State<HomePage> {
      *
      * **/
     final location1 = profileData1?.location;
+    print(profileData1?.location?.toJson().toString());
     if(location1!=null){
       location=location1;
     }else{
@@ -96,6 +104,15 @@ class _HomePageState extends State<HomePage> {
         //   print('Title: ${item.title}, Created At: ${item.createdAt}');
         // }
       } else {
+        final responseBody = response.data;
+        if(response.statusCode==401){
+          SharedPreferencesService.clear();
+          AppNavigator.pushAndRemove(context, LoginPage());
+        }
+        // if (responseBody is Map<String, dynamic> && responseBody.containsKey('data')) {
+        //   final data = responseBody['data'];
+        //   print('Data: $data');
+        // }
         print('Request failed with message: ${responseData["message"]}');
       }
     } else {
@@ -186,65 +203,7 @@ class _HomePageState extends State<HomePage> {
                 : const Center(child: Text('No items available')),
 
         floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            /* AppNavigator.pushReplacement(context, MultiDropdownExample());
-              To create an item we need users location
-              so we need to check if user has updated location data
-              I have checked location data on the saved profile data
-             */
-            if(location==null){
-
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    title: Text(
-                      "Update Location?",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    content: Text("For You to Create an Item You need to update Profile"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-
-                          Navigator.of(context).pop();
-                        },
-                        child: Text("No", style: TextStyle(color: Colors.red)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-
-                          Navigator.of(context).pop();
-                          AppNavigator.push(context, ProfileEditPage());
-                        },
-                        child: Text("Yes", style: TextStyle(color: Colors.green)),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-
-            }else{
-              showModalBottomSheet(
-                context: context,
-                builder: (BuildContext context) {
-                  return AddNewItemSheet(isNew: true, item: null);
-                },
-                shape: const RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(20))),
-                // borderRadius: BorderRadius.zero),
-                isScrollControlled:
-                true, // Makes the bottom sheet more flexible in height
-              );
-            }
-
-          },
+          onPressed: _addItem,
           foregroundColor: AppColors.background,
           backgroundColor: AppColors.primary,
           shape: CircleBorder(),
@@ -254,5 +213,67 @@ class _HomePageState extends State<HomePage> {
             FloatingActionButtonLocation.endFloat, // Bottom-right
       ),
     );
+  }
+
+  _addItem() async {
+      /* AppNavigator.pushReplacement(context, MultiDropdownExample());
+              To create an item we need users location
+              so we need to check if user has updated location data
+              I have checked location data on the saved profile data
+             */
+    await getProfileData();//Update Local profile data to ensure you have latest data
+      if(location==null){
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text(
+                "Update Profile?",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: Text("For You to Create an Item You need to Update Location Info"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("No", style: TextStyle(color: Colors.red)),
+                ),
+                TextButton(
+                  onPressed: () {
+
+                    Navigator.of(context).pop();
+                    AppNavigator.push(context, ProfileEditPage());
+                  },
+                  child: Text("Yes", style: TextStyle(color: Colors.green)),
+                ),
+              ],
+            );
+          },
+        );
+
+
+      }else{
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return AddNewItemSheet(isNew: true, item: null);
+          },
+          shape: const RoundedRectangleBorder(
+              borderRadius:
+              BorderRadius.vertical(top: Radius.circular(20))),
+          // borderRadius: BorderRadius.zero),
+          isScrollControlled:
+          true, // Makes the bottom sheet more flexible in height
+        );
+      }
+
+
   }
 }

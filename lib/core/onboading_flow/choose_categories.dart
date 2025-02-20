@@ -206,7 +206,7 @@ class _ChooseCategoriesState extends State<ChooseCategories> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                AppNavigator.pushReplacement(context, HomePage());
+                                AppNavigator.pushReplacement(context, HomePage(autoClick: false,));
                               },
                               child: Text("Skip for now",
                                   style: TextStyle(fontWeight: FontWeight.w700)),

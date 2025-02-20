@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
+import 'package:swapifymobile/core/chat/pages/conversations_page.dart';
 import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/chat_service.dart';
 
+import '../../../common/app_colors.dart';
 import '../../services/sharedpreference_service.dart';
 import '../../usecases/conversation_response.dart';
 import '../../usecases/profile_data.dart';
@@ -81,7 +83,7 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Conversations")),
+        appBar: AppBar(title: const Text("Users")),
         body: BasePage(
           initialIndex: 2,
           child: loadingUsers
@@ -145,27 +147,34 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
                     : Text("No Name")
                     : Text(user.fullName
                     .toString()),
-                subtitle: Text(
-                  "Test" // Show "..." if text overflows
-                ),
+
+                /*
+                Show Number of Chats
+                /
+                 */
+                subtitle: Column(children: [
+                  user.swapId.isNotEmpty ?
+                  Text("Swaps: "+
+                      user.swapId.length.toString()
+                  ):Text(""),
+                  user.donationId.isNotEmpty ?
+                  Text("Donations: "+
+                      user.donationId.length.toString()
+                  ):Text(""),
+                ],),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                 ),
                 onTap: () {
                   // Navigate to ChatPage with selected user
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => ChatPage(
-                  //       exchange: chat.exchangeId!,
-                  //       isRecipient: chat.exchangeId?.initiator?.id ==
-                  //           profileData.userId
-                  //           ? false
-                  //           : true,
-                  //     ),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConversationsPage(chatUser: user,conversationId: '',
+                      ),
+                    ),
+                  );
                 },
               );
             },
