@@ -1,14 +1,17 @@
 import 'dart:convert';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/common/app_colors.dart';
+import 'package:swapifymobile/core/chat/pages/conversations_page.dart';
 import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/list_item_flow/bloc/update_item_state.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/category_service.dart';
+import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
 import '../onboading_flow/choose_categories.dart';
 import '../usecases/SingleItem.dart';
@@ -117,7 +120,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
     {'id': 'poor', 'name': 'Poor'},
   ];
   List<Map<String, String>> _subCategories = [];
-  String? selectedCategoryId;
+  // String? selectedCategoryId;
   late SingleItem item;
   late String? selectedCondition = _conditions.first['id'];
   late String? selectedCategory = "";
@@ -129,10 +132,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
     super.initState();
     _fetchCategories();
     prepareUpdate();
-    // _selectedDate = widget.initialDate;
-    _dateController = TextEditingController(
-      text: DateFormat('yyyy-MM-dd').format(_selectedDate),
-    );
   }
 
   prepareUpdate() {
@@ -144,7 +143,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
         selectedCondition = item.condition;
 
         if (_categories.isNotEmpty) {
-          selectedCategory = item.category.id;
+          selectedCategory = item.category?.id;
         }
         selectedCategoryIds = item.swapInterests!;
       });
@@ -181,7 +180,8 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
 
       if (_categories.isNotEmpty && !widget.isNew) {
         // selectedCondition = _conditions.first['id']!;
-        selectedCategory = item.category.id; //_categories.first['id']!;
+        selectedCategory = item.category?.id; //_categories.first['id']!;
+
         findSubCAtegories(selectedCategory!);
 
         if (_subCategories.isNotEmpty) {
@@ -214,33 +214,9 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
   List<String> selectedCategoryIds = [];
   bool showList = true;
 
-  late DateTime _selectedDate =
-      DateTime.now(); // For managing the selected date
-  late TextEditingController _dateController; // For displaying the date
-
   @override
   void dispose() {
-    _dateController.dispose(); // Dispose of the controller
     super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000), // Earliest selectable date
-      lastDate: DateTime(2100), // Latest selectable date
-    );
-
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      setState(() {
-        _selectedDate = pickedDate;
-        _dateController.text = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      });
-
-      // Handle the update logic here (e.g., send the updated date to the backend)
-      print("Updated date: ${_selectedDate.toIso8601String()}");
-    }
   }
 
   @override
@@ -352,10 +328,10 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 SizedBox(
                   height: 16,
                 ),
-                Text("Condition*"),
-                SizedBox(
-                  height: 10,
-                ),
+                // Text("Condition*"),
+                // SizedBox(
+                //   height: 10,
+                // ),
                 // InputSection(
                 //   label: "Condition*",
                 //   hintText: "Item Condition",
@@ -365,13 +341,32 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 // _conditions.isEmpty
                 // ? SizedBox(
                 // height: 20, width: 20, child: CircularProgressIndicator())
-                CustomDropdown(
-                  value: selectedCondition,
+                DropdownSearch<Map<String, String>>(
+                  popupProps: PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                      // decoration: InputDecoration(
+                      //   hintText: "Search category...",
+                      // ),
+                    ),
+                  ),
                   items: _conditions,
-                  // hintText: 'Item Category*',
-                  onChanged: (String? newValue) {
+                  itemAsString: (Map<String, String> category) => category["name"]!.toTitleCase,
+                  selectedItem: selectedCondition != null
+                      ? _conditions.firstWhere(
+                        (condition) => condition["id"] == selectedCondition,
+                    orElse: () => _conditions.first,
+                  )
+                      : null,
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: InputDecoration(
+                      labelText: "Item Condition*",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  onChanged: (Map<String, String>? newValue) {
                     setState(() {
-                      selectedCondition = newValue!;
+                      selectedCondition = newValue?["id"];
                     });
                   },
                 ),
@@ -397,41 +392,105 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 const SizedBox(
                   height: 16,
                 ),
-                Text("Item Category*"),
+                // Text("Item Category*"),
                 _categories.isEmpty
                     ? Loading()
-                    : CustomDropdown(
-                        value: selectedCategory,
-                        items: _categories,
-                        // hintText: 'Item Category*',
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedCategory = newValue!;
-                            _subCategories = [];
-                            findSubCAtegories(newValue);
-                          });
-                        },
+                    :
+                DropdownSearch<Map<String, String>>(
+                  popupProps: PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                      decoration: InputDecoration(
+                        hintText: "Search category...",
                       ),
+                    ),
+                  ),
+                  items: _categories,
+                  itemAsString: (Map<String, String> category) => category["name"]!.toTitleCase,
+                  selectedItem: selectedCategory != null
+                      ? _categories.firstWhere(
+                        (category) => category["_id"] == selectedCategory,
+                    orElse: () => _categories.first,
+                  )
+                      : null,
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: InputDecoration(
+                      labelText: "Item Category*",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  onChanged: (Map<String, String>? newValue) {
+                    print(".............................................................");
+                    print(newValue.toString());
+                    setState(() {
+                      selectedCategory = newValue?["id"];
+                      _subCategories = [];
+                      // selectedCategoryId = newValue?["id"];
+                    });
+                    findSubCAtegories(selectedCategory!);
+                    print("Selected Category ID: $selectedCategory");
+                  },
+                  validator: (value) {
+                    if (selectedCategory == null || selectedCategory!.isEmpty) {
+                      return "Please select a category";
+                    }
+                    return null;
+                  },
+                ),
+
+                // CustomDropdown(
+                //         value: selectedCategory,
+                //         items: _categories,
+                //         // hintText: 'Item Category*',
+                //         onChanged: (String? newValue) {
+                //           setState(() {
+                //             selectedCategory = newValue!;
+                //             _subCategories = [];
+                //             findSubCAtegories(newValue);
+                //           });
+                //         },
+                //       ),
                 const SizedBox(
                   height: 16,
                 ),
-                Text("Item Sub-category*"),
+                // Text("Item Sub-category*"),
                 _subCategories.isEmpty && _isFetchingSubCategories
                     ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator())
                     // if (itemSubCategory!.isNotEmpty)
-                    : CustomDropdown(
-                        value: itemSubCategory,
-                        items: _subCategories,
-                        // hintText: 'Item Category*',
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            itemSubCategory = newValue!;
-                          });
-                        },
+                    :
+                DropdownSearch<Map<String, String>>(
+                  popupProps: PopupProps.menu(
+                    showSearchBox: true,
+                    searchFieldProps: TextFieldProps(
+                      decoration: InputDecoration(
+                        hintText: "Search sub-category...",
                       ),
+                    ),
+                  ),
+                  items: _subCategories,
+                  itemAsString: (Map<String, String> category) => category["name"]!.toTitleCase,
+                  selectedItem: itemSubCategory != null
+                      ? _subCategories.firstWhere(
+                        (category) => category["_id"] == itemSubCategory,
+                    orElse: () => _subCategories.first,
+                  )
+                      : null,
+                  dropdownDecoratorProps: DropDownDecoratorProps(
+                    dropdownSearchDecoration: InputDecoration(
+                      labelText: "Item Sub-Category*",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  onChanged: (Map<String, String>? newValue) {
+                    setState(() {
+                      itemSubCategory = newValue?["id"];
+                    });
+                    print("Selected Sub-Category ID: $itemSubCategory");
+                  },
+                ),
                 SizedBox(
                   height: 16,
                 ),

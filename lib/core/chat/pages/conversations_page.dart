@@ -1,19 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/common/widgets/app_navigator.dart';
-import 'package:swapifymobile/core/list_item_flow/add_item_photo.dart';
 import 'package:swapifymobile/core/main/widgets/bottom_navigation.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/chat_service.dart';
 import 'package:swapifymobile/core/usecases/exchange.dart';
 import 'package:swapifymobile/core/widgets/dialog.dart';
-import 'package:swapifymobile/core/widgets/notification_popup.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 
-import '../../../common/app_colors.dart';
 import '../../services/sharedpreference_service.dart';
 import '../../usecases/chat_user.dart';
 import '../../usecases/conversation_response.dart';
@@ -174,6 +170,9 @@ class _ConversationsPageState extends State<ConversationsPage> {
     return text.length > maxLength ? "${text.substring(0, maxLength)}..." : text;
   }
 
+ bool isAccepting=false;
+ bool isRejecting=false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -260,29 +259,87 @@ class _ConversationsPageState extends State<ConversationsPage> {
                                 "${initiatorItem["title"]} ↔ ${recipientItem["title"]}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              subtitle: Text(
-                                truncateText(swap["lastMessage"]["content"] ?? "", 40),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              trailing: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      print("Accepted swap: ${swap["_id"]}");
-                                    },
-                                    child: Icon(Icons.check_circle, color: AppColors.primary), // Reduce icon size
+                              subtitle: swap["exchangeId"]["status"] =='pending' && isRecipient(swap["exchangeId"]["recipientId"]) ?  Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: isRejecting ? (){}: () async {
+                                        setState(() {
+                                          isRejecting=true;
+                                        });
+                                        Map<String, dynamic> payload;
+                                        payload = {
+                                          "status":"rejected"
+                                        };
 
-                                  ),
+                                        String jsonString = jsonEncode(payload);
 
-                                  GestureDetector(
-                                    onTap: () {
-                                      print("Rejected swap: ${swap["_id"]}");
-                                    },
-                                    child: Icon(Icons.cancel, color: Colors.red,),
-                                  ),
-                                ],
-                              ),
+                                        final response=await chatService.updateExchangeStatus(swap["exchangeId"]["_id"],jsonString);
+
+                                        final data = response.data;
+                                        print(data['message']);
+                                        if(data['success']) {
+                                          setState(() {
+                                            isRejecting=false;
+                                            swap["exchangeId"]["status"] =
+                                            "rejected";
+                                          });
+                                        }
+                                        setState(() {
+                                          isRejecting=false;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(20), // Rounded corners
+                                        ),
+                                        child: isRejecting ? Loading(): Text("Reject", style: TextStyle(color: Colors.white,fontSize: 10)),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8,),
+                                    GestureDetector(
+                                      onTap:  isAccepting ? (){}: () async {
+                                        setState(() {
+                                          isAccepting=true;
+                                        });
+                                          Map<String, dynamic> payload;
+                                          payload = {
+                                            "status":"approved"
+                                          };
+
+                                          String jsonString = jsonEncode(payload);
+                                       final response=await chatService.updateExchangeStatus(swap["exchangeId"]["_id"],jsonString);
+                                          final data = response.data;
+                                          print(data['message']);
+                                          if(data['success']) {
+                                            _fetchConversations();
+                                            // setState(() {
+                                            //   isAccepting=false;
+                                            //   swap["exchangeId"]["status"] =
+                                            //   "approved";
+                                            // });
+                                          }
+                                        setState(() {
+                                          isAccepting=false;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius: BorderRadius.circular(20), // Rounded corners
+                                        ),
+                                        child: isAccepting ? Loading(): Text("Accept", style: TextStyle(color: Colors.white,fontSize: 10)),
+                                      ),
+                                    ),
+
+                                  ],
+                                )
+
+                              ):Text(swap["exchangeId"]["status"].toString().toTitleCase),
                             ),
                           ),
                         );
@@ -397,6 +454,16 @@ class _ConversationsPageState extends State<ConversationsPage> {
            : null,
      );
    }
+ }
+ 
+ /* Check if current logged in user is recipient or initiator
+ 
+  */
+ bool isRecipient(String recipientId){
+    if(profileData.userId==recipientId){
+      return true;
+    }
+    return false;
  }
 
 }

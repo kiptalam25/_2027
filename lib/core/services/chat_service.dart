@@ -71,4 +71,16 @@ class ChatService {
       return null;
     }
   }
+
+  Future<Response> updateExchangeStatus(String exchangeId,String jsonString) async {
+    final apiClient = ApiClient();
+    print("Updating exchange status to "+jsonString);
+
+      final response = await apiClient.patch(
+        ApiConstants.swaps+"/$exchangeId/status",
+      );
+
+      return response;
+
+  }
 }

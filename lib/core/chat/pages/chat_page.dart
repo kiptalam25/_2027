@@ -166,9 +166,12 @@ class _ChatPageState extends State<ChatPage> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 1,
-                child: Text('End Swap'),
+                onTap: () {
+                  showConfirmationDialog(context, widget.exchangeId);
+                },
+                child: const Text('End Swap'),
               ),
             ],
           )
@@ -199,7 +202,7 @@ class _ChatPageState extends State<ChatPage> {
                           backgroundColor: AppColors.primary,
                         ),
                         onPressed: () {
-                          print("End Swap Pressed");
+                          showConfirmationDialog(context, widget.exchangeId)  ;
                         },
                         child: Text(
                           "End Swap",
@@ -270,4 +273,61 @@ class _ChatPageState extends State<ChatPage> {
 
     );
   }
+
+  void showConfirmationDialog(BuildContext context, String swapId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // Rounded corners
+          ),
+          title: Column(
+            children: [
+              Icon(
+                Icons.warning_amber_outlined, // Exclamation icon
+                color: Colors.black,
+                size: 50,
+              ),
+              SizedBox(height: 10),
+              // Text(
+              //   "Are you sure?",
+              //   style: TextStyle(fontWeight: FontWeight.bold),
+              //   textAlign: TextAlign.center,
+              // ),
+            ],
+          ),
+          content: Text(
+            "Was this swap completed\n successfully??",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            Column(
+              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                BasicAppButton(
+                  title: "Yes",
+                  height: 40,
+                  radius: 32,
+                  onPressed:  () {
+                  
+                },),
+                SizedBox(height: 8,),
+                BasicAppButton(
+                  title: "No",
+                  height: 40,
+                  radius: 32,
+                  textColor: AppColors.primary,
+                  backgroundColor: AppColors.background,
+                  onPressed: () {
+
+                },)
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }

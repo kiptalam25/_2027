@@ -474,7 +474,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        Text("${item?.category.name.toTitleCase}"),
+                        Text("${item?.category?.name.toTitleCase}"),
                         SizedBox(
                           height: 20,
                         ),

@@ -19,10 +19,10 @@ class InputSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
-        ),
+        // Text(
+        //   label,
+        //   style: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+        // ),
         SizedBox(
           height: 16,
         ),
@@ -43,6 +43,7 @@ class InputSection extends StatelessWidget {
             decoration: InputDecoration(
               isDense: true,
               hintText: hintText,
+              labelText: label,
               hintStyle: TextStyle(color: Colors.grey),
               // border: OutlineInputBorder(
               //   borderRadius: BorderRadius.circular(10),

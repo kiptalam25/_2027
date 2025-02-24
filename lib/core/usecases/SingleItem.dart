@@ -3,7 +3,7 @@ import 'location.dart';
 class SingleItem {
   final String id;
   final String userId;
-  final Category category;
+  final Category? category;
   final SubCategory subCategory;
   final String title;
   final String description;
@@ -43,7 +43,7 @@ class SingleItem {
     return SingleItem(
       id: json['_id'],
       userId: json['userId'],
-      category: Category.fromJson(json['categoryId']),
+      category:json['categoryId']!=null? Category.fromJson(json['categoryId']):null,
       subCategory: SubCategory.fromJson(json['subCategoryId']),
       title: json['title'],
       description: json['description'],
@@ -71,7 +71,7 @@ class SingleItem {
     return {
       '_id': id,
       'userId': userId,
-      'categoryId': category.toJson(),
+      'categoryId': category?.toJson(),
       'subCategoryId': subCategory.toJson(),
       'title': title,
       'description': description,
