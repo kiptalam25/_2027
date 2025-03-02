@@ -94,17 +94,8 @@ AuthService(this.apiClient);
   //     return LoginResponseModel(success: false, message: e.toString());
   //   }
   // }
-
-  Future<LoginResponseModel> loginWithGoogle(String idToken) async {
-    try {
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      final response = await apiClient.post(ApiConstants.loginGoogle, data: {
-        'idToken': idToken,
-      });
-
-      //Response
-   /*       {
+  //Response
+  /*       {
         "success": true,
     "message": "User logged in successfully",
     "username": "Kiptalam Joseph",
@@ -137,6 +128,17 @@ AuthService(this.apiClient);
   }
 
     */
+  Future<LoginResponseModel> loginWithGoogle(String idToken) async {
+    try {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      final response = await apiClient.post(ApiConstants.loginGoogle, data: {
+        'idToken': idToken,
+      });
+
+      print("Response..............................................................................");
+      print(response.data['data']);
+
 
 
     if (response.data['success']) {
@@ -171,12 +173,14 @@ AuthService(this.apiClient);
           userId: response.data['userId'],
           token: response.data['token'],
         );
-      } else {
-        print("Error Message:..........." + response.data['error']);
+      } else if(!response.data['success']) {
+        print("Error Message:..........." + response.data['data']['error']);
 
         return LoginResponseModel(
-            success: false, message: response.data['error']);
+            success: false, message: response.data['data']['error']);
       }
+      return LoginResponseModel(
+          success: false, message: response.statusCode.toString()+": Unexpected Error Occurred");
     } catch (e) {
       print("Exception Message:..........." + e.toString());
       return LoginResponseModel(success: false, message: e.toString());

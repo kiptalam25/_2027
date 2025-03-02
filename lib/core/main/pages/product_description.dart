@@ -4,14 +4,12 @@ import 'package:swapifymobile/common/widgets/app_navigator.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/main/pages/make_swap_offer_bottomsheet.dart';
 import 'package:swapifymobile/core/profile/view_other_user_profile.dart';
-import 'package:swapifymobile/core/services/profile_service.dart';
 import 'package:swapifymobile/core/usecases/item.dart';
 import 'package:swapifymobile/core/usecases/other_user_profile.dart';
 import 'package:swapifymobile/extensions/string_casing_extension.dart';
 import '../../../api_client/api_client.dart';
 import '../../../common/app_colors.dart';
 import '../../services/items_service.dart';
-import '../../usecases/SingleItem.dart';
 import '../../widgets/initial_circle.dart';
 import '../widgets/images_display.dart';
 

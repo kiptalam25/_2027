@@ -7,6 +7,7 @@ import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/chat_service.dart';
 
 import '../../../common/app_colors.dart';
+import '../../services/NetworkHelper.dart';
 import '../../services/sharedpreference_service.dart';
 import '../../usecases/conversation_response.dart';
 import '../../usecases/profile_data.dart';
@@ -69,6 +70,7 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
 
   @override
   void initState() {
+    NetworkHelper.checkInternetAndShowPopup(context);
     loadProfileData();
     _fetchChatUsers();
     super.initState();
@@ -110,8 +112,7 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
                   child: user.profilePicUrl ==
                       null
                       ? Text(
-                    user.fullName
-                        .substring(0, 1)
+                    user.fullName?? "No name".substring(0, 1)
                         .toUpperCase(),
                     style: TextStyle(color: Colors.white),
                   )
@@ -131,7 +132,7 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
                           .profilePicUrl!
                           .isEmpty
                       ? Text(
-                    user.fullName
+                    user.fullName ?? "No name"
                         .substring(0, 1)
                         .toUpperCase(),
                     style: TextStyle(color: Colors.white),
@@ -153,13 +154,13 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
                 /
                  */
                 subtitle: Column(children: [
-                  user.swapId.isNotEmpty ?
+                  user.swapId!.isNotEmpty ?
                   Text("Swaps: "+
-                      user.swapId.length.toString()
+                      user.swapId!.length.toString()
                   ):Text(""),
-                  user.donationId.isNotEmpty ?
+                  user.donationId!.isNotEmpty ?
                   Text("Donations: "+
-                      user.donationId.length.toString()
+                      user.donationId!.length.toString()
                   ):Text(""),
                 ],),
                 trailing: Column(

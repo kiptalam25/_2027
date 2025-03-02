@@ -63,8 +63,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   String? uploadedUrl;
+  late MultipartFile? profileImage;
 
-  Future<bool> _uploadImage() async {
+  Future<String?> _uploadImage() async {
     setState(() {
       isUploadingImage = true;
     });
@@ -73,8 +74,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final dio = Dio();
     try {
       // for (var image in _imageFiles!) {
+      profileImage=await MultipartFile.fromFile(_image!.path);
       final formData = FormData.fromMap({
-        "file": await MultipartFile.fromFile(_image!.path),
+        "file": profileImage,
         "upload_preset": uploadPreset,
       });
 
@@ -93,16 +95,17 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           uploadedUrl = imageUrl;
         });
-        return true;
+        return uploadedUrl;
       }
       setState(() {
+        isUploadingImage=false;
         uploadedUrl = "";
       });
       print("Error: Failed to upload profile image!");
-      return true;
+      return null;
     } catch (e) {
       print("Error uploading profile picture: $e");
-      return true;
+      return null;
     }
   }
 
@@ -707,15 +710,22 @@ class _ProfilePageState extends State<ProfilePage> {
       height: 46,
       radius: 24,
       title: "Sign Up",
-      onPressed: state is RegistrationLoading
-          ? null
+      onPressed: state is RegistrationLoading || isUploadingImage
+          ? ()=>{}
           : () async {
               // if (uploadedUrl != null && uploadedUrl != "") {
-              bool isImageUploaded = await _uploadImage();
-              if (isImageUploaded) {
+        // bool isImageUploaded=true;
+        // uploadedUrl="";
+        // if(profileImage!=null) {
+        //    isImageUploaded = await _uploadImage();
+        // }
+        //       if (isImageUploaded) {
+                // isUploadingImage =false;
                 print(
-                    ".................................. ........... $uploadedUrl ");
+                    ".............Uploaded image Url..................... ........... $uploadedUrl ");
+
                 if (_formKey.currentState?.validate() ?? false) {
+                 uploadedUrl= await _uploadImage();
                   final _fullPhoneNumber =
                       '$_selectedCountryCode${_phoneController.text}';
                   BlocProvider.of<RegistrationBloc>(context).add(
@@ -730,7 +740,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   );
                 }
-              }
+              // }
               // }
               // else {
               //   if (_formKey.currentState?.validate() ?? false) {
@@ -791,7 +801,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // }
 
   bool _isValidPhoneNumber(String phoneNumber) {
-    return phoneNumber.length >= 10; // Basic length validation
+    return phoneNumber.length >= 7; // Basic length validation
   }
 
   Future<void> saveUserData(RegisterUser registerUser) async {

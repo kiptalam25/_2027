@@ -72,15 +72,26 @@ class ChatService {
     }
   }
 
-  Future<Response> updateExchangeStatus(String exchangeId,String jsonString) async {
+  Future<Response> updateExchangeStatus(String exchangeId,Map<String,dynamic> payload) async {
     final apiClient = ApiClient();
-    print("Updating exchange status to "+jsonString);
+    print("Updating exchange status to "+payload.toString());
 
       final response = await apiClient.patch(
-        ApiConstants.swaps+"/$exchangeId/status",
+        ApiConstants.swaps+"/$exchangeId/status",data: payload
       );
 
       return response;
 
+  }
+
+  Future<Response> updateDonationStatus(exchangeId, Map<String, dynamic> payload) async {
+    final apiClient = ApiClient();
+    print("Updating donation status to "+payload.toString());
+
+    final response = await apiClient.patch(
+        ApiConstants.donation+"/$exchangeId/status",data: payload
+    );
+
+    return response;
   }
 }

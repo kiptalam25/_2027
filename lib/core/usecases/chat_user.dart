@@ -1,9 +1,9 @@
 class ChatUser {
   final String userId;
-  final List<String> swapId;
-  final List<String> donationId;
-  final String username;
-  final String fullName;
+  final List<String>? swapId;
+  final List<String>? donationId;
+  final String? username;
+  final String? fullName;
   final String? profilePicUrl;
 
 

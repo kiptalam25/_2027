@@ -15,6 +15,7 @@ import '../../common/widgets/app_bar.dart';
 import '../../common/widgets/basic_app_button.dart';
 import '../../core/main/pages/home_page.dart';
 import '../../core/onboading_flow/widgets/social_links.dart';
+import '../../core/widgets/notification_popup.dart';
 import '../login_with_google/google_sign_in_helper.dart';
 import 'login_bloc.dart';
 import 'login_event.dart';
@@ -97,6 +98,8 @@ class _LoginPageState extends State<LoginPage> {
       print('Login successful');//ChooseCategories(currentPage: 4,)
       AppNavigator.pushAndRemove(context, HomePage(autoClick: false,));
     } else {
+      StatusPopup.show(context,
+          message: result.message, isSuccess: false);
       print('Login failed: ${result.message}');
       // Show an error message to the user
     }

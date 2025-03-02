@@ -81,7 +81,7 @@ class ItemCard extends StatelessWidget {
                             color: AppColors.smallBtnBackground,
                             borderRadius: BorderRadius.circular(12.0),
                           ),
-                          child: Text(item.exchangeMethod.toCapitalized),
+                          child: Text(item.exchangeMethod.toCapitalized,style: TextStyle(fontSize: 10),),
                         ),
                       ),
                       Flexible(

@@ -10,10 +10,12 @@ import 'package:swapifymobile/core/profile/profile_page.dart';
 import 'package:swapifymobile/core/services/items_service.dart';
 import '../../../common/app_colors.dart';
 import '../../list_item_flow/add_new_item_sheet.dart';
+import '../../services/NetworkHelper.dart';
 import '../../services/sharedpreference_service.dart';
 import '../../usecases/item.dart';
 import '../../usecases/location.dart';
 import '../../usecases/profile_data.dart';
+import '../../widgets/notification_popup.dart';
 import '../../widgets/search_input.dart';
 import '../item_grid.dart';
 import '../widgets/bottom_navigation.dart';
@@ -35,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
+    NetworkHelper.checkInternetAndShowPopup(context);
     if (widget.autoClick) {
       Future.delayed(Duration(milliseconds: 500), () {
         _addItem();
@@ -43,7 +46,9 @@ class _HomePageState extends State<HomePage> {
     fetchItems();
     getProfileData();
     super.initState();
+
   }
+
 
   late ProfileData profileData = ProfileData();
    late Location? location=null;

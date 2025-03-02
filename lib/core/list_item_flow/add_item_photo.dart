@@ -49,7 +49,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   // }
 
   final ImagePicker _picker = ImagePicker();
-  List<dynamic>? _imageFiles = [];
+  late List<dynamic> _imageFiles=[];
   bool isNewItem = true;
 
   @override
@@ -201,8 +201,8 @@ class _AddItemPhoto extends State<AddItemPhoto> {
       setState(() {
         _uploadedImageUrls = uploadedUrls;
       });
+      final jsonResult = getUrlsAsJson();
       if (_uploadedImageUrls.isNotEmpty) {
-        final jsonResult = getUrlsAsJson();
         final response2 = await itemsService.updateItem(jsonResult, item!.id);
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -228,6 +228,10 @@ class _AddItemPhoto extends State<AddItemPhoto> {
   }
 
   String getUrlsAsJson() {
+    if (item!.imageUrls.length>0) {
+      _uploadedImageUrls.addAll(item!.imageUrls);
+      imagesChanged=true;
+    }
     final Map<String, dynamic> jsonMap = {
       "imageUrls": _uploadedImageUrls,
     };
@@ -247,7 +251,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
     if (image != null) {
       setState(() {
         // _imageFile = File(image.path);
-        _imageFiles?.add(image);
+        _imageFiles.add(image);
       });
     }
   }
@@ -280,30 +284,63 @@ class _AddItemPhoto extends State<AddItemPhoto> {
       },
     );
   }
-
+bool imagesChanged=false;
   Future<void> _removeImage(int index) async {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Remove This Image?'),
+        title: Center(child: Column(
+          children: [
+            Icon(Icons.warning_amber_outlined,size: 30,),
+            Text('Do you want to remove this image?',style: TextStyle(fontSize: 16),),
+          ],
+        )),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('No'),
-          ),
-          TextButton(
-            onPressed: () async {
-              setState(() {
-                item!.imageUrls.removeAt(index);
-              });
-              await deleteImage(item!.imageUrls[index]);
-              Navigator.pop(context);
+         Column(
+           children: [
+             BasicAppButton(onPressed: () async {
+               setState(() {
+                 if (item != null) {
+                   if (item!.imageUrls.isNotEmpty) {
+                     item!.imageUrls.removeAt(index); // ✅ Modify directly
+                   }
+                 }
 
-            },
-            child: Text('Yes'),
-          ),
+                 if (_imageFiles.isNotEmpty) {
+                   _imageFiles.removeAt(index); // ✅ Modify directly
+                 }
+
+                 if (item != null && item!.imageUrls.isNotEmpty) {
+                   // ✅ Use a copy of the list before adding
+                   List<String> tempList = List.from(item!.imageUrls);
+                   _uploadedImageUrls.addAll(tempList);
+                   imagesChanged=true;
+                 }
+
+               });
+
+
+
+               // await deleteImage(item!.imageUrls[index]);
+               Navigator.pop(context);
+             },
+               title: "Yes",
+             height: 40,
+               radius: 32,
+               textColor: Colors.white,
+             ),
+             BasicAppButton(onPressed: () async {
+               Navigator.pop(context);
+             },
+               title: "No",
+             height: 40,
+               radius: 32,
+               backgroundColor: Colors.white,
+               textColor: AppColors.primary,
+             ),
+
+           ],
+         )
         ],
       ),
     );
@@ -335,7 +372,9 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                                   ? _imageFiles!
                                   : item!.imageUrls,
                               onRemove: _removeImage,
+                              onAdd: ()=>{_openBottomSheet()},
                               showRemoveButton: true,
+                              showAddButton: true,
                             )
 
                           // child: ImageDisplay(
@@ -534,7 +573,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Text(
-                              " $interest,",
+                              interest.toTitleCase,
                               style: TextStyle(fontSize: 16),
                             ),
                           );
@@ -550,16 +589,26 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                                   radius: 24,
                                   onPressed: _uploadingImages
                                       ? null
-                                      : () {
+                                      : !imagesChanged ? ()=>{
+                                    Navigator.pop(context)
+                                  }: () {
                                           _uploadImages();
                                         },
                                   content: _uploadingImages
-                                      ? CircularProgressIndicator()
-                                      : Text(
+                                      ? Loading()
+                                      : imagesChanged? Text(
                                           "Upload",
                                           style: TextStyle(
                                               color: AppColors.background),
-                                        )),
+                                        )
+                              : Text(
+                                    "Done",
+                                    style: TextStyle(
+                                        color: AppColors.background),
+                                  )
+                              )
+
+                              ,
                               SizedBox(
                                 height: 16,
                               ),
@@ -574,6 +623,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
                             ],
                           )
                         ],
+
 
                         if (!isNewItem) ...[
                           Row(

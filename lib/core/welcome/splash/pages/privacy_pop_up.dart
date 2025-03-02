@@ -23,8 +23,8 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
   bool fetchingPolicy = false;
 
   late Map<String, dynamic> pp;
-  late Map<String, dynamic> privacyPolicy;
-  late Map<String, dynamic> termsOfUse;
+  late Map<String, dynamic>? privacyPolicy;
+  late Map<String, dynamic>? termsOfUse;
 
   Future<void> fetchPolicy() async {
     setState(() {
@@ -41,12 +41,23 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
                 pp['privacyPolicy']['sections'] as Map<String, dynamic>;
             termsOfUse = pp['termsOfUse']['sections'] as Map<String, dynamic>;
           });
+
+        }else{
+          setState(() {
+            termsOfUse=null;
+            privacyPolicy=null;
+            fetchingPolicy=false;
+          }
+          // ShowPo
+          );
+
         }
       }
     } catch ($e) {
     } finally {
       setState(() {
-        privacyPolicy={};
+        // privacyPolicy=null;
+        // termsOfUse=null;
         fetchingPolicy = false;
       });
     }
@@ -70,16 +81,16 @@ class _PrivacyPolicyPopupState extends State<PrivacyPolicyPopup> {
     return Scaffold(
       body: fetchingPolicy
           ? Loading()
-          : privacyPolicy !=null ? SingleChildScrollView(
+          : privacyPolicy !=null && termsOfUse!=null ? SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildSectionTitle('Privacy Policy'),
-                  ...privacyPolicy.entries.map((entry) {
+                  ...privacyPolicy!.entries.map((entry) {
                     return buildSection(entry.key, entry.value);
                   }).toList(),
                   buildSectionTitle('Terms of Use'),
-                  ...termsOfUse.entries.map((entry) {
+                  ...termsOfUse!.entries.map((entry) {
                     return buildSection(entry.key, entry.value);
                   }).toList(),
                   accept()

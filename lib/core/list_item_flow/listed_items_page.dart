@@ -185,13 +185,13 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
                           }
                         },
                       )
-                    : Center(
+                    : isLoading ?  Center(
                         child: SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(),
                         ),
-                      ),
+                      ):Center(child: Text("No items found"),),
                 // child: Column(
                 //   children: [_itemsGrid()],
                 // ),
@@ -277,40 +277,36 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
       children: [
         Row(
           children: [
-            InitialCircle(
-              text: profileData.fullName.toString(), // Pass the full text here
-              color: AppColors.primary,
-              size: 60.0,
-              textStyle: TextStyle(fontSize: 30, color: Colors.white),
-            ),
-            SizedBox(
-              width: 16,
-            ),
+
+            // SizedBox(
+            //   width: 16,
+            // ),
             //profile
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(profileData.fullName.toString()),
-                Text("Swaps completed: 21")
-              ],
-            )
-          ],
-        ),
+
         Stack(
           children: [
-            // Circular profile image
             Container(
-              width: 60, // Set the desired width and height
+              width: 60,
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                image: DecorationImage(
-                  image: NetworkImage(profileData.profilePicUrl
-                      .toString()), // Replace with your image
-                  fit: BoxFit.cover,
-                ),
-                color: Colors
-                    .grey.shade200, // Fallback color if no image is provided
+                color: Colors.grey.shade200, // Fallback color
+              ),
+            ),
+            ClipOval(
+              child: Image.network(
+                profileData.profilePicUrl.toString(),
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return InitialCircle(
+                    text: profileData.fullName.toString(), // Show initials
+                    color: AppColors.primary,
+                    size: 60.0,
+                    textStyle: TextStyle(fontSize: 30, color: Colors.white),
+                  );
+                },
               ),
             ),
             // Edit icon (pen) positioned at the bottom-right
@@ -321,7 +317,7 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: Colors.blue, // Background color of the edit icon
+                  color: AppColors.primary, // Background color of the edit icon
                   shape: BoxShape.circle,
                 ),
                 child: GestureDetector(
@@ -337,22 +333,17 @@ class _ListedItemsPageState extends State<ListedItemsPage> {
               ),
             ),
           ],
-        )
-
-        // GestureDetector(
-        //   onTap: () {
-        //     AppNavigator.push(context, EditProfilePage());
-        //   },
-        //   child: Row(
-        //     children: [
-        //       Text("Edit profile"),
-        //       Icon(
-        //         Icons.edit,
-        //         size: 10,
-        //       )
-        //     ],
-        //   ),
-        // )
+        ),
+            SizedBox(width: 12,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(profileData.fullName.toString()),
+                Text("Swaps completed: 21")
+              ],
+            )
+          ],
+        ),
       ],
     );
   }

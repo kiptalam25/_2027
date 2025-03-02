@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../common/app_colors.dart';
+
 class InputSection extends StatelessWidget {
   final String label;
   final String hintText;
@@ -27,7 +29,7 @@ class InputSection extends StatelessWidget {
           height: 16,
         ),
         SizedBox(
-          height: maxCharacters > 0 ? 126 : 40,
+          height: maxCharacters > 0 ? 126 : 50,
           child: TextFormField(
             controller: controller,
 
@@ -44,18 +46,22 @@ class InputSection extends StatelessWidget {
               isDense: true,
               hintText: hintText,
               labelText: label,
-              hintStyle: TextStyle(color: Colors.grey),
-              // border: OutlineInputBorder(
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              // focusedBorder: OutlineInputBorder(
-              //   borderSide: BorderSide(color: AppColors.primary, width: 2.0),
-              // ),
-              // enabledBorder: OutlineInputBorder(
-              //   borderSide: BorderSide(color: Colors.grey, width: 1.0),
-              // ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              labelStyle: TextStyle(color: Colors.black), // Change label text color
+              floatingLabelBehavior: FloatingLabelBehavior.always, // Keep label at the top
+              hintStyle: TextStyle(color: Colors.grey), // Change hint text color if needed
+              contentPadding: EdgeInsets.symmetric(horizontal: 8.0,vertical: 8.0), // Push text to the top
+              // hintStyle: TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.primary, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey, width: 1.0),
+              ),
+              // contentPadding:
+              //     EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
               counterText: '', // Hides the default Flutter counter
             ),
             onChanged: (text) {

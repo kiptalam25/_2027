@@ -373,25 +373,6 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                 const SizedBox(
                   height: 16,
                 ),
-                // Text("Estimated date of purchase*"),
-                // SizedBox(
-                //   height: 10,
-                // ),
-                // SizedBox(
-                //   height: 40,
-                //   child: TextField(
-                //     controller: _dateController,
-                //     readOnly: true, // Make the text field read-only
-                //     decoration: const InputDecoration(
-                //       border: OutlineInputBorder(),
-                //       suffixIcon: Icon(Icons.calendar_today),
-                //     ),
-                //     onTap: () => _selectDate(context), // Open the date picker
-                //   ),
-                // ),
-                const SizedBox(
-                  height: 16,
-                ),
                 // Text("Item Category*"),
                 _categories.isEmpty
                     ? Loading()
@@ -520,22 +501,28 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                               });
                             },
                           ),
-                    if (showList) ...[
-                      Container(
-                        height: 80,
-                        child: ListView.builder(
-                            itemCount: selectedCategoryIds.length,
-                            itemBuilder: (context, index) {
-                              final item = selectedCategoryIds[index];
-                              return Row(
-                                children: [
-                                  Text(item),
-                                ],
-                              );
-                            }),
-                      )
-                    ]
-                    // if (selectedCategoryIds.isNotEmpty) ...[
+                        if (showList)
+                          Container(
+                            constraints: BoxConstraints(maxHeight: 200), // Set max height for flexibility
+                            child: ListView.builder(
+                              shrinkWrap: true, // Allows it to take only necessary space
+                              physics: NeverScrollableScrollPhysics(), // Prevents nested scrolling issues
+                              itemCount: selectedCategoryIds.length,
+                              itemBuilder: (context, index) {
+                                final item = selectedCategoryIds[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0), // Adds spacing
+                                  child: Row(
+                                    children: [
+                                      Text(item.toCapitalized),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+
+                        // if (selectedCategoryIds.isNotEmpty) ...[
                     //   Container(
                     //       child: ListView.builder(
                     //           itemCount: selectedCategoryIds.length,

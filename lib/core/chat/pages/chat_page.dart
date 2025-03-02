@@ -1,29 +1,26 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/common/widgets/basic_app_button.dart';
 import 'package:swapifymobile/core/main/widgets/loading.dart';
 import 'package:swapifymobile/core/services/chat_service.dart';
 import 'package:swapifymobile/core/usecases/chat_user.dart';
-import 'package:swapifymobile/core/widgets/alert_dialog.dart';
-
 import '../../../common/app_colors.dart';
 import '../../services/sharedpreference_service.dart';
 import '../../usecases/conversation_response.dart';
-import '../../usecases/exchange.dart';
 import '../../usecases/profile_data.dart';
 import 'dart:async';
 
+import '../../widgets/notification_popup.dart';
 import '../chat_bubble.dart';
 
 class ChatPage extends StatefulWidget {
   final String exchangeId;
   final bool isRecipient;
+  final bool isSwap;
   final ChatUser chatUser;
 
-  const ChatPage({Key? key, required this.exchangeId, required this.isRecipient, required this.chatUser})
+  const ChatPage({Key? key, required this.exchangeId, required this.isRecipient, required this.chatUser, required this.isSwap})
       : super(key: key);
 
   @override
@@ -47,6 +44,7 @@ class _ChatPageState extends State<ChatPage> {
   // Timer? _timer;
   bool initialLoading = true;
   bool isSending = false;
+  bool isCompleting=false;
 
   Future<void> fetchChat(exchangeId) async {
     if (initialLoading) {
@@ -146,7 +144,8 @@ class _ChatPageState extends State<ChatPage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.chatUser.fullName),
+          title: Text(widget.chatUser.fullName?? "No name"),
+
 
         actions: [
           PopupMenuButton<int>(
@@ -166,10 +165,24 @@ class _ChatPageState extends State<ChatPage> {
               }
             },
             itemBuilder: (context) => [
+              widget.isSwap ?
               PopupMenuItem(
                 value: 1,
                 onTap: () {
                   showConfirmationDialog(context, widget.exchangeId);
+                },
+                child: const Text('End Swap'),
+              ):!widget.isSwap && !widget.isRecipient ?
+              PopupMenuItem(
+                value: 1,
+                onTap: () {
+                  showConfirmationDialog(context, widget.exchangeId);
+                },
+                child: const Text('End Donation'),
+              ):PopupMenuItem(
+                value: 1,
+                onTap: () {
+
                 },
                 child: const Text('End Swap'),
               ),
@@ -196,7 +209,9 @@ class _ChatPageState extends State<ChatPage> {
               : Column(
                   children: [
                     Column(
-                      children: [ElevatedButton(
+                      children: [
+                        widget.isSwap ?
+                        ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           side: BorderSide(color: Color(0xFF50644C), width: 2),
                           backgroundColor: AppColors.primary,
@@ -212,7 +227,25 @@ class _ChatPageState extends State<ChatPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),],
+                      ):
+                        !widget.isSwap && !widget.isRecipient ?
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            side: BorderSide(color: Color(0xFF50644C), width: 2),
+                            backgroundColor: AppColors.primary,
+                          ),
+                          onPressed: () {
+                            showConfirmationDialog(context, widget.exchangeId)  ;
+                          },
+                          child: Text(
+                            "End Donation",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: AppColors.background,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ):Text("Awaiting Completion from "+widget.chatUser.fullName!),],
                     ),
                     // Messages List
                     Expanded(
@@ -309,8 +342,32 @@ class _ChatPageState extends State<ChatPage> {
                   title: "Yes",
                   height: 40,
                   radius: 32,
-                  onPressed:  () {
-                  
+                  onPressed: isCompleting ? () {}:  () async {
+                    setState(() {
+                      isCompleting=true;
+                    });
+                    Map<String, dynamic> payload;
+                    payload = {
+                      "status":"completed"
+                    };
+
+                    // String jsonString = jsonEncode(payload);
+
+                    final response=await chatService.updateExchangeStatus(swapId,payload);
+
+                    final data = response.data;
+                    print(data['message']);
+                    if(data['success']) {
+                      StatusPopup.show(context,
+                          message: data['message'], isSuccess: true);
+                    }
+                    if(!data['success']) {
+                      StatusPopup.show(context,
+                          message: data['data']['error'], isSuccess: false);
+                    }
+                    setState(() {
+                      isCompleting=false;
+                    });
                 },),
                 SizedBox(height: 8,),
                 BasicAppButton(

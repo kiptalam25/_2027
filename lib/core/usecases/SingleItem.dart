@@ -8,7 +8,7 @@ class SingleItem {
   final String title;
   final String description;
   final String condition;
-  final List<String> imageUrls;
+  late final List<String> imageUrls;
   final List<String>? tags;
   final String status;
   final String exchangeMethod;

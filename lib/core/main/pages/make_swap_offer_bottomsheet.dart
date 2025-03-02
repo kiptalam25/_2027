@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dio/src/response.dart';
 import 'package:flutter/material.dart';
 import 'package:swapifymobile/api_client/api_client.dart';
 import 'package:swapifymobile/auth/models/response_model.dart';
@@ -248,14 +249,18 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                           else
                             {
                               StatusPopup.show(context,
-                                  message: response.message, isSuccess: false)
+                                  message: response.message, isSuccess: false),
+                              setState(() {
+                                isSending=false;
+                              })
                             }}
                       else if(widget.exchangeMethod=="donation"){
                         response = await makeDonationRequest(),
                         if (response.success)
                           {
+
                             StatusPopup.show(context,
-                                message: "Request is Sent", isSuccess: true),
+                                message: response.message, isSuccess: true),
                             Navigator.pop(context),
                             Navigator.pushReplacement(
                                 context,
@@ -268,17 +273,21 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
                           }
                         else
                           {
-                            if(response.message.contains("Missing required fields")){
-                              StatusPopup.show(context,
-                                  message: "Missing required fields", isSuccess: false)
-                            }else if(response.message.contains("already exists")){
-                              StatusPopup.show(context,
-                                  message: "Donation request already exists", isSuccess: false)
-                            }else
-                              {
-                                StatusPopup.show(context,
-                                    message: response.message, isSuccess: false)
-                              }
+                            StatusPopup.show(context,
+                                message: response.message, isSuccess: false),
+                            // StatusPopup.show(context,
+                            //     message: response, isSuccess: false),
+                            // if(response.message.contains("Missing required fields")){
+                            //   StatusPopup.show(context,
+                            //       message: "Missing required fields", isSuccess: false)
+                            // }else if(response.message.contains("already exists")){
+                            //   StatusPopup.show(context,
+                            //       message: "Donation request already exists", isSuccess: false)
+                            // }else
+                            //   {
+                            //     StatusPopup.show(context,
+                            //         message: response.message, isSuccess: false)
+                            //   }
                           }
                       } else{
                         StatusPopup.show(context,
@@ -322,13 +331,19 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
     }
       String jsonString = jsonEncode(jsonMap);
       print(jsonString);
-      ResponseModel response = await tradeService.createSwapOffer(jsonString);
-      setState(() {
+      final response = await tradeService.createSwapOffer(jsonString);
+      final data =response?.data;
+      if(data['success']) {
         setState(() {
-          isSending=false;
+          setState(() {
+            isSending = false;
+          });
         });
-      });
-      return response;
+        return ResponseModel(success: true, message: data['message']);
+      }
+
+      print(data.toString());
+      return ResponseModel(success: false, message: data['data']['error']);
 
   }
 
@@ -343,8 +358,25 @@ class _MakeSwapOfferBottomsheetState extends State<MakeSwapOfferBottomsheet> {
 
       String jsonString = jsonEncode(jsonMap);
       print(jsonString);
-      ResponseModel response = await tradeService.createDonationRequest(jsonString);
-      return response;
+      final response = await tradeService.createDonationRequest(jsonString);
+      if(response!=null){
+        final data=response.data;
+        if(data['success']) {
+          setState(() {
+            setState(() {
+              isSending = false;
+            });
+          });
+          return ResponseModel(success: true, message: data['message']);
+        }
+
+        print(data.toString());
+        return ResponseModel(success: false, message: data['data']['error']);
+
+      }
+    return ResponseModel(success: false, message: "No Response From Server");
+
+
 
   }
 

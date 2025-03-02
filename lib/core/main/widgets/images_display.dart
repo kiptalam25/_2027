@@ -9,7 +9,9 @@ class ImagesDisplay extends StatefulWidget {
   final Color activeDotColor;
   final Color inactiveDotColor;
   final Function(int)? onRemove; // Optional callback for removing images
+  final  VoidCallback?  onAdd; // Optional callback for adding images
   final bool showRemoveButton; // Controls visibility of the "X" button
+  final bool showAddButton; // Controls visibility of the "X" button
 
   const ImagesDisplay({
     Key? key,
@@ -18,7 +20,9 @@ class ImagesDisplay extends StatefulWidget {
     this.activeDotColor = Colors.blue,
     this.inactiveDotColor = Colors.grey,
     this.onRemove,
-    this.showRemoveButton = false, // Default is false
+     this.onAdd,
+    this.showRemoveButton = false,
+    this.showAddButton=false, // Default is false
   }) : super(key: key);
 
   @override
@@ -99,6 +103,32 @@ class _ImagesDisplayState extends State<ImagesDisplay> {
                         ),
                       ),
                     ),
+
+                  if(widget.showAddButton)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (widget.onAdd != null) {
+                          widget.onAdd!();
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+
                 ],
               );
             },

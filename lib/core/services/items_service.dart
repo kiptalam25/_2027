@@ -158,4 +158,33 @@ class ItemsService {
           success: false, message: "Internal error Failed to delete: ${e}");
     }
   }
+
+  Future<Response?> fetchUserItems(String userId) async {
+    try {
+      final response = await apiClient.get(ApiConstants.items + "/user/$userId");
+
+      return response;
+      // if (response.statusCode == 200) {
+      //   print("...............................................................................");
+      //   print(response.data['data']['items'].toString());
+      //   final data = response.data;
+      //   if (data != null && data['items'] != null) {
+      //     return SingleItem.fromJson(data['data']['items']);
+      //   } else {
+      //     throw Exception('Invalid item structure');
+      //   }
+      //   // final responseData = response.data;
+      //   // return Item.fromJson(responseData['item']);
+      // } else {
+      //   throw Exception(
+      //       'Failed to fetch item. Status code: ${response.statusCode}');
+      // }
+    } catch (e) {
+      // return null;
+      throw Exception(
+        'Failed to fetch users items. Error $e',
+      );
+      // return null;
+    }
+  }
 }

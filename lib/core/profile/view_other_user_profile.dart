@@ -5,7 +5,12 @@ import 'package:swapifymobile/core/usecases/other_user_profile.dart';
 
 import '../../api_client/api_client.dart';
 import '../../common/app_colors.dart';
+import '../../common/widgets/app_navigator.dart';
+import '../list_item_flow/widgets/list_view.dart';
+import '../services/items_service.dart';
 import '../services/profile_service.dart';
+import '../usecases/SingleItem.dart';
+import '../widgets/initial_circle.dart';
 
 class ViewOtherUserProfile extends StatefulWidget {
   final String userId;
@@ -23,14 +28,63 @@ class _ViewOtherUserProfileState extends State<ViewOtherUserProfile> {
   }
    late OtherUserProfile otherUserProfile;
 
+  final TextEditingController _searchController = TextEditingController();
+  final ItemsService itemsService = ItemsService(ApiClient());
+
 @override
   void initState() {
   _fetchPostersProfile(widget.userId);
+  fetchUserItems(widget.userId);
     super.initState();
   }
   final ProfileService profileService = ProfileService(new ApiClient());
 
 bool isLoading=false;
+  // List<dynamic>  swapConversations= [];
+  void fetchUserItems(String userId) async {
+    setState(() {
+      items = [];
+      isLoading = true;
+    });
+    String keyword = _searchController.text;
+    var response = await itemsService.fetchUserItems(userId);
+    if (response != null) {
+      var data=response.data;
+      if (data['success'] == true) {
+        print(
+            "...............................................................................");
+        print(response.data['data']['items'].toString());
+        setState(() {
+          items=data['data']['items'];
+          // items = (data['data']['items'] as List)
+          //     .map((item) => SingleItem.fromJson(item))
+          //     .toList();
+          filteredItems = items;
+        });
+      }
+      setState(() {
+        isLoading = false;
+      });
+      final responseData = response.data;
+
+      if (responseData['success'] == true) {
+        setState(() {
+          items = (responseData['items'] as List)
+              .map((item) => SingleItem.fromJson(item))
+              .toList();
+          items=data['data']['items'];
+          filteredItems = items;
+        });
+      } else {
+        print('Request failed with message: ${responseData["message"]}');
+      }
+    } else {
+      print('Service returned null');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   Future<void> _fetchPostersProfile(String createdBy) async {
     setState(() {
@@ -50,47 +104,185 @@ bool isLoading=false;
       appBar: BasicAppbar(
         hideBack: false,
       ),
-      body: isLoading ? Loading():  SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Text(
-                    truncateToFirstWord(otherUserProfile.fullName) +
-                        "'s Profile",
-                    style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+      body: isLoading
+          ? Loading()
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Text(
+                truncateToFirstWord(otherUserProfile.fullName) + "'s Profile",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              // Text("Full Name: "),
-              // Text(otherUserProfile.fullName),
-              _buildProfileImageSection(),
-              SizedBox(
-                height: 16,
-              ),
+            ),
+            _userInfo(),
+            SizedBox(height: 12),
+            _switchBtns(), // No need for extra Column
 
-              Text("Listed Items", style: TextStyle(fontSize: 16)),
-              Text(otherUserProfile.listedItemCount.toString()),
-              SizedBox(
-                height: 16,
-              ),
-              Text("Completed Donations", style: TextStyle(fontSize: 16)),
-              Text(
-                otherUserProfile.completedSwapCount.toString(),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Text("Bio", style: TextStyle(fontSize: 16)),
-              Text(otherUserProfile.bio.toString()),
-            ],
-          ),
+            Expanded(
+              child: filteredItems.isNotEmpty
+                  ? ListView.builder( // ✅ Removed `Flexible` & `NeverScrollableScrollPhysics()`
+                itemCount: filteredItems.length,
+                itemBuilder: (context, index) {
+                  var item = filteredItems[index];
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: ListTile(
+                      title: Text(item['title']),
+                    ),
+                  );
+                },
+              )
+                  : isLoading
+                  ? Center(
+                child: SizedBox(
+                  height: 40, // ✅ Larger spinner
+                  width: 40,
+                  child: CircularProgressIndicator(),
+                ),
+              )
+                  : Center(child: Text("No items found")),
+            ),
+            SizedBox(height: 16),
+          ],
         ),
       ),
     );
+
   }
+
+  late List<dynamic> items = [];
+  List<dynamic> filteredItems = [];
+  bool isBarter = true;
+
+
+  void filterItems(String query) {
+    setState(() {
+      // Filter items where exchangeMethod is 'both' or contains the query
+      filteredItems = items.where((item) {
+        return item.exchangeMethod.toLowerCase() == "both" ||
+            item.exchangeMethod.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      // Sort the items so that those with 'both' come first
+      filteredItems.sort((a, b) {
+        if (a.exchangeMethod.toLowerCase() == query) {
+          return -1;
+        } else if (b.exchangeMethod.toLowerCase() == query) {
+          return 1;
+        }
+        return 0; // No change in order for other items
+      });
+    });
+  }
+
+  Widget _switchBtns() {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      ElevatedButton(
+        onPressed: () {
+          filterItems('swap');
+          setState(() {
+            isBarter = true;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isBarter
+              ? AppColors.primary
+              : AppColors.background, // Use passed background color or fallback
+          minimumSize: Size(MediaQuery.of(context).size.width * .4, 36),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                topLeft: Radius.circular(10)), // Rounded corners
+          ),
+        ),
+        child: Text(
+          "Barter",
+          style: TextStyle(
+            color: isBarter ? AppColors.background : AppColors.primary,
+          ),
+        ),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          filterItems('donation');
+          setState(() {
+            isBarter = false;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isBarter
+              ? AppColors.background
+              : AppColors.primary, // Use passed background color or fallback
+          minimumSize: Size(MediaQuery.of(context).size.width * .4, 36),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(10),
+                topRight: Radius.circular(10)), // Rounded corners
+          ),
+        ),
+        child: Text(
+          "Donation",
+          style: TextStyle(
+            color: isBarter ? AppColors.primary : AppColors.background,
+          ),
+        ),
+      )
+    ]);
+  }
+
+
+  Widget _userInfo() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey.shade200, // Fallback color
+                  ),
+                ),
+                ClipOval(
+                  child: Image.network(
+                    otherUserProfile.profilePicUrl.toString(),
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return InitialCircle(
+                        text: otherUserProfile.fullName.toString(), // Show initials
+                        color: AppColors.primary,
+                        size: 60.0,
+                        textStyle: TextStyle(fontSize: 30, color: Colors.white),
+                      );
+                    },
+                  ),
+
+                ),
+              ],
+            ),
+            SizedBox(width: 12,),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(otherUserProfile.fullName.toString()),
+                Text("Complete Swaps: "+otherUserProfile.completedSwapCount.toString())
+              ],
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildProfileImageSection() {
     return Row(
