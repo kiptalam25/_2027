@@ -1,0 +1,9 @@
+scripts:
+  - name: Build Flutter iOS app
+    script: |
+      flutter pub get
+      flutter clean
+      flutter build ios --no-codesign
+      cd ios
+      pod install
+      cd ..
