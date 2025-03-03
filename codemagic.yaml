@@ -1,52 +1,56 @@
 workflows:
-  flutter-app:
-    name: Flutter App Build
-    instance_type: mac_mini_m1 # Use macOS for iOS builds
-
+  ios-build:
+    name: iOS Build
+    instance_type: mac_mini
+    max_build_duration: 120
     environment:
-      flutter: stable
-      xcode: latest
-      cocoapods: default
-
+      vars:
+        XCODE_WORKSPACE: "Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+        BUNDLE_ID: "com.example.swapifymobile"
     scripts:
       - name: Install dependencies
         script: |
-          flutter clean
           flutter pub get
-
-      - name: Build Android APK
-        script: |
-          flutter build apk --release
-
-      - name: Build iOS (No Code Signing)
+          cd ios
+          pod install
+          cd ..
+      - name: Build iOS without code signing
         script: |
           flutter build ios --no-codesign
-          cd ios && pod install && cd ..
-
-    artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk # Android output
-      - build/ios/iphoneos/*.app                      # iOS output
-
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com
 
 
 #workflows:
-##  android-workflow-id:
-##    name: Android Sample Workflow
-#    # .......
-#    # .......
-#    # .......
-#  ios-workflow-id:
-#    name: iOS Sample Workflow
-#scripts:
-#  - name: Build Flutter iOS app
-#    script: |
-#      flutter pub get
-#      flutter clean
-#      flutter build ios --no-codesign
-#      cd ios
-#      pod install
-#      cd ..
+#  flutter-app:
+#    name: Flutter App Build
+#    instance_type: mac_mini_m1 # Use macOS for iOS builds
+#
+#    environment:
+#      flutter: stable
+#      xcode: latest
+#      cocoapods: default
+#
+#    scripts:
+#      - name: Install dependencies
+#        script: |
+#          flutter clean
+#          flutter pub get
+#
+#      - name: Build Android APK
+#        script: |
+#          flutter build apk --release
+#
+#      - name: Build iOS (No Code Signing)
+#        script: |
+#          flutter build ios --no-codesign
+#          cd ios && pod install && cd ..
+#
+#    artifacts:
+#      - build/app/outputs/flutter-apk/app-release.apk # Android output
+#      - build/ios/iphoneos/*.app                      # iOS output
+#
+#    publishing:
+#      email:
+#        recipients:
+#          - your-email@example.com
+
