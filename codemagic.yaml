@@ -3,11 +3,11 @@ workflows:
     name: iOS Build
     instance_type: mac_mini
     max_build_duration: 120
-    environment:
-      vars:
-        XCODE_WORKSPACE: "Runner.xcworkspace"
-        XCODE_SCHEME: "Runner"
-        BUNDLE_ID: "com.example.swapifymobile"
+#    environment:
+#      vars:
+#        XCODE_WORKSPACE: "Runner.xcworkspace"
+#        XCODE_SCHEME: "Runner"
+#        BUNDLE_ID: "com.example.swapifymobile"
     scripts:
       - name: Install dependencies
         script: |
