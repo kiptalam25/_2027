@@ -1,3 +1,11 @@
+workflows:
+#  android-workflow-id:
+#    name: Android Sample Workflow
+    # .......
+    # .......
+    # .......
+  ios-workflow-id:
+    name: iOS Sample Workflow
 scripts:
   - name: Build Flutter iOS app
     script: |
