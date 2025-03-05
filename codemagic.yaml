@@ -2,7 +2,6 @@ workflows:
   ios-build:
     name: iOS Build
     instance_type: mac_mini_m1
-#    instance_type: mac_mini
     max_build_duration: 120
     environment:
       vars:
@@ -13,6 +12,7 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
+          flutter precache --ios  # Ensures Flutter iOS tools are available
           cd ios
           rm -rf Podfile.lock Pods
           pod install --repo-update
@@ -20,6 +20,7 @@ workflows:
       - name: Build iOS without code signing
         script: |
           flutter build ios --no-codesign
+
 
 
 #workflows:
