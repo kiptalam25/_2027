@@ -4,22 +4,41 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 120
     environment:
+      flutter: stable
+      cocoapods: default
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
         BUNDLE_ID: "com.example.swapifymobile"
 
     scripts:
+      - name: Print Flutter & Ruby versions (for debugging)
+        script: |
+          flutter --version
+          ruby -v
+          pod --version
+
       - name: Clean previous build files
         script: |
           rm -rf ios/Pods
           rm -rf ios/Podfile.lock
           flutter clean
-      - name: Install dependencies
+
+      - name: Ensure `podhelper.rb` exists
+        script: |
+          if [ ! -f "ios/flutter/podhelper.rb" ]; then
+            echo "ERROR: podhelper.rb is missing! Ensure Flutter module is properly set up."
+            exit 1
+          fi
+
+      - name: Install Flutter dependencies
         script: |
           flutter pub get
+
+      - name: Install CocoaPods dependencies
+        script: |
           cd ios
-          pod install --repo-update
+          pod install --repo-update --verbose
           cd ..
 
       - name: Build iOS without code signing
