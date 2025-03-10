@@ -1,0 +1,2 @@
+C:/Users/HP/IdeaProjects/swapifymobile/android/app/.cxx/RelWithDebInfo/504z121u/x86/CMakeFiles/edit_cache.dir
+C:/Users/HP/IdeaProjects/swapifymobile/android/app/.cxx/RelWithDebInfo/504z121u/x86/CMakeFiles/rebuild_cache.dir
