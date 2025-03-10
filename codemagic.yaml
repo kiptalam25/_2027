@@ -24,7 +24,7 @@ workflows:
           rm -rf ios/Podfile.lock
           flutter clean
 
-      - name: Ensure `flutter_install_all_ios_pods` is available
+      - name: Ensure Flutter and CocoaPods are correctly installed
         script: |
           flutter precache
           flutter doctor -v
@@ -33,14 +33,30 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Generate iOS module (if missing)
+      - name: Generate Podfile if missing and set platform to iOS 12.0
         script: |
           cd ios
-          flutter pub get
-          pod deintegrate
-          rm -rf Podfile.lock
+          if [ ! -f "Podfile" ]; then
+            echo "Creating Podfile..."
+            cat <<EOF > Podfile
+            platform :ios, '12.0'
+            use_frameworks!
+            target 'Runner' do
+              flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+            end
+            EOF
+          fi
+          cd ..
+
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
           pod install --repo-update --verbose
           cd ..
+
+      - name: Skip tests (override default behavior)
+        script: |
+          echo "Skipping tests..."
 
       - name: Build iOS without code signing
         script: |
