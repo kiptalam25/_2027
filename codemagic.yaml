@@ -33,20 +33,20 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Generate Podfile if missing and set platform to iOS 12.0
-        script: |
-          cd ios
-          if [ ! -f "Podfile" ]; then
-            echo "Creating Podfile..."
-            cat <<EOF > Podfile
-            platform :ios, '12.0'
-            use_frameworks!
-            target 'Runner' do
-              flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-            end
-            EOF
-          fi
-          cd ..
+#      - name: Generate Podfile if missing and set platform to iOS 12.0
+#        script: |
+#          cd ios
+#          if [ ! -f "Podfile" ]; then
+#            echo "Creating Podfile..."
+#            cat <<EOF > Podfile
+#            platform :ios, '12.0'
+#            use_frameworks!
+#            target 'Runner' do
+#              flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+#            end
+#            EOF
+#          fi
+#          cd ..
 
       - name: Install CocoaPods dependencies
         script: |
