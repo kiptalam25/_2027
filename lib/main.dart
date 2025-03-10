@@ -123,7 +123,7 @@ class MyApp extends StatefulWidget {
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class _MyAppState extends State<MyApp> {
-  final NetworkService _networkService = NetworkService();
+  // final NetworkService _networkService = NetworkService();
 
 
   bool _isConnected = true;
@@ -131,17 +131,17 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _networkService.connectionStream.listen((isConnected) {
-      if (!isConnected && _isConnected) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => NoInternetPage()),
-        );
-      } else if (isConnected && !_isConnected) {
-        Navigator.pop(context);
-      }
-      _isConnected = isConnected;
-    });
+    // _networkService.connectionStream.listen((isConnected) {
+    //   if (!isConnected && _isConnected) {
+    //     Navigator.push(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => NoInternetPage()),
+    //     );
+    //   } else if (isConnected && !_isConnected) {
+    //     Navigator.pop(context);
+    //   }
+    //   _isConnected = isConnected;
+    // });
   }
   // const MyApp({super.key});
   @override

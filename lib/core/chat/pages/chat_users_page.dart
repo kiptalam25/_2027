@@ -70,7 +70,7 @@ class _ChatUsersPageState extends State<ChatUsersPage> {
 
   @override
   void initState() {
-    NetworkHelper.checkInternetAndShowPopup(context);
+    // NetworkHelper.checkInternetAndShowPopup(context);
     loadProfileData();
     _fetchChatUsers();
     super.initState();

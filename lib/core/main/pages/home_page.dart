@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
-    NetworkHelper.checkInternetAndShowPopup(context);
+    // NetworkHelper.checkInternetAndShowPopup(context);
     if (widget.autoClick) {
       Future.delayed(Duration(milliseconds: 500), () {
         _addItem();
