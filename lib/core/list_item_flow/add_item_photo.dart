@@ -104,7 +104,9 @@ class _AddItemPhoto extends State<AddItemPhoto> {
     final List<XFile>? selectedImages = await _picker.pickMultiImage();
     if (selectedImages != null && selectedImages.isNotEmpty) {
       setState(() {
+
         _imageFiles = selectedImages;
+        imagesChanged=true;
       });
     }
   }
@@ -252,6 +254,7 @@ class _AddItemPhoto extends State<AddItemPhoto> {
       setState(() {
         // _imageFile = File(image.path);
         _imageFiles.add(image);
+        imagesChanged=true;
       });
     }
   }
@@ -596,7 +599,7 @@ bool imagesChanged=false;
                                         },
                                   content: _uploadingImages
                                       ? Loading()
-                                      : imagesChanged? Text(
+                                      : imagesChanged || _imageFiles.length>0? Text(
                                           "Upload",
                                           style: TextStyle(
                                               color: AppColors.background),

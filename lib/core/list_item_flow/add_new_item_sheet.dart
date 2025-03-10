@@ -456,7 +456,7 @@ class _AddNewItemSheetState extends State<AddNewItemSheet> {
                   selectedItem: itemSubCategory != null
                       ? _subCategories.firstWhere(
                         (category) => category["_id"] == itemSubCategory,
-                    orElse: () => _subCategories.first,
+                    orElse: () =>_subCategories!=[] ? _subCategories.first:Map(),
                   )
                       : null,
                   dropdownDecoratorProps: DropDownDecoratorProps(

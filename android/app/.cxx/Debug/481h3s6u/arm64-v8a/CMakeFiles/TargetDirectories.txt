@@ -1,0 +1,2 @@
+C:/Users/HP/IdeaProjects/swapifymobile/android/app/.cxx/Debug/481h3s6u/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/HP/IdeaProjects/swapifymobile/android/app/.cxx/Debug/481h3s6u/arm64-v8a/CMakeFiles/rebuild_cache.dir
