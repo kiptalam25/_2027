@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  "Countdown Timer",
+                  "2027 Election Countdown",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
